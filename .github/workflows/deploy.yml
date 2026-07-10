@@ -1,0 +1,194 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+      - dev
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on:
+      group: default
+      labels: linux
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - uses: oven-sh/setup-bun@v2
+      - name: Install uv
+        uses: astral-sh/setup-uv@v8.1.0
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+      - name: Install cargo-tarpaulin
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-tarpaulin
+      - name: Install dependencies
+        run: bun install
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Test
+        run: bun run test
+        env:
+          DB_SCHEMA: public
+          DB_URL: localhost
+          DB_PORT: ${{ job.services.postgres.ports['5432'] }}
+          DB_ID: postgres
+          DB_PW: postgres
+          DB_DB: postgres
+
+      - name: Build
+        run: bun run build
+      - uses: atos-actions/clean-self-hosted-runner@v1
+        if: ${{ always() }}
+
+  changepacks:
+    name: changepacks
+    runs-on: ubuntu-latest
+    permissions:
+      # create pull request comments
+      pull-requests: write
+
+      # Actions > General > Workflow permissions for creating pull request
+      # Create brench to create pull request
+      contents: write
+    needs:
+      - check
+    steps:
+      - uses: actions/checkout@v6
+      - uses: changepacks/action@main
+        id: changepacks
+      - uses: atos-actions/clean-self-hosted-runner@v1
+        if: ${{ always() }}
+    outputs:
+      changepacks: ${{ steps.changepacks.outputs.changepacks }}
+
+  deploy:
+    name: deploy
+    needs: [check, changepacks]
+    if: (needs.changepacks.result == 'success' && contains(needs.changepacks.outputs.changepacks, 'package.json')) || github.ref_name == 'dev' || github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+    runs-on: self-hosted
+    environment: ${{ (contains(needs.changepacks.outputs.changepacks, 'package.json') || github.event_name == 'workflow_dispatch') && 'PROD' || 'DEV' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Collect API environment variables
+        uses: dev-five-git/collect-env-action@main
+        with:
+          prefix: 'API_ENV_'
+          output: 'apis/api/.env'
+          remove-prefix: true
+          secrets: ${{ toJson(secrets) }}
+      - name: Overwrite .env
+        uses: dev-five-git/overwrite-env-file-action@main
+        if: ${{ !(contains(needs.changepacks.outputs.changepacks, 'package.json') || github.event_name == 'workflow_dispatch') }}
+      - name: Compress
+        run: |
+          docker build -f Dockerfile.build -t build:latest .
+          CONTAINER_ID=$(docker create build:latest)
+          docker cp $CONTAINER_ID:/app/front.tar.gz ./front.tar.gz
+          docker cp $CONTAINER_ID:/app/api.tar.gz ./api.tar.gz
+
+          tar -czf deploy.tar.gz api.tar.gz front.tar.gz docker-compose.yml Dockerfile.front Dockerfile.api nginx.conf apis/api/.env
+          # zip -r deploy.zip api.tar.gz front.tar.gz docker-compose.yml Dockerfile.front Dockerfile.api nginx.conf apis/api/.env
+      - name: upload
+        uses: actions/upload-artifact@v7
+        with:
+          name: deploy
+          path: deploy.tar.gz
+          retention-days: 1
+      - name: Set up Homebrew
+        uses: Homebrew/actions/setup-homebrew@main
+        if: runner.os == 'macOS'
+      - name: Install sshpass (macOS only)
+        if: runner.os == 'macOS'
+        run: |
+          brew install hudochenkov/sshpass/sshpass
+      - name: ssh
+        uses: appleboy/ssh-action@v1
+        env:
+          PORT: ${{ secrets.PORT }}
+          DOCKER_BUILDKIT: 1
+          COMPOSE_DOCKER_CLI_BUILD: 1
+        with:
+          command_timeout: 40m
+          host: ${{ secrets.SSH_HOSTNAME }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT }}
+          envs: PORT,DOCKER_BUILDKIT,COMPOSE_DOCKER_CLI_BUILD
+          script: |
+            DIR=~/"${{ github.repository }}"
+            mkdir -p "$DIR"
+            echo "${{ secrets.SSH_PASSWORD }}" | sudo -S chmod -R 777 "$DIR"
+            rm -rf "$DIR/deploy.tar.gz"
+      - name: Scp
+        run: |
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" scp -o StrictHostKeyChecking=no -P ${{ secrets.SSH_PORT }} deploy.tar.gz ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOSTNAME }}:~/${{ github.repository }}/deploy.tar.gz
+      - name: ssh
+        uses: appleboy/ssh-action@v1
+        env:
+          PORT: ${{ secrets.PORT }}
+          DOCKER_BUILDKIT: 1
+          COMPOSE_DOCKER_CLI_BUILD: 1
+        with:
+          command_timeout: 40m
+          host: ${{ secrets.SSH_HOSTNAME }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT }}
+          envs: PORT,DOCKER_BUILDKIT,COMPOSE_DOCKER_CLI_BUILD
+          script: |
+            set -e
+            docker buildx inspect devfivebuilder >/dev/null 2>&1 \
+              || docker buildx create --name devfivebuilder --use
+
+            docker buildx use devfivebuilder
+            docker buildx inspect --bootstrap
+
+            DIR=~/"${{ github.repository }}"
+            echo "${{ secrets.SSH_PASSWORD }}" | sudo -S chmod -R 777 "$DIR"
+
+            # build 진행해서 캐싱 시작, 기존 서버가 켜져있을 때 build 시작
+            cd "$DIR"
+
+            docker compose down --rmi all
+
+            tar -xzf "$DIR/deploy.tar.gz" -C "$DIR"
+            rm -f "$DIR/deploy.tar.gz"
+
+            cd "$DIR"
+            docker compose up -d --build
+
+            rm -f "$DIR/front.tar.gz"
+            rm -f "$DIR/api.tar.gz"
+      - uses: atos-actions/clean-self-hosted-runner@v1
+        if: ${{ always() }}
