@@ -1,0 +1,13 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "departments",
+  "description": "부서",
+  "columns": [
+    { "name": "department_id", "type": "big_int", "nullable": false, "primary_key": { "auto_increment": true }, "comment": "부서 고유번호" },
+    { "name": "department_code", "type": { "kind": "varchar", "length": 20 }, "nullable": false, "unique": true, "comment": "부서 코드" },
+    { "name": "name", "type": { "kind": "varchar", "length": 50 }, "nullable": false, "comment": "부서명" },
+    { "name": "description", "type": { "kind": "varchar", "length": 255 }, "nullable": true, "comment": "설명" },
+    { "name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시" },
+    { "name": "updated_at", "type": "timestamptz", "nullable": true, "comment": "수정일시" }
+  ]
+}

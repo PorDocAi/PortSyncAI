@@ -1,0 +1,13 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "job_roles",
+  "description": "직무",
+  "columns": [
+    { "name": "job_role_id", "type": "big_int", "nullable": false, "primary_key": { "auto_increment": true }, "comment": "직무 고유번호" },
+    { "name": "job_role_code", "type": { "kind": "varchar", "length": 20 }, "nullable": false, "unique": true, "comment": "직무 코드" },
+    { "name": "name", "type": { "kind": "varchar", "length": 50 }, "nullable": false, "comment": "직무명 (하역/검수/컨테이너점검 등)" },
+    { "name": "description", "type": { "kind": "varchar", "length": 255 }, "nullable": true, "comment": "설명" },
+    { "name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시" },
+    { "name": "updated_at", "type": "timestamptz", "nullable": true, "comment": "수정일시" }
+  ]
+}

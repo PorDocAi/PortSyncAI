@@ -1,0 +1,25 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "employees",
+  "description": "직원",
+  "columns": [
+    { "name": "employee_id", "type": "big_int", "nullable": false, "primary_key": { "auto_increment": true }, "comment": "직원 고유번호 (내부 식별자)" },
+    { "name": "employee_number", "type": { "kind": "varchar", "length": 20 }, "nullable": false, "unique": true, "comment": "회사 표준 사번" },
+    { "name": "name", "type": { "kind": "varchar", "length": 50 }, "nullable": false, "comment": "이름" },
+    { "name": "email", "type": { "kind": "varchar", "length": 100 }, "nullable": false, "unique": true, "comment": "사내 이메일" },
+    { "name": "password_hash", "type": { "kind": "varchar", "length": 255 }, "nullable": false, "comment": "bcrypt/argon2 해시" },
+    { "name": "phone_number", "type": { "kind": "varchar", "length": 20 }, "nullable": true, "comment": "전화번호" },
+    { "name": "department_id", "type": "big_int", "nullable": false, "foreign_key": "departments.department_id", "index": true, "comment": "부서 FK" },
+    { "name": "job_role_id", "type": "big_int", "nullable": false, "foreign_key": "job_roles.job_role_id", "index": true, "comment": "직무 FK" },
+    { "name": "position", "type": { "kind": "varchar", "length": 30 }, "nullable": true, "comment": "직급 (사원/대리/과장 등)" },
+    { "name": "system_role", "type": { "kind": "enum", "name": "system_role", "values": ["ADMIN", "SAFETY_MANAGER", "SUPERVISOR", "WORKER"] }, "nullable": false, "default": "'WORKER'", "comment": "시스템 권한" },
+    { "name": "preferred_language", "type": { "kind": "varchar", "length": 10 }, "nullable": false, "default": "'ko'", "comment": "모국어 코드 (번역/TTS 기준, FR-C1)" },
+    { "name": "nfc_card_uid", "type": { "kind": "char", "length": 32 }, "nullable": true, "unique": true, "comment": "사원증 NFC UID (게이트 태깅 식별자)" },
+    { "name": "nfc_card_issued_at", "type": "timestamptz", "nullable": true, "comment": "사원증 발급일" },
+    { "name": "hire_date", "type": "date", "nullable": false, "comment": "입사일" },
+    { "name": "status", "type": { "kind": "enum", "name": "employee_status", "values": ["ACTIVE", "ON_LEAVE", "SUSPENDED", "RESIGNED"] }, "nullable": false, "default": "'ACTIVE'", "comment": "상태" },
+    { "name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시" },
+    { "name": "updated_at", "type": "timestamptz", "nullable": true, "comment": "수정일시" },
+    { "name": "resigned_at", "type": "timestamptz", "nullable": true, "comment": "퇴사일시" }
+  ]
+}
