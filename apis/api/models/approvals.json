@@ -1,0 +1,14 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "approvals",
+  "description": "관리자 승인/반려 기록 (FR-E1/E2)",
+  "columns": [
+    { "name": "approval_id", "type": "big_int", "nullable": false, "primary_key": { "auto_increment": true }, "comment": "승인 고유번호" },
+    { "name": "attendance_id", "type": "big_int", "nullable": false, "foreign_key": "attendances.attendance_id", "index": true, "comment": "출근 FK" },
+    { "name": "approver_id", "type": "big_int", "nullable": false, "foreign_key": "employees.employee_id", "comment": "승인자 FK" },
+    { "name": "decision", "type": { "kind": "enum", "name": "approval_decision", "values": ["APPROVED", "REJECTED"] }, "nullable": false, "comment": "승인/반려" },
+    { "name": "reason", "type": "text", "nullable": true, "comment": "사유 (FR-E2)" },
+    { "name": "decided_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "결정 시각" },
+    { "name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시" }
+  ]
+}

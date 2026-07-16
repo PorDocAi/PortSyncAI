@@ -1,0 +1,16 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "work_restriction_rules",
+  "description": "투입 제한 규칙 (FR-F2, 설정 데이터 — 코드 수정 없이 교체, NFR 확장성)",
+  "columns": [
+    { "name": "rule_id", "type": "big_int", "nullable": false, "primary_key": { "auto_increment": true }, "comment": "규칙 고유번호" },
+    { "name": "condition_type", "type": { "kind": "enum", "name": "restriction_condition", "values": ["ASTHMA", "ALLERGY", "CLAUSTROPHOBIA", "HEIGHT_LIMIT", "WEIGHT_LIMIT", "OTHER"] }, "nullable": false, "comment": "제한 조건 유형" },
+    { "name": "condition_value", "type": { "kind": "varchar", "length": 100 }, "nullable": true, "comment": "조건 값 (예: 알레르겐 코드 RICE, 신장 임계값)" },
+    { "name": "restricted_dg_class_id", "type": "big_int", "nullable": true, "foreign_key": { "references": "dg_classes.dg_class_id", "on_delete": "cascade" }, "comment": "제한 대상 위험물 등급 FK" },
+    { "name": "restricted_work_type", "type": { "kind": "varchar", "length": 100 }, "nullable": true, "comment": "제한 대상 작업유형 (등급으로 안잡히는 작업, 예: 밀폐공간)" },
+    { "name": "description", "type": { "kind": "varchar", "length": 255 }, "nullable": true, "comment": "설명" },
+    { "name": "is_active", "type": "boolean", "nullable": false, "default": true, "comment": "활성 여부" },
+    { "name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시" },
+    { "name": "updated_at", "type": "timestamptz", "nullable": true, "comment": "수정일시" }
+  ]
+}
