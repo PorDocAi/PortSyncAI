@@ -1,0 +1,15 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "dg_classes",
+  "description": "위험물 등급 (IMDG Class) 마스터 (FR-B, 설정 데이터)",
+  "columns": [
+    { "name": "dg_class_id", "type": "big_int", "nullable": false, "primary_key": { "auto_increment": true }, "comment": "등급 고유번호" },
+    { "name": "class_code", "type": { "kind": "varchar", "length": 10 }, "nullable": false, "unique": true, "comment": "Class 코드 (예: 1, 2.1, 3, 9)" },
+    { "name": "name_ko", "type": { "kind": "varchar", "length": 100 }, "nullable": false, "comment": "등급 한글명 (화약류/가스류 등)" },
+    { "name": "name_en", "type": { "kind": "varchar", "length": 100 }, "nullable": true, "comment": "등급 영문명" },
+    { "name": "description", "type": "text", "nullable": true, "comment": "설명" },
+    { "name": "imdg_version", "type": { "kind": "varchar", "length": 20 }, "nullable": true, "comment": "적용 IMDG 개정 차수 (예: 42차)" },
+    { "name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시" },
+    { "name": "updated_at", "type": "timestamptz", "nullable": true, "comment": "수정일시" }
+  ]
+}

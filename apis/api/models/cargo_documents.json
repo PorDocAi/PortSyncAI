@@ -1,0 +1,13 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "cargo_documents",
+  "description": "화물 문서 원문 (B/L·DGD 업로드, FR-B)",
+  "columns": [
+    { "name": "cargo_document_id", "type": "big_int", "nullable": false, "primary_key": { "auto_increment": true }, "comment": "화물문서 고유번호" },
+    { "name": "document_type", "type": { "kind": "enum", "name": "cargo_document_type", "values": ["BL", "DGD"] }, "nullable": false, "comment": "문서 유형 (선하증권/위험물신고서)" },
+    { "name": "file_format", "type": { "kind": "enum", "name": "file_format", "values": ["HWP", "PDF", "XLSX", "DOCX", "IMAGE"] }, "nullable": false, "comment": "파일 형식" },
+    { "name": "file_url", "type": { "kind": "varchar", "length": 500 }, "nullable": false, "comment": "원본 파일 경로" },
+    { "name": "uploaded_by", "type": "big_int", "nullable": false, "foreign_key": "employees.employee_id", "comment": "업로더 FK" },
+    { "name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시" }
+  ]
+}

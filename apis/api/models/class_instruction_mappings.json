@@ -1,0 +1,11 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "class_instruction_mappings",
+  "description": "위험물 등급 ↔ 안전지침 매핑 (FR-B4, 화물유형별 지침 자동 전송)",
+  "columns": [
+    { "name": "mapping_id", "type": "big_int", "nullable": false, "primary_key": { "auto_increment": true }, "comment": "매핑 고유번호" },
+    { "name": "dg_class_id", "type": "big_int", "nullable": false, "foreign_key": { "references": "dg_classes.dg_class_id", "on_delete": "cascade" }, "unique": "uq_class_instruction", "comment": "위험물 등급 FK" },
+    { "name": "instruction_id", "type": "big_int", "nullable": false, "foreign_key": { "references": "safety_instructions.instruction_id", "on_delete": "cascade" }, "unique": "uq_class_instruction", "comment": "안전지침 FK" },
+    { "name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시" }
+  ]
+}

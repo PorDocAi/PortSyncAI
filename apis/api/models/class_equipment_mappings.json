@@ -1,0 +1,14 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "class_equipment_mappings",
+  "description": "위험물 등급 ↔ 필수/권장 안전장비 매핑 (FR-B5, D1, 설정 데이터)",
+  "columns": [
+    { "name": "mapping_id", "type": "big_int", "nullable": false, "primary_key": { "auto_increment": true }, "comment": "매핑 고유번호" },
+    { "name": "dg_class_id", "type": "big_int", "nullable": false, "foreign_key": { "references": "dg_classes.dg_class_id", "on_delete": "cascade" }, "unique": "uq_class_equipment", "comment": "위험물 등급 FK" },
+    { "name": "equipment_type_id", "type": "big_int", "nullable": false, "foreign_key": { "references": "equipment_types.equipment_type_id", "on_delete": "cascade" }, "unique": "uq_class_equipment", "comment": "장비 종류 FK" },
+    { "name": "requirement_level", "type": { "kind": "enum", "name": "requirement_level", "values": ["REQUIRED", "RECOMMENDED"] }, "nullable": false, "default": "'REQUIRED'", "comment": "필수/권장 구분" },
+    { "name": "imdg_version", "type": { "kind": "varchar", "length": 20 }, "nullable": true, "comment": "적용 IMDG 차수" },
+    { "name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시" },
+    { "name": "updated_at", "type": "timestamptz", "nullable": true, "comment": "수정일시" }
+  ]
+}

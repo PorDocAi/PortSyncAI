@@ -1,0 +1,14 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "hs_codes",
+  "description": "HS Code 마스터 (FR-B2/B3, 위험물 의심 판정)",
+  "columns": [
+    { "name": "hs_code_id", "type": "big_int", "nullable": false, "primary_key": { "auto_increment": true }, "comment": "HS Code 고유번호" },
+    { "name": "hs_code", "type": { "kind": "varchar", "length": 20 }, "nullable": false, "unique": true, "comment": "HS Code" },
+    { "name": "description", "type": { "kind": "varchar", "length": 255 }, "nullable": true, "comment": "품목 설명" },
+    { "name": "is_dangerous_suspect", "type": "boolean", "nullable": false, "default": false, "comment": "위험물 의심 여부 (DGD 누락 검증용, FR-B3)" },
+    { "name": "default_dg_class_id", "type": "big_int", "nullable": true, "foreign_key": { "references": "dg_classes.dg_class_id", "on_delete": "set_null" }, "comment": "기본 매핑 등급 FK" },
+    { "name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시" },
+    { "name": "updated_at", "type": "timestamptz", "nullable": true, "comment": "수정일시" }
+  ]
+}

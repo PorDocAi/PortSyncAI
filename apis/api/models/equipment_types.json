@@ -1,0 +1,13 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "equipment_types",
+  "description": "안전장비 종류 마스터 (FR-D1)",
+  "columns": [
+    { "name": "equipment_type_id", "type": "big_int", "nullable": false, "primary_key": { "auto_increment": true }, "comment": "장비 종류 고유번호" },
+    { "name": "name", "type": { "kind": "varchar", "length": 100 }, "nullable": false, "comment": "장비명 (방폭형 안전화/내화학 장갑 등)" },
+    { "name": "category", "type": { "kind": "varchar", "length": 50 }, "nullable": true, "comment": "분류 (안전화/장갑/호흡보호구 등)" },
+    { "name": "description", "type": { "kind": "varchar", "length": 255 }, "nullable": true, "comment": "설명" },
+    { "name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시" },
+    { "name": "updated_at", "type": "timestamptz", "nullable": true, "comment": "수정일시" }
+  ]
+}
