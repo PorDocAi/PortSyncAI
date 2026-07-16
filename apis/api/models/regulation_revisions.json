@@ -1,0 +1,14 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "regulation_revisions",
+  "description": "신구조문대비표 개정 내역 (FR-A3, diff)",
+  "columns": [
+    { "name": "revision_id", "type": "big_int", "nullable": false, "primary_key": { "auto_increment": true }, "comment": "개정내역 고유번호" },
+    { "name": "document_id", "type": "big_int", "nullable": false, "foreign_key": { "references": "regulation_documents.document_id", "on_delete": "cascade" }, "index": true, "comment": "출처 문서 FK" },
+    { "name": "clause_no", "type": { "kind": "varchar", "length": 50 }, "nullable": true, "comment": "조문 번호" },
+    { "name": "change_type", "type": { "kind": "enum", "name": "change_type", "values": ["ADDED", "MODIFIED", "DELETED"] }, "nullable": false, "comment": "변경 유형" },
+    { "name": "old_text", "type": "text", "nullable": true, "comment": "구조문" },
+    { "name": "new_text", "type": "text", "nullable": true, "comment": "신조문" },
+    { "name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시" }
+  ]
+}
