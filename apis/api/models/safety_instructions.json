@@ -1,0 +1,18 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "safety_instructions",
+  "description": "안전지침 (문서에서 추출·요약, FR-A2/A4)",
+  "columns": [
+    { "name": "instruction_id", "type": "big_int", "nullable": false, "primary_key": { "auto_increment": true }, "comment": "안전지침 고유번호" },
+    { "name": "document_id", "type": "big_int", "nullable": true, "foreign_key": { "references": "regulation_documents.document_id", "on_delete": "set_null" }, "comment": "출처 문서 FK (화물기반 지침은 null 가능)" },
+    { "name": "title", "type": { "kind": "varchar", "length": 255 }, "nullable": false, "comment": "지침 제목" },
+    { "name": "summary", "type": "text", "nullable": false, "comment": "요약 구조화 텍스트" },
+    { "name": "penalty_clause", "type": "text", "nullable": true, "comment": "위반 시 과태료 조항 (FR-A2)" },
+    { "name": "source_law", "type": { "kind": "enum", "name": "source_law", "values": ["OSH_ACT", "PORT_SAFETY_ACT", "KOSHA_GUIDE", "IMDG", "OTHER"] }, "nullable": false, "comment": "근거 법령" },
+    { "name": "version", "type": "integer", "nullable": false, "default": 1, "comment": "지침 버전 (인지 로그에 기록, FR-G1)" },
+    { "name": "effective_date", "type": "date", "nullable": true, "comment": "시행일" },
+    { "name": "is_active", "type": "boolean", "nullable": false, "default": true, "comment": "현행 여부" },
+    { "name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시" },
+    { "name": "updated_at", "type": "timestamptz", "nullable": true, "comment": "수정일시" }
+  ]
+}

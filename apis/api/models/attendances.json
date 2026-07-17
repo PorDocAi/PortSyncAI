@@ -1,0 +1,17 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "attendances",
+  "description": "출근/게이트 통과 상태 (FR-C4, D5 — 인지·장비·승인 집계)",
+  "columns": [
+    { "name": "attendance_id", "type": "big_int", "nullable": false, "primary_key": { "auto_increment": true }, "comment": "출근 고유번호" },
+    { "name": "employee_id", "type": "big_int", "nullable": false, "foreign_key": { "references": "employees.employee_id", "on_delete": "cascade" }, "unique": "uq_employee_workdate", "comment": "직원 FK" },
+    { "name": "work_date", "type": "date", "nullable": false, "unique": "uq_employee_workdate", "index": true, "comment": "작업 일자" },
+    { "name": "instruction_ack_completed", "type": "boolean", "nullable": false, "default": false, "comment": "안전지침 확인 완료 (FR-C4)" },
+    { "name": "equipment_check_completed", "type": "boolean", "nullable": false, "default": false, "comment": "필수 장비 착용 완료 (FR-D3)" },
+    { "name": "approval_status", "type": { "kind": "enum", "name": "approval_status", "values": ["NOT_REQUIRED", "PENDING", "APPROVED", "REJECTED"] }, "nullable": false, "default": "'NOT_REQUIRED'", "comment": "관리자 승인 상태" },
+    { "name": "gate_status", "type": { "kind": "enum", "name": "gate_status", "values": ["BLOCKED", "READY", "PASSED"] }, "nullable": false, "default": "'BLOCKED'", "comment": "게이트 통과 상태" },
+    { "name": "gate_passed_at", "type": "timestamptz", "nullable": true, "comment": "사원증 태깅 통과 시각 (FR-D5)" },
+    { "name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시" },
+    { "name": "updated_at", "type": "timestamptz", "nullable": true, "comment": "수정일시" }
+  ]
+}

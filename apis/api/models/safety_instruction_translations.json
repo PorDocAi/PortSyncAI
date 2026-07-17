@@ -1,0 +1,16 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "safety_instruction_translations",
+  "description": "안전지침 다국어/TTS/점자 변환 (FR-A4, C1, NFR 접근성)",
+  "columns": [
+    { "name": "translation_id", "type": "big_int", "nullable": false, "primary_key": { "auto_increment": true }, "comment": "번역 고유번호" },
+    { "name": "instruction_id", "type": "big_int", "nullable": false, "foreign_key": { "references": "safety_instructions.instruction_id", "on_delete": "cascade" }, "unique": "uq_instruction_language", "comment": "안전지침 FK" },
+    { "name": "language_code", "type": { "kind": "varchar", "length": 10 }, "nullable": false, "unique": "uq_instruction_language", "comment": "언어 코드 (ko/en/vi/zh 등)" },
+    { "name": "translated_title", "type": { "kind": "varchar", "length": 255 }, "nullable": false, "comment": "번역 제목" },
+    { "name": "translated_body", "type": "text", "nullable": false, "comment": "번역 본문" },
+    { "name": "tts_audio_url", "type": { "kind": "varchar", "length": 500 }, "nullable": true, "comment": "TTS 음성 파일 경로" },
+    { "name": "braille_data_url", "type": { "kind": "varchar", "length": 500 }, "nullable": true, "comment": "점자 변환 데이터 경로" },
+    { "name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시" },
+    { "name": "updated_at", "type": "timestamptz", "nullable": true, "comment": "수정일시" }
+  ]
+}

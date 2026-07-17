@@ -1,0 +1,14 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "un_numbers",
+  "description": "UN 번호 마스터 (FR-B1, UN No → Class 확정)",
+  "columns": [
+    { "name": "un_number_id", "type": "big_int", "nullable": false, "primary_key": { "auto_increment": true }, "comment": "UN번호 고유번호" },
+    { "name": "un_number", "type": { "kind": "char", "length": 4 }, "nullable": false, "unique": true, "comment": "UN No. (4자리)" },
+    { "name": "dg_class_id", "type": "big_int", "nullable": false, "foreign_key": "dg_classes.dg_class_id", "index": true, "comment": "위험물 등급 FK" },
+    { "name": "proper_shipping_name", "type": { "kind": "varchar", "length": 255 }, "nullable": true, "comment": "정식 운송품명" },
+    { "name": "packing_group", "type": { "kind": "varchar", "length": 5 }, "nullable": true, "comment": "포장등급 (I/II/III)" },
+    { "name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시" },
+    { "name": "updated_at", "type": "timestamptz", "nullable": true, "comment": "수정일시" }
+  ]
+}

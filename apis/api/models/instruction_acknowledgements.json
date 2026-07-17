@@ -1,0 +1,16 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "instruction_acknowledgements",
+  "description": "안전수칙 인지 로그 (FR-C2/C3, append-only — 수정 불가, NFR 무결성)",
+  "columns": [
+    { "name": "acknowledgement_id", "type": "big_int", "nullable": false, "primary_key": { "auto_increment": true }, "comment": "인지 로그 고유번호" },
+    { "name": "attendance_id", "type": "big_int", "nullable": false, "foreign_key": "attendances.attendance_id", "index": true, "comment": "출근 FK" },
+    { "name": "employee_id", "type": "big_int", "nullable": false, "foreign_key": "employees.employee_id", "index": true, "comment": "직원 FK" },
+    { "name": "instruction_id", "type": "big_int", "nullable": false, "foreign_key": "safety_instructions.instruction_id", "comment": "안전지침 FK" },
+    { "name": "instruction_version", "type": "integer", "nullable": false, "comment": "확인 당시 지침 버전 (FR-G1)" },
+    { "name": "language_code", "type": { "kind": "varchar", "length": 10 }, "nullable": false, "comment": "표시된 언어" },
+    { "name": "scrolled_to_end", "type": "boolean", "nullable": false, "default": false, "comment": "최하단 스크롤 완료 여부 (FR-C2)" },
+    { "name": "acknowledged_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "확인 시각 (FR-C3)" },
+    { "name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시" }
+  ]
+}

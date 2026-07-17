@@ -1,0 +1,15 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "equipment",
+  "description": "개별 안전장비 (NFC 태그 단위, FR-D2)",
+  "columns": [
+    { "name": "equipment_id", "type": "big_int", "nullable": false, "primary_key": { "auto_increment": true }, "comment": "장비 고유번호" },
+    { "name": "equipment_type_id", "type": "big_int", "nullable": false, "foreign_key": "equipment_types.equipment_type_id", "index": true, "comment": "장비 종류 FK" },
+    { "name": "asset_number", "type": { "kind": "varchar", "length": 50 }, "nullable": true, "unique": true, "comment": "자산 관리번호" },
+    { "name": "nfc_tag_uid", "type": { "kind": "char", "length": 32 }, "nullable": false, "unique": true, "comment": "NFC 태그 UID (FR-D2)" },
+    { "name": "braille_label", "type": { "kind": "varchar", "length": 100 }, "nullable": true, "comment": "점자 스티커 병기 내용 (FR-D2)" },
+    { "name": "is_active", "type": "boolean", "nullable": false, "default": true, "comment": "사용 가능 여부" },
+    { "name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시" },
+    { "name": "updated_at", "type": "timestamptz", "nullable": true, "comment": "수정일시" }
+  ]
+}

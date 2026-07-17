@@ -1,0 +1,20 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "regulation_documents",
+  "description": "법령·공문 원문 업로드 (FR-A1)",
+  "columns": [
+    { "name": "document_id", "type": "big_int", "nullable": false, "primary_key": { "auto_increment": true }, "comment": "문서 고유번호" },
+    { "name": "title", "type": { "kind": "varchar", "length": 255 }, "nullable": false, "comment": "문서 제목" },
+    { "name": "issuing_authority", "type": { "kind": "varchar", "length": 100 }, "nullable": true, "comment": "배포 기관 (관세청/해수부 등)" },
+    { "name": "source_law", "type": { "kind": "enum", "name": "source_law", "values": ["OSH_ACT", "PORT_SAFETY_ACT", "KOSHA_GUIDE", "IMDG", "OTHER"] }, "nullable": false, "comment": "근거 법령 (산안법/항만안전특별법/KOSHA/IMDG)" },
+    { "name": "file_format", "type": { "kind": "enum", "name": "file_format", "values": ["HWP", "PDF", "XLSX", "DOCX", "IMAGE"] }, "nullable": false, "comment": "파일 형식" },
+    { "name": "file_url", "type": { "kind": "varchar", "length": 500 }, "nullable": false, "comment": "원본 파일 경로" },
+    { "name": "file_hash", "type": { "kind": "char", "length": 64 }, "nullable": true, "comment": "파일 해시 (무결성)" },
+    { "name": "is_amendment", "type": "boolean", "nullable": false, "default": false, "comment": "일부개정 공문 여부 (FR-A3)" },
+    { "name": "effective_date", "type": "date", "nullable": true, "comment": "시행일" },
+    { "name": "processing_status", "type": { "kind": "enum", "name": "processing_status", "values": ["PENDING", "PROCESSING", "COMPLETED", "FAILED"] }, "nullable": false, "default": "'PENDING'", "comment": "분석 처리 상태" },
+    { "name": "uploaded_by", "type": "big_int", "nullable": false, "foreign_key": "employees.employee_id", "comment": "업로더 FK" },
+    { "name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시" },
+    { "name": "updated_at", "type": "timestamptz", "nullable": true, "comment": "수정일시" }
+  ]
+}

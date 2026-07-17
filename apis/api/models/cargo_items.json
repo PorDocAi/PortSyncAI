@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "cargo_items",
+  "description": "입고 화물 (B/L·DGD에서 추출·확정, FR-B1~B4)",
+  "columns": [
+    { "name": "cargo_item_id", "type": "big_int", "nullable": false, "primary_key": { "auto_increment": true }, "comment": "화물 고유번호" },
+    { "name": "cargo_document_id", "type": "big_int", "nullable": true, "foreign_key": { "references": "cargo_documents.cargo_document_id", "on_delete": "set_null" }, "comment": "출처 화물문서 FK" },
+    { "name": "bl_number", "type": { "kind": "varchar", "length": 50 }, "nullable": true, "comment": "선하증권 번호" },
+    { "name": "dgd_number", "type": { "kind": "varchar", "length": 50 }, "nullable": true, "comment": "위험물신고서 번호 (부재 시 null)" },
+    { "name": "un_number", "type": { "kind": "char", "length": 4 }, "nullable": true, "comment": "추출된 UN No." },
+    { "name": "dg_class_id", "type": "big_int", "nullable": true, "foreign_key": { "references": "dg_classes.dg_class_id", "on_delete": "set_null" }, "index": true, "comment": "확정된 위험물 등급 FK" },
+    { "name": "hs_code", "type": { "kind": "varchar", "length": 20 }, "nullable": true, "comment": "B/L HS Code" },
+    { "name": "item_name", "type": { "kind": "varchar", "length": 255 }, "nullable": true, "comment": "품목명 (B/L 16번 Description)" },
+    { "name": "description", "type": "text", "nullable": true, "comment": "화물 상세" },
+    { "name": "is_dangerous", "type": "boolean", "nullable": false, "default": false, "comment": "위험물 여부" },
+    { "name": "dgd_missing_warning", "type": "boolean", "nullable": false, "default": false, "comment": "DGD 누락 경고 (FR-B3)" },
+    { "name": "arrival_date", "type": "date", "nullable": true, "index": true, "comment": "입고 예정일 (FR-C1 당일 매칭)" },
+    { "name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시" },
+    { "name": "updated_at", "type": "timestamptz", "nullable": true, "comment": "수정일시" }
+  ]
+}

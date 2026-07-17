@@ -1,0 +1,72 @@
+{
+  "_comment": "마스터/시드 데이터. dg_classes·equipment_types의 id는 class_equipment_mappings에서 참조하는 고정 키입니다. 장비 매핑은 IMDG 등급 기준의 예시 기본값이며, 실제 적용 전 안전관리자 검증이 필요합니다.",
+  "_imdg_version": "42차 (Amdt 42-24, 2026.01 강제적용)",
+
+  "dg_classes": [
+    { "dg_class_id": 1, "class_code": "1", "name_ko": "화약류", "name_en": "Explosives", "description": "폭발성 물질·화공품. 세부 등급 1.1~1.6", "imdg_version": "42차" },
+    { "dg_class_id": 2, "class_code": "2", "name_ko": "가스류", "name_en": "Gases", "description": "2.1 인화성가스 / 2.2 비인화성·비독성가스 / 2.3 독성가스", "imdg_version": "42차" },
+    { "dg_class_id": 3, "class_code": "3", "name_ko": "인화성 액체", "name_en": "Flammable Liquids", "description": "인화점이 낮은 액체 (휘발유·시너 등)", "imdg_version": "42차" },
+    { "dg_class_id": 4, "class_code": "4", "name_ko": "가연성 고체", "name_en": "Flammable Solids", "description": "4.1 가연성고체 / 4.2 자연발화성물질 / 4.3 물반응성물질", "imdg_version": "42차" },
+    { "dg_class_id": 5, "class_code": "5", "name_ko": "산화성 물질", "name_en": "Oxidizing Substances", "description": "5.1 산화성물질 / 5.2 유기과산화물", "imdg_version": "42차" },
+    { "dg_class_id": 6, "class_code": "6", "name_ko": "독물 및 전염성 물질", "name_en": "Toxic and Infectious Substances", "description": "6.1 독물 / 6.2 전염성물질", "imdg_version": "42차" },
+    { "dg_class_id": 7, "class_code": "7", "name_ko": "방사성 물질", "name_en": "Radioactive Material", "description": "방사능을 방출하는 물질", "imdg_version": "42차" },
+    { "dg_class_id": 8, "class_code": "8", "name_ko": "부식성 물질", "name_en": "Corrosive Substances", "description": "금속·피부를 부식시키는 물질 (산·알칼리)", "imdg_version": "42차" },
+    { "dg_class_id": 9, "class_code": "9", "name_ko": "기타 위험물", "name_en": "Miscellaneous Dangerous Substances", "description": "기타 유해물질. 42차 신규: 나트륨이온전지 추가 반영", "imdg_version": "42차" }
+  ],
+
+  "equipment_types": [
+    { "equipment_type_id": 1, "name": "방폭형 안전화", "category": "안전화", "description": "정전기·스파크 방지 안전화" },
+    { "equipment_type_id": 2, "name": "정전기 방지 작업복", "category": "보호복", "description": "정전기 축적 방지 작업복" },
+    { "equipment_type_id": 3, "name": "내화학 장갑", "category": "장갑", "description": "화학물질 투과 저항 장갑" },
+    { "equipment_type_id": 4, "name": "방독면", "category": "호흡보호구", "description": "유독가스·증기 차단 호흡보호구" },
+    { "equipment_type_id": 5, "name": "방진마스크", "category": "호흡보호구", "description": "분진·미립자 차단 마스크" },
+    { "equipment_type_id": 6, "name": "안전모", "category": "머리보호구", "description": "낙하물·충격 방지 헬멧" },
+    { "equipment_type_id": 7, "name": "보안경", "category": "눈보호구", "description": "비산물·화학물질 눈 보호" },
+    { "equipment_type_id": 8, "name": "안면보호구", "category": "얼굴보호구", "description": "얼굴 전체 비산·화학 보호" },
+    { "equipment_type_id": 9, "name": "화학보호복", "category": "보호복", "description": "전신 화학물질 차단복" },
+    { "equipment_type_id": 10, "name": "절연장갑", "category": "장갑", "description": "감전 방지 절연 장갑" },
+    { "equipment_type_id": 11, "name": "가스검지기", "category": "측정장비", "description": "휴대용 가스 농도 검지기" },
+    { "equipment_type_id": 12, "name": "방폭공구", "category": "공구", "description": "스파크 미발생 비철금속 공구" }
+  ],
+
+  "class_equipment_mappings": [
+    { "dg_class_id": 1, "equipment_type_id": 6,  "requirement_level": "REQUIRED",    "imdg_version": "42차" },
+    { "dg_class_id": 1, "equipment_type_id": 2,  "requirement_level": "REQUIRED",    "imdg_version": "42차" },
+    { "dg_class_id": 1, "equipment_type_id": 1,  "requirement_level": "REQUIRED",    "imdg_version": "42차" },
+    { "dg_class_id": 1, "equipment_type_id": 12, "requirement_level": "REQUIRED",    "imdg_version": "42차" },
+
+    { "dg_class_id": 2, "equipment_type_id": 6,  "requirement_level": "REQUIRED",    "imdg_version": "42차" },
+    { "dg_class_id": 2, "equipment_type_id": 4,  "requirement_level": "REQUIRED",    "imdg_version": "42차" },
+    { "dg_class_id": 2, "equipment_type_id": 11, "requirement_level": "REQUIRED",    "imdg_version": "42차" },
+    { "dg_class_id": 2, "equipment_type_id": 7,  "requirement_level": "RECOMMENDED", "imdg_version": "42차" },
+
+    { "dg_class_id": 3, "equipment_type_id": 1,  "requirement_level": "REQUIRED",    "imdg_version": "42차" },
+    { "dg_class_id": 3, "equipment_type_id": 2,  "requirement_level": "REQUIRED",    "imdg_version": "42차" },
+    { "dg_class_id": 3, "equipment_type_id": 3,  "requirement_level": "REQUIRED",    "imdg_version": "42차" },
+    { "dg_class_id": 3, "equipment_type_id": 4,  "requirement_level": "RECOMMENDED", "imdg_version": "42차" },
+
+    { "dg_class_id": 4, "equipment_type_id": 6,  "requirement_level": "REQUIRED",    "imdg_version": "42차" },
+    { "dg_class_id": 4, "equipment_type_id": 3,  "requirement_level": "REQUIRED",    "imdg_version": "42차" },
+    { "dg_class_id": 4, "equipment_type_id": 7,  "requirement_level": "RECOMMENDED", "imdg_version": "42차" },
+
+    { "dg_class_id": 5, "equipment_type_id": 3,  "requirement_level": "REQUIRED",    "imdg_version": "42차" },
+    { "dg_class_id": 5, "equipment_type_id": 7,  "requirement_level": "REQUIRED",    "imdg_version": "42차" },
+    { "dg_class_id": 5, "equipment_type_id": 9,  "requirement_level": "RECOMMENDED", "imdg_version": "42차" },
+
+    { "dg_class_id": 6, "equipment_type_id": 4,  "requirement_level": "REQUIRED",    "imdg_version": "42차" },
+    { "dg_class_id": 6, "equipment_type_id": 9,  "requirement_level": "REQUIRED",    "imdg_version": "42차" },
+    { "dg_class_id": 6, "equipment_type_id": 3,  "requirement_level": "REQUIRED",    "imdg_version": "42차" },
+    { "dg_class_id": 6, "equipment_type_id": 7,  "requirement_level": "RECOMMENDED", "imdg_version": "42차" },
+
+    { "dg_class_id": 7, "equipment_type_id": 9,  "requirement_level": "REQUIRED",    "imdg_version": "42차" },
+    { "dg_class_id": 7, "equipment_type_id": 6,  "requirement_level": "REQUIRED",    "imdg_version": "42차" },
+
+    { "dg_class_id": 8, "equipment_type_id": 3,  "requirement_level": "REQUIRED",    "imdg_version": "42차" },
+    { "dg_class_id": 8, "equipment_type_id": 9,  "requirement_level": "REQUIRED",    "imdg_version": "42차" },
+    { "dg_class_id": 8, "equipment_type_id": 8,  "requirement_level": "REQUIRED",    "imdg_version": "42차" },
+    { "dg_class_id": 8, "equipment_type_id": 7,  "requirement_level": "RECOMMENDED", "imdg_version": "42차" },
+
+    { "dg_class_id": 9, "equipment_type_id": 6,  "requirement_level": "REQUIRED",    "imdg_version": "42차" },
+    { "dg_class_id": 9, "equipment_type_id": 7,  "requirement_level": "RECOMMENDED", "imdg_version": "42차" }
+  ]
+}
