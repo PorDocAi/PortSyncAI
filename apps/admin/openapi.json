@@ -10,6 +10,162 @@
     }
   ],
   "paths": {
+    "/auth/signin": {
+      "post": {
+        "operationId": "signin",
+        "tags": [
+          "auth"
+        ],
+        "description": "로그인: 이메일+비밀번호 검증 후 JWT 발급",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignInRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignInResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/employees": {
+      "get": {
+        "operationId": "list_employees",
+        "tags": [
+          "employees"
+        ],
+        "description": "직원 목록 조회",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EmployeeResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "create_employee",
+        "tags": [
+          "employees"
+        ],
+        "description": "직원 등록 (비밀번호는 argon2 해시 저장)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEmployeeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmployeeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/employees/{id}": {
+      "get": {
+        "operationId": "get_employee",
+        "tags": [
+          "employees"
+        ],
+        "description": "직원 단건 조회",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmployeeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/health": {
       "get": {
         "operationId": "health",
@@ -33,5 +189,2168 @@
       }
     }
   },
-  "components": {}
+  "components": {
+    "schemas": {
+      "ApprovalDecision": {
+        "type": "string",
+        "enum": [
+          "APPROVED",
+          "REJECTED"
+        ]
+      },
+      "ApprovalStatus": {
+        "type": "string",
+        "enum": [
+          "NOT_REQUIRED",
+          "PENDING",
+          "APPROVED",
+          "REJECTED"
+        ]
+      },
+      "ApprovalsSchema": {
+        "type": "object",
+        "description": "관리자 승인/반려 기록 (FR-E1/E2)",
+        "properties": {
+          "approvalId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "승인 고유번호",
+            "default": 0
+          },
+          "approver": {
+            "$ref": "#/components/schemas/EmployeesSchema"
+          },
+          "approverId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "승인자 FK"
+          },
+          "attendance": {
+            "$ref": "#/components/schemas/AttendancesSchema"
+          },
+          "attendanceId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "출근 FK"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "decidedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "결정 시각",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "decision": {
+            "description": "승인/반려",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ApprovalDecision"
+              }
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "description": "사유 (FR-E2)",
+            "nullable": true
+          }
+        },
+        "required": [
+          "approvalId",
+          "attendanceId",
+          "approverId",
+          "decision",
+          "decidedAt",
+          "createdAt",
+          "attendance",
+          "approver"
+        ]
+      },
+      "AttendancesSchema": {
+        "type": "object",
+        "description": "출근/게이트 통과 상태 (FR-C4, D5 — 인지·장비·승인 집계)",
+        "properties": {
+          "approvalStatus": {
+            "description": "관리자 승인 상태",
+            "default": "NOT_REQUIRED",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ApprovalStatus"
+              }
+            ]
+          },
+          "attendanceId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "출근 고유번호",
+            "default": 0
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "employee": {
+            "$ref": "#/components/schemas/EmployeesSchema"
+          },
+          "employeeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "직원 FK"
+          },
+          "equipmentCheckCompleted": {
+            "type": "boolean",
+            "description": "필수 장비 착용 완료 (FR-D3)",
+            "default": false
+          },
+          "gatePassedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "사원증 태깅 통과 시각 (FR-D5)",
+            "nullable": true
+          },
+          "gateStatus": {
+            "description": "게이트 통과 상태",
+            "default": "BLOCKED",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GateStatus"
+              }
+            ]
+          },
+          "instructionAckCompleted": {
+            "type": "boolean",
+            "description": "안전지침 확인 완료 (FR-C4)",
+            "default": false
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          },
+          "workDate": {
+            "type": "string",
+            "format": "date",
+            "description": "작업 일자"
+          }
+        },
+        "required": [
+          "attendanceId",
+          "employeeId",
+          "workDate",
+          "instructionAckCompleted",
+          "equipmentCheckCompleted",
+          "approvalStatus",
+          "gateStatus",
+          "createdAt",
+          "employee"
+        ]
+      },
+      "AuditLogsSchema": {
+        "type": "object",
+        "description": "감사 로그 (FR-G1, append-only — 누가/언제/무엇을/어떤 버전, NFR 무결성)",
+        "properties": {
+          "actor": {
+            "$ref": "#/components/schemas/EmployeesSchema",
+            "nullable": true
+          },
+          "actorEmployeeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "행위자 FK (시스템 이벤트는 null)",
+            "nullable": true
+          },
+          "auditLogId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "감사 로그 고유번호",
+            "default": 0
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "발생 시각",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "detail": {
+            "type": "object",
+            "description": "상세 이벤트 데이터",
+            "nullable": true
+          },
+          "eventType": {
+            "type": "string",
+            "description": "이벤트 유형 (INSTRUCTION_ACK/EQUIPMENT_CHECK/APPROVAL/GATE_PASS 등)"
+          },
+          "instructionVersion": {
+            "type": "integer",
+            "format": "int32",
+            "description": "관련 지침 버전 (FR-G1)",
+            "nullable": true
+          },
+          "targetId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "대상 레코드 PK",
+            "nullable": true
+          },
+          "targetType": {
+            "type": "string",
+            "description": "대상 엔티티명",
+            "nullable": true
+          }
+        },
+        "required": [
+          "auditLogId",
+          "eventType",
+          "createdAt"
+        ]
+      },
+      "CargoDocumentType": {
+        "type": "string",
+        "enum": [
+          "BL",
+          "DGD"
+        ]
+      },
+      "CargoDocumentsSchema": {
+        "type": "object",
+        "description": "화물 문서 원문 (B/L·DGD 업로드, FR-B)",
+        "properties": {
+          "cargoDocumentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "화물문서 고유번호",
+            "default": 0
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "documentType": {
+            "description": "문서 유형 (선하증권/위험물신고서)",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CargoDocumentType"
+              }
+            ]
+          },
+          "fileFormat": {
+            "description": "파일 형식",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/FileFormat"
+              }
+            ]
+          },
+          "fileUrl": {
+            "type": "string",
+            "description": "원본 파일 경로"
+          },
+          "uploadedBy": {
+            "$ref": "#/components/schemas/EmployeesSchema"
+          },
+          "uploadedById": {
+            "type": "integer",
+            "format": "int64",
+            "description": "업로더 FK"
+          }
+        },
+        "required": [
+          "cargoDocumentId",
+          "documentType",
+          "fileFormat",
+          "fileUrl",
+          "uploadedById",
+          "createdAt",
+          "uploadedBy"
+        ]
+      },
+      "CargoItemsSchema": {
+        "type": "object",
+        "description": "입고 화물 (B/L·DGD에서 추출·확정, FR-B1~B4)",
+        "properties": {
+          "arrivalDate": {
+            "type": "string",
+            "format": "date",
+            "description": "입고 예정일 (FR-C1 당일 매칭)",
+            "nullable": true
+          },
+          "blNumber": {
+            "type": "string",
+            "description": "선하증권 번호",
+            "nullable": true
+          },
+          "cargoDocument": {
+            "type": "object",
+            "nullable": true
+          },
+          "cargoDocumentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "출처 화물문서 FK",
+            "nullable": true
+          },
+          "cargoItemId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "화물 고유번호",
+            "default": 0
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "description": {
+            "type": "string",
+            "description": "화물 상세",
+            "nullable": true
+          },
+          "dgClass": {
+            "type": "object",
+            "nullable": true
+          },
+          "dgClassId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "확정된 위험물 등급 FK",
+            "nullable": true
+          },
+          "dgdMissingWarning": {
+            "type": "boolean",
+            "description": "DGD 누락 경고 (FR-B3)",
+            "default": false
+          },
+          "dgdNumber": {
+            "type": "string",
+            "description": "위험물신고서 번호 (부재 시 null)",
+            "nullable": true
+          },
+          "hsCode": {
+            "type": "string",
+            "description": "B/L HS Code",
+            "nullable": true
+          },
+          "isDangerous": {
+            "type": "boolean",
+            "description": "위험물 여부",
+            "default": false
+          },
+          "itemName": {
+            "type": "string",
+            "description": "품목명 (B/L 16번 Description)",
+            "nullable": true
+          },
+          "unNumber": {
+            "type": "string",
+            "description": "추출된 UN No.",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          }
+        },
+        "required": [
+          "cargoItemId",
+          "isDangerous",
+          "dgdMissingWarning",
+          "createdAt"
+        ]
+      },
+      "ChangeType": {
+        "type": "string",
+        "enum": [
+          "ADDED",
+          "MODIFIED",
+          "DELETED"
+        ]
+      },
+      "ClassEquipmentMappingsSchema": {
+        "type": "object",
+        "description": "위험물 등급 ↔ 필수/권장 안전장비 매핑 (FR-B5, D1, 설정 데이터)",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "dgClass": {
+            "type": "object"
+          },
+          "dgClassId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "위험물 등급 FK"
+          },
+          "equipmentType": {
+            "type": "object"
+          },
+          "equipmentTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "장비 종류 FK"
+          },
+          "imdgVersion": {
+            "type": "string",
+            "description": "적용 IMDG 차수",
+            "nullable": true
+          },
+          "mappingId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "매핑 고유번호",
+            "default": 0
+          },
+          "requirementLevel": {
+            "description": "필수/권장 구분",
+            "default": "REQUIRED",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RequirementLevel"
+              }
+            ]
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          }
+        },
+        "required": [
+          "mappingId",
+          "dgClassId",
+          "equipmentTypeId",
+          "requirementLevel",
+          "createdAt",
+          "dgClass",
+          "equipmentType"
+        ]
+      },
+      "ClassInstructionMappingsSchema": {
+        "type": "object",
+        "description": "위험물 등급 ↔ 안전지침 매핑 (FR-B4, 화물유형별 지침 자동 전송)",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "dgClass": {
+            "type": "object"
+          },
+          "dgClassId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "위험물 등급 FK"
+          },
+          "instruction": {
+            "type": "object"
+          },
+          "instructionId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "안전지침 FK"
+          },
+          "mappingId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "매핑 고유번호",
+            "default": 0
+          }
+        },
+        "required": [
+          "mappingId",
+          "dgClassId",
+          "instructionId",
+          "createdAt",
+          "dgClass",
+          "instruction"
+        ]
+      },
+      "CreateEmployeeRequest": {
+        "type": "object",
+        "properties": {
+          "department_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "email": {
+            "type": "string"
+          },
+          "employee_number": {
+            "type": "string"
+          },
+          "hire_date": {
+            "type": "string",
+            "description": "YYYY-MM-DD"
+          },
+          "job_role_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "phone_number": {
+            "type": "string",
+            "nullable": true
+          },
+          "position": {
+            "type": "string",
+            "nullable": true
+          },
+          "preferred_language": {
+            "type": "string",
+            "nullable": true
+          },
+          "system_role": {
+            "$ref": "#/components/schemas/SystemRole",
+            "nullable": true
+          }
+        },
+        "required": [
+          "employee_number",
+          "name",
+          "email",
+          "password",
+          "department_id",
+          "job_role_id",
+          "hire_date"
+        ]
+      },
+      "DepartmentsSchema": {
+        "type": "object",
+        "description": "부서",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "departmentCode": {
+            "type": "string",
+            "description": "부서 코드"
+          },
+          "departmentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "부서 고유번호",
+            "default": 0
+          },
+          "description": {
+            "type": "string",
+            "description": "설명",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "description": "부서명"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          }
+        },
+        "required": [
+          "departmentId",
+          "departmentCode",
+          "name",
+          "createdAt"
+        ]
+      },
+      "DgClassesSchema": {
+        "type": "object",
+        "description": "위험물 등급 (IMDG Class) 마스터 (FR-B, 설정 데이터)",
+        "properties": {
+          "classCode": {
+            "type": "string",
+            "description": "Class 코드 (예: 1, 2.1, 3, 9)"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "description": {
+            "type": "string",
+            "description": "설명",
+            "nullable": true
+          },
+          "dgClassId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "등급 고유번호",
+            "default": 0
+          },
+          "imdgVersion": {
+            "type": "string",
+            "description": "적용 IMDG 개정 차수 (예: 42차)",
+            "nullable": true
+          },
+          "nameEn": {
+            "type": "string",
+            "description": "등급 영문명",
+            "nullable": true
+          },
+          "nameKo": {
+            "type": "string",
+            "description": "등급 한글명 (화약류/가스류 등)"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          }
+        },
+        "required": [
+          "dgClassId",
+          "classCode",
+          "nameKo",
+          "createdAt"
+        ]
+      },
+      "EligibilityStatus": {
+        "type": "string",
+        "enum": [
+          "ELIGIBLE",
+          "EXCLUDED"
+        ]
+      },
+      "EmployeeHealthProfilesSchema": {
+        "type": "object",
+        "description": "직원 건강·신체 정보 (FR-F1, 민감정보 분리 저장)",
+        "properties": {
+          "allergens": {
+            "type": "object",
+            "description": "알레르기 유발물질 코드 배열 (예: [\"RICE\"])",
+            "nullable": true
+          },
+          "consentAgreed": {
+            "type": "boolean",
+            "description": "개인정보(건강) 수집·이용 동의",
+            "default": false
+          },
+          "consentAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "동의 시각",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "employee": {
+            "$ref": "#/components/schemas/EmployeeHealthProfilesSchema_Employee"
+          },
+          "employeeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "직원 FK (1:1)"
+          },
+          "hasAsthma": {
+            "type": "boolean",
+            "description": "천식 보유 여부",
+            "default": false
+          },
+          "hasClaustrophobia": {
+            "type": "boolean",
+            "description": "폐쇄공포 보유 여부",
+            "default": false
+          },
+          "healthProfileId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "건강정보 고유번호",
+            "default": 0
+          },
+          "heightCm": {
+            "type": "integer",
+            "format": "int32",
+            "description": "신장(cm)",
+            "nullable": true
+          },
+          "otherConditions": {
+            "type": "string",
+            "description": "기타 특이사항",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          },
+          "weightKg": {
+            "type": "integer",
+            "format": "int32",
+            "description": "체중(kg)",
+            "nullable": true
+          }
+        },
+        "required": [
+          "healthProfileId",
+          "employeeId",
+          "hasAsthma",
+          "hasClaustrophobia",
+          "consentAgreed",
+          "createdAt",
+          "employee"
+        ]
+      },
+      "EmployeeHealthProfilesSchema_Employee": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시"
+          },
+          "departmentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "부서 FK"
+          },
+          "email": {
+            "type": "string",
+            "description": "사내 이메일"
+          },
+          "employeeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "직원 고유번호 (내부 식별자)"
+          },
+          "employeeNumber": {
+            "type": "string",
+            "description": "회사 표준 사번"
+          },
+          "hireDate": {
+            "type": "string",
+            "format": "date",
+            "description": "입사일"
+          },
+          "jobRoleId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "직무 FK"
+          },
+          "name": {
+            "type": "string",
+            "description": "이름"
+          },
+          "nfcCardIssuedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "사원증 발급일",
+            "nullable": true
+          },
+          "nfcCardUid": {
+            "type": "string",
+            "description": "사원증 NFC UID (게이트 태깅 식별자)",
+            "nullable": true
+          },
+          "passwordHash": {
+            "type": "string",
+            "description": "bcrypt/argon2 해시"
+          },
+          "phoneNumber": {
+            "type": "string",
+            "description": "전화번호",
+            "nullable": true
+          },
+          "position": {
+            "type": "string",
+            "description": "직급 (사원/대리/과장 등)",
+            "nullable": true
+          },
+          "preferredLanguage": {
+            "type": "string",
+            "description": "모국어 코드 (번역/TTS 기준, FR-C1)"
+          },
+          "resignedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "퇴사일시",
+            "nullable": true
+          },
+          "status": {
+            "description": "상태",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EmployeeStatus"
+              }
+            ]
+          },
+          "systemRole": {
+            "description": "시스템 권한",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SystemRole"
+              }
+            ]
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          }
+        },
+        "required": [
+          "employeeId",
+          "employeeNumber",
+          "name",
+          "email",
+          "passwordHash",
+          "departmentId",
+          "jobRoleId",
+          "systemRole",
+          "preferredLanguage",
+          "hireDate",
+          "status",
+          "createdAt"
+        ]
+      },
+      "EmployeeResponse": {
+        "type": "object",
+        "description": "응답 DTO — password_hash를 절대 밖으로 내보내지 않기 위해 Model과 분리",
+        "properties": {
+          "department_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "email": {
+            "type": "string"
+          },
+          "employee_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "employee_number": {
+            "type": "string"
+          },
+          "hire_date": {
+            "type": "string"
+          },
+          "job_role_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "phone_number": {
+            "type": "string",
+            "nullable": true
+          },
+          "position": {
+            "type": "string",
+            "nullable": true
+          },
+          "preferred_language": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "system_role": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "employee_id",
+          "employee_number",
+          "name",
+          "email",
+          "department_id",
+          "job_role_id",
+          "system_role",
+          "preferred_language",
+          "hire_date",
+          "status"
+        ]
+      },
+      "EmployeeStatus": {
+        "type": "string",
+        "enum": [
+          "ACTIVE",
+          "ON_LEAVE",
+          "SUSPENDED",
+          "RESIGNED"
+        ]
+      },
+      "EmployeesSchema": {
+        "type": "object",
+        "description": "직원",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "department": {
+            "$ref": "#/components/schemas/DepartmentsSchema"
+          },
+          "departmentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "부서 FK"
+          },
+          "email": {
+            "type": "string",
+            "description": "사내 이메일"
+          },
+          "employeeHealthProfiles": {
+            "$ref": "#/components/schemas/EmployeesSchema_EmployeeHealthProfiles",
+            "nullable": true
+          },
+          "employeeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "직원 고유번호 (내부 식별자)",
+            "default": 0
+          },
+          "employeeNumber": {
+            "type": "string",
+            "description": "회사 표준 사번"
+          },
+          "hireDate": {
+            "type": "string",
+            "format": "date",
+            "description": "입사일"
+          },
+          "jobRole": {
+            "type": "object"
+          },
+          "jobRoleId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "직무 FK"
+          },
+          "name": {
+            "type": "string",
+            "description": "이름"
+          },
+          "nfcCardIssuedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "사원증 발급일",
+            "nullable": true
+          },
+          "nfcCardUid": {
+            "type": "string",
+            "description": "사원증 NFC UID (게이트 태깅 식별자)",
+            "nullable": true
+          },
+          "passwordHash": {
+            "type": "string",
+            "description": "bcrypt/argon2 해시"
+          },
+          "phoneNumber": {
+            "type": "string",
+            "description": "전화번호",
+            "nullable": true
+          },
+          "position": {
+            "type": "string",
+            "description": "직급 (사원/대리/과장 등)",
+            "nullable": true
+          },
+          "preferredLanguage": {
+            "type": "string",
+            "description": "모국어 코드 (번역/TTS 기준, FR-C1)",
+            "default": "ko"
+          },
+          "resignedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "퇴사일시",
+            "nullable": true
+          },
+          "status": {
+            "description": "상태",
+            "default": "ACTIVE",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EmployeeStatus"
+              }
+            ]
+          },
+          "systemRole": {
+            "description": "시스템 권한",
+            "default": "WORKER",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SystemRole"
+              }
+            ]
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          }
+        },
+        "required": [
+          "employeeId",
+          "employeeNumber",
+          "name",
+          "email",
+          "passwordHash",
+          "departmentId",
+          "jobRoleId",
+          "systemRole",
+          "preferredLanguage",
+          "hireDate",
+          "status",
+          "createdAt",
+          "department",
+          "jobRole"
+        ]
+      },
+      "EmployeesSchema_EmployeeHealthProfiles": {
+        "type": "object",
+        "properties": {
+          "allergens": {
+            "type": "object",
+            "description": "알레르기 유발물질 코드 배열 (예: [\"RICE\"])",
+            "nullable": true
+          },
+          "consentAgreed": {
+            "type": "boolean",
+            "description": "개인정보(건강) 수집·이용 동의"
+          },
+          "consentAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "동의 시각",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시"
+          },
+          "employeeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "직원 FK (1:1)"
+          },
+          "hasAsthma": {
+            "type": "boolean",
+            "description": "천식 보유 여부"
+          },
+          "hasClaustrophobia": {
+            "type": "boolean",
+            "description": "폐쇄공포 보유 여부"
+          },
+          "healthProfileId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "건강정보 고유번호"
+          },
+          "heightCm": {
+            "type": "integer",
+            "format": "int32",
+            "description": "신장(cm)",
+            "nullable": true
+          },
+          "otherConditions": {
+            "type": "string",
+            "description": "기타 특이사항",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          },
+          "weightKg": {
+            "type": "integer",
+            "format": "int32",
+            "description": "체중(kg)",
+            "nullable": true
+          }
+        },
+        "required": [
+          "healthProfileId",
+          "employeeId",
+          "hasAsthma",
+          "hasClaustrophobia",
+          "consentAgreed",
+          "createdAt"
+        ]
+      },
+      "EquipmentCheckLogsSchema": {
+        "type": "object",
+        "description": "당일 장비 NFC 태깅 기록 (FR-D3/D4 — 돌려쓰기 방지)",
+        "properties": {
+          "attendance": {
+            "$ref": "#/components/schemas/AttendancesSchema"
+          },
+          "attendanceId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "출근 FK"
+          },
+          "checkLogId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "태깅 기록 고유번호",
+            "default": 0
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "employee": {
+            "$ref": "#/components/schemas/EmployeesSchema"
+          },
+          "employeeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "직원 FK"
+          },
+          "equipment": {
+            "$ref": "#/components/schemas/EquipmentSchema"
+          },
+          "equipmentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "장비 FK"
+          },
+          "taggedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "태깅 시각",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "workDate": {
+            "type": "string",
+            "format": "date",
+            "description": "작업 일자 (장비+일자 유니크로 중복사용 차단, FR-D4)"
+          }
+        },
+        "required": [
+          "checkLogId",
+          "attendanceId",
+          "employeeId",
+          "equipmentId",
+          "workDate",
+          "taggedAt",
+          "createdAt",
+          "attendance",
+          "employee",
+          "equipment"
+        ]
+      },
+      "EquipmentSchema": {
+        "type": "object",
+        "description": "개별 안전장비 (NFC 태그 단위, FR-D2)",
+        "properties": {
+          "assetNumber": {
+            "type": "string",
+            "description": "자산 관리번호",
+            "nullable": true
+          },
+          "brailleLabel": {
+            "type": "string",
+            "description": "점자 스티커 병기 내용 (FR-D2)",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "equipmentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "장비 고유번호",
+            "default": 0
+          },
+          "equipmentType": {
+            "type": "object"
+          },
+          "equipmentTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "장비 종류 FK"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "사용 가능 여부",
+            "default": true
+          },
+          "nfcTagUid": {
+            "type": "string",
+            "description": "NFC 태그 UID (FR-D2)"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          }
+        },
+        "required": [
+          "equipmentId",
+          "equipmentTypeId",
+          "nfcTagUid",
+          "isActive",
+          "createdAt",
+          "equipmentType"
+        ]
+      },
+      "EquipmentTypesSchema": {
+        "type": "object",
+        "description": "안전장비 종류 마스터 (FR-D1)",
+        "properties": {
+          "category": {
+            "type": "string",
+            "description": "분류 (안전화/장갑/호흡보호구 등)",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "description": {
+            "type": "string",
+            "description": "설명",
+            "nullable": true
+          },
+          "equipmentTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "장비 종류 고유번호",
+            "default": 0
+          },
+          "name": {
+            "type": "string",
+            "description": "장비명 (방폭형 안전화/내화학 장갑 등)"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          }
+        },
+        "required": [
+          "equipmentTypeId",
+          "name",
+          "createdAt"
+        ]
+      },
+      "FileFormat": {
+        "type": "string",
+        "enum": [
+          "HWP",
+          "PDF",
+          "XLSX",
+          "DOCX",
+          "IMAGE"
+        ]
+      },
+      "GateStatus": {
+        "type": "string",
+        "enum": [
+          "BLOCKED",
+          "READY",
+          "PASSED"
+        ]
+      },
+      "HsCodesSchema": {
+        "type": "object",
+        "description": "HS Code 마스터 (FR-B2/B3, 위험물 의심 판정)",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "default": {
+            "type": "object",
+            "nullable": true
+          },
+          "defaultDgClassId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "기본 매핑 등급 FK",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "description": "품목 설명",
+            "nullable": true
+          },
+          "hsCode": {
+            "type": "string",
+            "description": "HS Code"
+          },
+          "hsCodeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "HS Code 고유번호",
+            "default": 0
+          },
+          "isDangerousSuspect": {
+            "type": "boolean",
+            "description": "위험물 의심 여부 (DGD 누락 검증용, FR-B3)",
+            "default": false
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          }
+        },
+        "required": [
+          "hsCodeId",
+          "hsCode",
+          "isDangerousSuspect",
+          "createdAt"
+        ]
+      },
+      "ImprovementOrdersSchema": {
+        "type": "object",
+        "description": "항만안전점검관 개선명령 워크플로 (FR-E3, 3단계)",
+        "properties": {
+          "actionPhotoUrl": {
+            "type": "string",
+            "description": "조치 사진 경로 (FR-E3)",
+            "nullable": true
+          },
+          "actionTakenAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "조치 시각",
+            "nullable": true
+          },
+          "attendance": {
+            "$ref": "#/components/schemas/AttendancesSchema",
+            "nullable": true
+          },
+          "attendanceId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "관련 출근 FK",
+            "nullable": true
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "완료 보고 시각",
+            "nullable": true
+          },
+          "content": {
+            "type": "string",
+            "description": "개선명령 내용"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "issuedBy": {
+            "$ref": "#/components/schemas/EmployeesSchema"
+          },
+          "issuedById": {
+            "type": "integer",
+            "format": "int64",
+            "description": "명령 등록자 FK (관리자/점검관)"
+          },
+          "orderId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "개선명령 고유번호",
+            "default": 0
+          },
+          "status": {
+            "description": "진행 상태 (등록→조치→완료)",
+            "default": "ISSUED",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ImprovementStatus"
+              }
+            ]
+          },
+          "target": {
+            "$ref": "#/components/schemas/EmployeesSchema",
+            "nullable": true
+          },
+          "targetEmployeeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "대상 작업자 FK",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          }
+        },
+        "required": [
+          "orderId",
+          "issuedById",
+          "content",
+          "status",
+          "createdAt",
+          "issuedBy"
+        ]
+      },
+      "ImprovementStatus": {
+        "type": "string",
+        "enum": [
+          "ISSUED",
+          "ACTION_TAKEN",
+          "COMPLETED"
+        ]
+      },
+      "InstructionAcknowledgementsSchema": {
+        "type": "object",
+        "description": "안전수칙 인지 로그 (FR-C2/C3, append-only — 수정 불가, NFR 무결성)",
+        "properties": {
+          "acknowledgedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "확인 시각 (FR-C3)",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "acknowledgementId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "인지 로그 고유번호",
+            "default": 0
+          },
+          "attendance": {
+            "$ref": "#/components/schemas/AttendancesSchema"
+          },
+          "attendanceId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "출근 FK"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "employee": {
+            "$ref": "#/components/schemas/EmployeesSchema"
+          },
+          "employeeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "직원 FK"
+          },
+          "instruction": {
+            "type": "object"
+          },
+          "instructionId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "안전지침 FK"
+          },
+          "instructionVersion": {
+            "type": "integer",
+            "format": "int32",
+            "description": "확인 당시 지침 버전 (FR-G1)"
+          },
+          "languageCode": {
+            "type": "string",
+            "description": "표시된 언어"
+          },
+          "scrolledToEnd": {
+            "type": "boolean",
+            "description": "최하단 스크롤 완료 여부 (FR-C2)",
+            "default": false
+          }
+        },
+        "required": [
+          "acknowledgementId",
+          "attendanceId",
+          "employeeId",
+          "instructionId",
+          "instructionVersion",
+          "languageCode",
+          "scrolledToEnd",
+          "acknowledgedAt",
+          "createdAt",
+          "attendance",
+          "employee",
+          "instruction"
+        ]
+      },
+      "JobRolesSchema": {
+        "type": "object",
+        "description": "직무",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "description": {
+            "type": "string",
+            "description": "설명",
+            "nullable": true
+          },
+          "jobRoleCode": {
+            "type": "string",
+            "description": "직무 코드"
+          },
+          "jobRoleId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "직무 고유번호",
+            "default": 0
+          },
+          "name": {
+            "type": "string",
+            "description": "직무명 (하역/검수/컨테이너점검 등)"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          }
+        },
+        "required": [
+          "jobRoleId",
+          "jobRoleCode",
+          "name",
+          "createdAt"
+        ]
+      },
+      "ProcessingStatus": {
+        "type": "string",
+        "enum": [
+          "PENDING",
+          "PROCESSING",
+          "COMPLETED",
+          "FAILED"
+        ]
+      },
+      "RegulationDocumentsSchema": {
+        "type": "object",
+        "description": "법령·공문 원문 업로드 (FR-A1)",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "documentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "문서 고유번호",
+            "default": 0
+          },
+          "effectiveDate": {
+            "type": "string",
+            "format": "date",
+            "description": "시행일",
+            "nullable": true
+          },
+          "fileFormat": {
+            "description": "파일 형식",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/FileFormat"
+              }
+            ]
+          },
+          "fileHash": {
+            "type": "string",
+            "description": "파일 해시 (무결성)",
+            "nullable": true
+          },
+          "fileUrl": {
+            "type": "string",
+            "description": "원본 파일 경로"
+          },
+          "isAmendment": {
+            "type": "boolean",
+            "description": "일부개정 공문 여부 (FR-A3)",
+            "default": false
+          },
+          "issuingAuthority": {
+            "type": "string",
+            "description": "배포 기관 (관세청/해수부 등)",
+            "nullable": true
+          },
+          "processingStatus": {
+            "description": "분석 처리 상태",
+            "default": "PENDING",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProcessingStatus"
+              }
+            ]
+          },
+          "sourceLaw": {
+            "description": "근거 법령 (산안법/항만안전특별법/KOSHA/IMDG)",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SourceLaw"
+              }
+            ]
+          },
+          "title": {
+            "type": "string",
+            "description": "문서 제목"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          },
+          "uploadedBy": {
+            "$ref": "#/components/schemas/EmployeesSchema"
+          },
+          "uploadedById": {
+            "type": "integer",
+            "format": "int64",
+            "description": "업로더 FK"
+          }
+        },
+        "required": [
+          "documentId",
+          "title",
+          "sourceLaw",
+          "fileFormat",
+          "fileUrl",
+          "isAmendment",
+          "processingStatus",
+          "uploadedById",
+          "createdAt",
+          "uploadedBy"
+        ]
+      },
+      "RegulationRevisionsSchema": {
+        "type": "object",
+        "description": "신구조문대비표 개정 내역 (FR-A3, diff)",
+        "properties": {
+          "changeType": {
+            "description": "변경 유형",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ChangeType"
+              }
+            ]
+          },
+          "clauseNo": {
+            "type": "string",
+            "description": "조문 번호",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "document": {
+            "type": "object"
+          },
+          "documentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "출처 문서 FK"
+          },
+          "newText": {
+            "type": "string",
+            "description": "신조문",
+            "nullable": true
+          },
+          "oldText": {
+            "type": "string",
+            "description": "구조문",
+            "nullable": true
+          },
+          "revisionId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "개정내역 고유번호",
+            "default": 0
+          }
+        },
+        "required": [
+          "revisionId",
+          "documentId",
+          "changeType",
+          "createdAt",
+          "document"
+        ]
+      },
+      "RequirementLevel": {
+        "type": "string",
+        "enum": [
+          "REQUIRED",
+          "RECOMMENDED"
+        ]
+      },
+      "RestrictionCondition": {
+        "type": "string",
+        "enum": [
+          "ASTHMA",
+          "ALLERGY",
+          "CLAUSTROPHOBIA",
+          "HEIGHT_LIMIT",
+          "WEIGHT_LIMIT",
+          "OTHER"
+        ]
+      },
+      "SafetyInstructionTranslationsSchema": {
+        "type": "object",
+        "description": "안전지침 다국어/TTS/점자 변환 (FR-A4, C1, NFR 접근성)",
+        "properties": {
+          "brailleDataUrl": {
+            "type": "string",
+            "description": "점자 변환 데이터 경로",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "instruction": {
+            "type": "object"
+          },
+          "instructionId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "안전지침 FK"
+          },
+          "languageCode": {
+            "type": "string",
+            "description": "언어 코드 (ko/en/vi/zh 등)"
+          },
+          "translatedBody": {
+            "type": "string",
+            "description": "번역 본문"
+          },
+          "translatedTitle": {
+            "type": "string",
+            "description": "번역 제목"
+          },
+          "translationId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "번역 고유번호",
+            "default": 0
+          },
+          "ttsAudioUrl": {
+            "type": "string",
+            "description": "TTS 음성 파일 경로",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          }
+        },
+        "required": [
+          "translationId",
+          "instructionId",
+          "languageCode",
+          "translatedTitle",
+          "translatedBody",
+          "createdAt",
+          "instruction"
+        ]
+      },
+      "SafetyInstructionsSchema": {
+        "type": "object",
+        "description": "안전지침 (문서에서 추출·요약, FR-A2/A4)",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "document": {
+            "type": "object",
+            "nullable": true
+          },
+          "documentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "출처 문서 FK (화물기반 지침은 null 가능)",
+            "nullable": true
+          },
+          "effectiveDate": {
+            "type": "string",
+            "format": "date",
+            "description": "시행일",
+            "nullable": true
+          },
+          "instructionId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "안전지침 고유번호",
+            "default": 0
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "현행 여부",
+            "default": true
+          },
+          "penaltyClause": {
+            "type": "string",
+            "description": "위반 시 과태료 조항 (FR-A2)",
+            "nullable": true
+          },
+          "sourceLaw": {
+            "description": "근거 법령",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SourceLaw"
+              }
+            ]
+          },
+          "summary": {
+            "type": "string",
+            "description": "요약 구조화 텍스트"
+          },
+          "title": {
+            "type": "string",
+            "description": "지침 제목"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "description": "지침 버전 (인지 로그에 기록, FR-G1)",
+            "default": 1
+          }
+        },
+        "required": [
+          "instructionId",
+          "title",
+          "summary",
+          "sourceLaw",
+          "version",
+          "isActive",
+          "createdAt"
+        ]
+      },
+      "SignInRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "SignInResponse": {
+        "type": "object",
+        "properties": {
+          "employee_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "system_role": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "token",
+          "employee_id",
+          "name",
+          "system_role"
+        ]
+      },
+      "SourceLaw": {
+        "type": "string",
+        "enum": [
+          "OSH_ACT",
+          "PORT_SAFETY_ACT",
+          "KOSHA_GUIDE",
+          "IMDG",
+          "OTHER"
+        ]
+      },
+      "SystemRole": {
+        "type": "string",
+        "enum": [
+          "ADMIN",
+          "SAFETY_MANAGER",
+          "SUPERVISOR",
+          "WORKER"
+        ]
+      },
+      "UnNumbersSchema": {
+        "type": "object",
+        "description": "UN 번호 마스터 (FR-B1, UN No → Class 확정)",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "dgClass": {
+            "type": "object"
+          },
+          "dgClassId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "위험물 등급 FK"
+          },
+          "packingGroup": {
+            "type": "string",
+            "description": "포장등급 (I/II/III)",
+            "nullable": true
+          },
+          "properShippingName": {
+            "type": "string",
+            "description": "정식 운송품명",
+            "nullable": true
+          },
+          "unNumber": {
+            "type": "string",
+            "description": "UN No. (4자리)"
+          },
+          "unNumberId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "UN번호 고유번호",
+            "default": 0
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          }
+        },
+        "required": [
+          "unNumberId",
+          "unNumber",
+          "dgClassId",
+          "createdAt",
+          "dgClass"
+        ]
+      },
+      "WorkAssignmentsSchema": {
+        "type": "object",
+        "description": "작업 배치 (FR-F3 — 투입 가능/제외 필터 결과)",
+        "properties": {
+          "assignedBy": {
+            "$ref": "#/components/schemas/EmployeesSchema"
+          },
+          "assignedById": {
+            "type": "integer",
+            "format": "int64",
+            "description": "배치 담당자 FK"
+          },
+          "assignmentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "배치 고유번호",
+            "default": 0
+          },
+          "cargoItem": {
+            "type": "object",
+            "nullable": true
+          },
+          "cargoItemId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "대상 화물 FK",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "eligibilityStatus": {
+            "description": "투입 가능 여부 (제한규칙 대조 결과)",
+            "default": "ELIGIBLE",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EligibilityStatus"
+              }
+            ]
+          },
+          "employee": {
+            "$ref": "#/components/schemas/EmployeesSchema"
+          },
+          "employeeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "작업자 FK"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          },
+          "workDate": {
+            "type": "string",
+            "format": "date",
+            "description": "작업 일자"
+          }
+        },
+        "required": [
+          "assignmentId",
+          "employeeId",
+          "workDate",
+          "assignedById",
+          "eligibilityStatus",
+          "createdAt",
+          "employee",
+          "assignedBy"
+        ]
+      },
+      "WorkRestrictionRulesSchema": {
+        "type": "object",
+        "description": "투입 제한 규칙 (FR-F2, 설정 데이터 — 코드 수정 없이 교체, NFR 확장성)",
+        "properties": {
+          "conditionType": {
+            "description": "제한 조건 유형",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RestrictionCondition"
+              }
+            ]
+          },
+          "conditionValue": {
+            "type": "string",
+            "description": "조건 값 (예: 알레르겐 코드 RICE, 신장 임계값)",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "description": {
+            "type": "string",
+            "description": "설명",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "활성 여부",
+            "default": true
+          },
+          "restricted": {
+            "type": "object",
+            "nullable": true
+          },
+          "restrictedDgClassId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "제한 대상 위험물 등급 FK",
+            "nullable": true
+          },
+          "restrictedWorkType": {
+            "type": "string",
+            "description": "제한 대상 작업유형 (등급으로 안잡히는 작업, 예: 밀폐공간)",
+            "nullable": true
+          },
+          "ruleId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "규칙 고유번호",
+            "default": 0
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          }
+        },
+        "required": [
+          "ruleId",
+          "conditionType",
+          "isActive",
+          "createdAt"
+        ]
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "auth"
+    },
+    {
+      "name": "employees"
+    }
+  ]
 }
