@@ -1,0 +1,28 @@
+name: "✨ Feature"
+description: "새로운 기능 추가"
+labels: ["feature"]
+title: "[Feat] "
+body:
+  - type: textarea
+    attributes:
+      label: 📄 설명
+      description: 무엇을, 왜 만드는지 작성해 주세요.
+      placeholder: 예) 로그인 API — 관리자/작업자가 시스템에 접근하려면 인증이 필요함
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: ✅ 작업할 내용
+      description: 할 일을 체크박스로 세분화해 주세요. 커밋 단위와 맞추면 좋습니다.
+      placeholder: |
+        - [ ] POST /auth/signin 구현
+        - [ ] JWT 발급 유틸 작성
+        - [ ] 테스트
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 🙋🏻 참고 자료
+      description: 관련 문서·요구사항 ID(FR-xx)·링크가 있다면 적어 주세요.
+    validations:
+      required: false
