@@ -31,5 +31,6 @@ cobertura.xml
 
 .claude
 test.db
+docs/
 .sisyphus
 tsconfig.tsbuildinfo
