@@ -9,7 +9,7 @@
     { "name": "target_type", "type": { "kind": "varchar", "length": 50 }, "nullable": true, "comment": "대상 엔티티명" },
     { "name": "target_id", "type": "big_int", "nullable": true, "comment": "대상 레코드 PK" },
     { "name": "instruction_version", "type": "integer", "nullable": true, "comment": "관련 지침 버전 (FR-G1)" },
-    { "name": "detail", "type": "jsonb", "nullable": true, "comment": "상세 이벤트 데이터" },
+    { "name": "detail", "type": "json", "nullable": true, "comment": "상세 이벤트 데이터" },
     { "name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "발생 시각" }
   ]
 }

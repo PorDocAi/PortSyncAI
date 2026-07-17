@@ -9,7 +9,7 @@
     { "name": "weight_kg", "type": "integer", "nullable": true, "comment": "체중(kg)" },
     { "name": "has_asthma", "type": "boolean", "nullable": false, "default": false, "comment": "천식 보유 여부" },
     { "name": "has_claustrophobia", "type": "boolean", "nullable": false, "default": false, "comment": "폐쇄공포 보유 여부" },
-    { "name": "allergens", "type": "jsonb", "nullable": true, "comment": "알레르기 유발물질 코드 배열 (예: [\"RICE\"])" },
+    { "name": "allergens", "type": "json", "nullable": true, "comment": "알레르기 유발물질 코드 배열 (예: [\"RICE\"])" },
     { "name": "other_conditions", "type": "text", "nullable": true, "comment": "기타 특이사항" },
     { "name": "consent_agreed", "type": "boolean", "nullable": false, "default": false, "comment": "개인정보(건강) 수집·이용 동의" },
     { "name": "consent_at", "type": "timestamptz", "nullable": true, "comment": "동의 시각" },
