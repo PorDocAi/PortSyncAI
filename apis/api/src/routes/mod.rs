@@ -1,3 +1,6 @@
+pub mod auth;
+pub mod employees;
+
 use std::collections::HashMap;
 
 use vespera::axum::Json;

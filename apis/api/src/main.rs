@@ -1,4 +1,7 @@
 mod config;
+// 자동 생성 코드(vespertide export)라 미사용 항목 경고를 모듈 단위로 허용
+#[allow(dead_code)]
+mod models;
 mod routes;
 mod utils;
 
@@ -19,7 +22,10 @@ async fn main() {
     let port = state.config.port;
     vespertide::vespertide_migration!(&state.db).await.unwrap();
 
-    let app = vespera::vespera!(openapi = ["apps/front/openapi.json", "apps/admin/openapi.json"])
+    let app = vespera::vespera!(
+        openapi = ["apps/front/openapi.json", "apps/admin/openapi.json"],
+        docs_url = "/docs"
+    )
         .with_state(state)
         .layer(
             CorsLayer::new()

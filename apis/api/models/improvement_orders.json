@@ -4,7 +4,7 @@
   "description": "항만안전점검관 개선명령 워크플로 (FR-E3, 3단계)",
   "columns": [
     { "name": "order_id", "type": "big_int", "nullable": false, "primary_key": { "auto_increment": true }, "comment": "개선명령 고유번호" },
-    { "name": "issued_by", "type": "big_int", "nullable": false, "foreign_key": "employees.employee_id", "comment": "명령 등록자 FK (관리자/점검관)" },
+    { "name": "issued_by_id", "type": "big_int", "nullable": false, "foreign_key": "employees.employee_id", "comment": "명령 등록자 FK (관리자/점검관)" },
     { "name": "target_employee_id", "type": "big_int", "nullable": true, "foreign_key": { "references": "employees.employee_id", "on_delete": "set_null" }, "comment": "대상 작업자 FK" },
     { "name": "attendance_id", "type": "big_int", "nullable": true, "foreign_key": { "references": "attendances.attendance_id", "on_delete": "set_null" }, "comment": "관련 출근 FK" },
     { "name": "content", "type": "text", "nullable": false, "comment": "개선명령 내용" },
