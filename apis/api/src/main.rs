@@ -26,23 +26,23 @@ async fn main() {
         openapi = ["apps/front/openapi.json", "apps/admin/openapi.json"],
         docs_url = "/docs"
     )
-        .with_state(state)
-        .layer(
-            CorsLayer::new()
-                .allow_origin("http://localhost:3000".parse::<HeaderValue>().unwrap())
-                .allow_methods([
-                    Method::GET,
-                    Method::POST,
-                    Method::PUT,
-                    Method::DELETE,
-                    Method::OPTIONS,
-                ])
-                .allow_headers([
-                    vespera::axum::http::header::CONTENT_TYPE,
-                    vespera::axum::http::header::AUTHORIZATION,
-                ])
-                .allow_credentials(true),
-        );
+    .with_state(state)
+    .layer(
+        CorsLayer::new()
+            .allow_origin("http://localhost:3000".parse::<HeaderValue>().unwrap())
+            .allow_methods([
+                Method::GET,
+                Method::POST,
+                Method::PUT,
+                Method::DELETE,
+                Method::OPTIONS,
+            ])
+            .allow_headers([
+                vespera::axum::http::header::CONTENT_TYPE,
+                vespera::axum::http::header::AUTHORIZATION,
+            ])
+            .allow_credentials(true),
+    );
 
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
     println!("API server is running on port {}", port);

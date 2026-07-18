@@ -12,7 +12,10 @@ use vespera::axum::{
 
 use crate::models::employees::{self, Entity as Employees, SystemRole};
 use crate::routes::auth::role_as_str;
-use crate::utils::AppState;
+use crate::utils::{
+    AppState,
+    auth::{AdminUser, AuthUser},
+};
 
 /// 응답 DTO — password_hash를 절대 밖으로 내보내지 않기 위해 Model과 분리
 #[derive(Serialize, vespera::Schema)]
@@ -69,6 +72,7 @@ pub struct CreateEmployeeRequest {
 /// 직원 목록 조회
 #[vespera::route(get, tags = ["employees"])]
 pub async fn list_employees(
+    _auth: AuthUser,
     State(state): State<AppState>,
 ) -> Result<Json<Vec<EmployeeResponse>>, StatusCode> {
     let rows = Employees::find()
@@ -81,6 +85,7 @@ pub async fn list_employees(
 /// 직원 단건 조회
 #[vespera::route(get, path = "/{id}", tags = ["employees"])]
 pub async fn get_employee(
+    _auth: AuthUser,
     State(state): State<AppState>,
     Path(id): Path<i64>,
 ) -> Result<Json<EmployeeResponse>, StatusCode> {
@@ -95,6 +100,7 @@ pub async fn get_employee(
 /// 직원 등록 (비밀번호는 argon2 해시 저장)
 #[vespera::route(post, tags = ["employees"])]
 pub async fn create_employee(
+    _admin: AdminUser,
     State(state): State<AppState>,
     Json(req): Json<CreateEmployeeRequest>,
 ) -> Result<(StatusCode, Json<EmployeeResponse>), StatusCode> {
