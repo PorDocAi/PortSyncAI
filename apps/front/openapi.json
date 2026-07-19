@@ -51,6 +51,131 @@
         }
       }
     },
+    "/departments": {
+      "get": {
+        "operationId": "list_departments",
+        "tags": [
+          "departments"
+        ],
+        "description": "부서 목록 조회",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DepartmentResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "create_department",
+        "tags": [
+          "departments"
+        ],
+        "description": "부서 생성 (관리 권한)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDepartmentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DepartmentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/departments/{id}": {
+      "put": {
+        "operationId": "update_department",
+        "tags": [
+          "departments"
+        ],
+        "description": "부서 수정 (관리 권한)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDepartmentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DepartmentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/employees": {
       "get": {
         "operationId": "list_employees",
@@ -181,6 +306,131 @@
                   "additionalProperties": {
                     "type": "string"
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/job-roles": {
+      "get": {
+        "operationId": "list_job_roles",
+        "tags": [
+          "job_roles"
+        ],
+        "description": "직무 목록 조회",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/JobRoleResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "create_job_role",
+        "tags": [
+          "job_roles"
+        ],
+        "description": "직무 생성 (관리 권한)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateJobRoleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobRoleResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/job-roles/{id}": {
+      "put": {
+        "operationId": "update_job_role",
+        "tags": [
+          "job_roles"
+        ],
+        "description": "직무 수정 (관리 권한)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateJobRoleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobRoleResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
                 }
               }
             }
@@ -682,6 +932,25 @@
           "instruction"
         ]
       },
+      "CreateDepartmentRequest": {
+        "type": "object",
+        "properties": {
+          "department_code": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "department_code",
+          "name"
+        ]
+      },
       "CreateEmployeeRequest": {
         "type": "object",
         "properties": {
@@ -734,6 +1003,49 @@
           "department_id",
           "job_role_id",
           "hire_date"
+        ]
+      },
+      "CreateJobRoleRequest": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "job_role_code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "job_role_code",
+          "name"
+        ]
+      },
+      "DepartmentResponse": {
+        "type": "object",
+        "properties": {
+          "department_code": {
+            "type": "string"
+          },
+          "department_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "department_id",
+          "department_code",
+          "name"
         ]
       },
       "DepartmentsSchema": {
@@ -1722,6 +2034,30 @@
           "instruction"
         ]
       },
+      "JobRoleResponse": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "job_role_code": {
+            "type": "string"
+          },
+          "job_role_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "job_role_id",
+          "job_role_code",
+          "name"
+        ]
+      },
       "JobRolesSchema": {
         "type": "object",
         "description": "직무",
@@ -2201,6 +2537,32 @@
           "dgClass"
         ]
       },
+      "UpdateDepartmentRequest": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "UpdateJobRoleRequest": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "WorkAssignmentsSchema": {
         "type": "object",
         "description": "작업 배치 (FR-F3 — 투입 가능/제외 필터 결과)",
@@ -2350,7 +2712,13 @@
       "name": "auth"
     },
     {
+      "name": "departments"
+    },
+    {
       "name": "employees"
+    },
+    {
+      "name": "job_roles"
     }
   ]
 }
