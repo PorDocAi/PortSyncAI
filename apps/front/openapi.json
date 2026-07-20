@@ -10,6 +10,140 @@
     }
   ],
   "paths": {
+    "/attendances": {
+      "post": {
+        "operationId": "start_attendance",
+        "tags": [
+          "attendances"
+        ],
+        "description": "오늘 출근 절차 시작 (이미 시작했으면 기존 레코드 반환 — 멱등)",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttendanceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/attendances/ack": {
+      "post": {
+        "operationId": "acknowledge_instruction",
+        "tags": [
+          "attendances"
+        ],
+        "description": "안전지침 확인 (FR-C2/C3): 스크롤 완료 시에만 인지 로그 기록",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AckRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttendanceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/attendances/equipment-complete": {
+      "post": {
+        "operationId": "complete_equipment_check",
+        "tags": [
+          "attendances"
+        ],
+        "description": "장비 착용 완료 선언 (오늘 태깅 기록이 1건 이상 있어야 함)\nTODO: 화물 API 연동 후 당일 화물 Class 기반 필수 장비 전체 충족 검증으로 강화 (FR-D1)",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttendanceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/attendances/today": {
+      "get": {
+        "operationId": "get_today_attendance",
+        "tags": [
+          "attendances"
+        ],
+        "description": "오늘 내 출근 상태 조회",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttendanceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/auth/signin": {
       "post": {
         "operationId": "signin",
@@ -291,6 +425,88 @@
         }
       }
     },
+    "/equipment-checks": {
+      "post": {
+        "operationId": "tag_equipment",
+        "tags": [
+          "equipment_checks"
+        ],
+        "description": "장비 NFC 태깅 (FR-D3/D4)\n409 = 오늘 이미 다른 출근 건에서 사용된 장비 (돌려쓰기 차단 — 데모 시나리오 2)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TagRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TagResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/gate/verify": {
+      "post": {
+        "operationId": "verify_gate",
+        "tags": [
+          "gate"
+        ],
+        "description": "게이트 사원증 태깅 검증 (FR-D5, 데모 시나리오 1)\n(지침 확인 + 장비 완료 + 승인) 충족 시 통과 처리, 아니면 사유와 함께 차단\nTODO: 게이트 단말 전용 인증(별도 API 키)은 추후 — 현재는 로그인 토큰으로 보호",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GateVerifyRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GateVerifyResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/health": {
       "get": {
         "operationId": "health",
@@ -441,6 +657,27 @@
   },
   "components": {
     "schemas": {
+      "AckRequest": {
+        "type": "object",
+        "properties": {
+          "instruction_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "language_code": {
+            "type": "string"
+          },
+          "scrolled_to_end": {
+            "type": "boolean",
+            "description": "팝업 최하단 스크롤 완료 여부 (FR-C2 — false면 확인 불가)"
+          }
+        },
+        "required": [
+          "instruction_id",
+          "language_code",
+          "scrolled_to_end"
+        ]
+      },
       "ApprovalDecision": {
         "type": "string",
         "enum": [
@@ -518,6 +755,47 @@
           "createdAt",
           "attendance",
           "approver"
+        ]
+      },
+      "AttendanceResponse": {
+        "type": "object",
+        "properties": {
+          "approval_status": {
+            "type": "string"
+          },
+          "attendance_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "employee_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "equipment_check_completed": {
+            "type": "boolean"
+          },
+          "gate_passed_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "gate_status": {
+            "type": "string"
+          },
+          "instruction_ack_completed": {
+            "type": "boolean"
+          },
+          "work_date": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "attendance_id",
+          "employee_id",
+          "work_date",
+          "instruction_ack_completed",
+          "equipment_check_completed",
+          "approval_status",
+          "gate_status"
         ]
       },
       "AttendancesSchema": {
@@ -1806,6 +2084,37 @@
           "PASSED"
         ]
       },
+      "GateVerifyRequest": {
+        "type": "object",
+        "properties": {
+          "nfc_card_uid": {
+            "type": "string",
+            "description": "사원증 NFC UID (FR-D5)"
+          }
+        },
+        "required": [
+          "nfc_card_uid"
+        ]
+      },
+      "GateVerifyResponse": {
+        "type": "object",
+        "properties": {
+          "allowed": {
+            "type": "boolean"
+          },
+          "employee_name": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "allowed",
+          "employee_name",
+          "reason"
+        ]
+      },
       "HsCodesSchema": {
         "type": "object",
         "description": "HS Code 마스터 (FR-B2/B3, 위험물 의심 판정)",
@@ -2484,6 +2793,40 @@
           "WORKER"
         ]
       },
+      "TagRequest": {
+        "type": "object",
+        "properties": {
+          "nfc_tag_uid": {
+            "type": "string",
+            "description": "장비에 부착된 NFC 태그 UID (FR-D2)"
+          }
+        },
+        "required": [
+          "nfc_tag_uid"
+        ]
+      },
+      "TagResponse": {
+        "type": "object",
+        "properties": {
+          "asset_number": {
+            "type": "string",
+            "nullable": true
+          },
+          "equipment_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "tagged_count_today": {
+            "type": "integer",
+            "format": "uint64",
+            "description": "오늘 이 출근 건으로 태깅 완료한 장비 수"
+          }
+        },
+        "required": [
+          "equipment_id",
+          "tagged_count_today"
+        ]
+      },
       "UnNumbersSchema": {
         "type": "object",
         "description": "UN 번호 마스터 (FR-B1, UN No → Class 확정)",
@@ -2709,6 +3052,9 @@
   },
   "tags": [
     {
+      "name": "attendances"
+    },
+    {
       "name": "auth"
     },
     {
@@ -2716,6 +3062,12 @@
     },
     {
       "name": "employees"
+    },
+    {
+      "name": "equipment_checks"
+    },
+    {
+      "name": "gate"
     },
     {
       "name": "job_roles"

@@ -1,6 +1,9 @@
+pub mod attendances;
 pub mod auth;
 pub mod departments;
 pub mod employees;
+pub mod equipment_checks;
+pub mod gate;
 pub mod job_roles;
 
 use std::collections::HashMap;
