@@ -10,6 +10,79 @@
     }
   ],
   "paths": {
+    "/admin/approvals": {
+      "get": {
+        "operationId": "list_pending_approvals",
+        "tags": [
+          "admin"
+        ],
+        "description": "승인 대기 목록 (FR-E1 — 관리자 대기함)",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PendingApprovalItem"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "decide_approval",
+        "tags": [
+          "admin"
+        ],
+        "description": "승인/반려 결정 (FR-E2): 사유·승인자·시각을 approvals에 기록",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DecideApprovalRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DecideApprovalResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/attendances": {
       "post": {
         "operationId": "start_attendance",
@@ -89,6 +162,37 @@
           "attendances"
         ],
         "description": "장비 착용 완료 선언 (오늘 태깅 기록이 1건 이상 있어야 함)\nTODO: 화물 API 연동 후 당일 화물 Class 기반 필수 장비 전체 충족 검증으로 강화 (FR-D1)",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttendanceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/attendances/request-approval": {
+      "post": {
+        "operationId": "request_approval",
+        "tags": [
+          "attendances"
+        ],
+        "description": "예외 승인 요청 (FR-E1): 미비 항목이 있을 때 관리자 승인을 요청\n미비 항목이 없으면 400 (승인이 필요 없는 상태)",
         "responses": {
           "200": {
             "description": "Successful response",
@@ -1302,6 +1406,57 @@
           "name"
         ]
       },
+      "DecideApprovalRequest": {
+        "type": "object",
+        "properties": {
+          "attendance_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "decision": {
+            "description": "APPROVED | REJECTED",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ApprovalDecision"
+              }
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "description": "결정 사유 (FR-E2 — 필수)"
+          }
+        },
+        "required": [
+          "attendance_id",
+          "decision",
+          "reason"
+        ]
+      },
+      "DecideApprovalResponse": {
+        "type": "object",
+        "properties": {
+          "approval_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "approval_status": {
+            "type": "string"
+          },
+          "attendance_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "decision": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "approval_id",
+          "attendance_id",
+          "decision",
+          "approval_status"
+        ]
+      },
       "DepartmentResponse": {
         "type": "object",
         "properties": {
@@ -2410,6 +2565,40 @@
           "createdAt"
         ]
       },
+      "PendingApprovalItem": {
+        "type": "object",
+        "properties": {
+          "attendance_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "employee_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "employee_name": {
+            "type": "string"
+          },
+          "equipment_check_completed": {
+            "type": "boolean"
+          },
+          "instruction_ack_completed": {
+            "type": "boolean",
+            "description": "미비 항목 파악용"
+          },
+          "work_date": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "attendance_id",
+          "employee_id",
+          "employee_name",
+          "work_date",
+          "instruction_ack_completed",
+          "equipment_check_completed"
+        ]
+      },
       "ProcessingStatus": {
         "type": "string",
         "enum": [
@@ -3051,6 +3240,9 @@
     }
   },
   "tags": [
+    {
+      "name": "admin"
+    },
     {
       "name": "attendances"
     },

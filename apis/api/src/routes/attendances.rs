@@ -171,6 +171,38 @@ pub async fn acknowledge_instruction(
     Ok(Json(AttendanceResponse::from(saved)))
 }
 
+/// 예외 승인 요청 (FR-E1): 미비 항목이 있을 때 관리자 승인을 요청
+/// 미비 항목이 없으면 400 (승인이 필요 없는 상태)
+#[vespera::route(post, path = "/request-approval", tags = ["attendances"])]
+pub async fn request_approval(
+    AuthUser(claims): AuthUser,
+    State(state): State<AppState>,
+) -> Result<Json<AttendanceResponse>, StatusCode> {
+    let attendance = find_today_attendance(&state.db, claims.sub)
+        .await?
+        .ok_or(StatusCode::NOT_FOUND)?;
+
+    if attendance.gate_status == GateStatus::Passed {
+        return Err(StatusCode::CONFLICT);
+    }
+    if attendance.instruction_ack_completed && attendance.equipment_check_completed {
+        return Err(StatusCode::BAD_REQUEST);
+    }
+    // 이미 요청된 상태면 그대로 반환 (멱등)
+    if attendance.approval_status == ApprovalStatus::Pending {
+        return Ok(Json(AttendanceResponse::from(attendance)));
+    }
+
+    let mut active: attendances::ActiveModel = attendance.into();
+    active.approval_status = Set(ApprovalStatus::Pending);
+    active.updated_at = Set(Some(chrono::Utc::now().into()));
+    let saved = active
+        .update(&state.db)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    Ok(Json(AttendanceResponse::from(saved)))
+}
+
 /// 장비 착용 완료 선언 (오늘 태깅 기록이 1건 이상 있어야 함)
 /// TODO: 화물 API 연동 후 당일 화물 Class 기반 필수 장비 전체 충족 검증으로 강화 (FR-D1)
 #[vespera::route(post, path = "/equipment-complete", tags = ["attendances"])]
