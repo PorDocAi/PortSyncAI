@@ -1,3 +1,4 @@
+pub mod admin;
 pub mod attendances;
 pub mod auth;
 pub mod departments;

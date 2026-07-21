@@ -53,17 +53,20 @@ pub async fn verify_gate(
     }
 
     // 차단 사유 수집 (FR-C4: 우회 경로 없음)
+    // 단 APPROVED는 관리자가 사유와 함께 예외를 승인한 것이므로 미비 항목을 면제 (FR-E2)
     let mut reasons: Vec<&str> = Vec::new();
-    if !attendance.instruction_ack_completed {
-        reasons.push("안전지침 미확인");
-    }
-    if !attendance.equipment_check_completed {
-        reasons.push("필수 장비 확인 미완료");
-    }
     match attendance.approval_status {
+        ApprovalStatus::Approved => {}
         ApprovalStatus::Pending => reasons.push("관리자 승인 대기 중"),
         ApprovalStatus::Rejected => reasons.push("관리자 반려됨"),
-        ApprovalStatus::NotRequired | ApprovalStatus::Approved => {}
+        ApprovalStatus::NotRequired => {
+            if !attendance.instruction_ack_completed {
+                reasons.push("안전지침 미확인");
+            }
+            if !attendance.equipment_check_completed {
+                reasons.push("필수 장비 확인 미완료");
+            }
+        }
     }
 
     if !reasons.is_empty() {
