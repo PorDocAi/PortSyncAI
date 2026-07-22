@@ -289,6 +289,132 @@
         }
       }
     },
+    "/cargo-items": {
+      "get": {
+        "operationId": "list_cargo_items",
+        "tags": [
+          "cargo_items"
+        ],
+        "description": "입고 화물 목록 (arrival_date로 필터 가능)",
+        "parameters": [
+          {
+            "name": "arrival_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CargoItemResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "create_cargo_item",
+        "tags": [
+          "cargo_items"
+        ],
+        "description": "입고 화물 등록 (관리 권한): UN No./HS Code로 위험물 등급 자동 확정 + DGD 누락 검증",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCargoItemRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CargoItemResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cargo-items/{id}": {
+      "get": {
+        "operationId": "get_cargo_item",
+        "tags": [
+          "cargo_items"
+        ],
+        "description": "입고 화물 단건 조회",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CargoItemResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/departments": {
       "get": {
         "operationId": "list_departments",
@@ -1105,6 +1231,56 @@
           "uploadedBy"
         ]
       },
+      "CargoItemResponse": {
+        "type": "object",
+        "properties": {
+          "arrival_date": {
+            "type": "string",
+            "nullable": true
+          },
+          "bl_number": {
+            "type": "string",
+            "nullable": true
+          },
+          "cargo_item_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "dg_class_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "dgd_missing_warning": {
+            "type": "boolean",
+            "description": "DGD 부재 + 위험물 의심 HS Code → 경고 (FR-B3)"
+          },
+          "dgd_number": {
+            "type": "string",
+            "nullable": true
+          },
+          "hs_code": {
+            "type": "string",
+            "nullable": true
+          },
+          "is_dangerous": {
+            "type": "boolean"
+          },
+          "item_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "un_number": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "cargo_item_id",
+          "is_dangerous",
+          "dgd_missing_warning"
+        ]
+      },
       "CargoItemsSchema": {
         "type": "object",
         "description": "입고 화물 (B/L·DGD에서 추출·확정, FR-B1~B4)",
@@ -1200,6 +1376,16 @@
           "dgdMissingWarning",
           "createdAt"
         ]
+      },
+      "CargoListQuery": {
+        "type": "object",
+        "properties": {
+          "arrival_date": {
+            "type": "string",
+            "description": "입고 예정일 필터 (YYYY-MM-DD)",
+            "nullable": true
+          }
+        }
       },
       "ChangeType": {
         "type": "string",
@@ -1313,6 +1499,45 @@
           "dgClass",
           "instruction"
         ]
+      },
+      "CreateCargoItemRequest": {
+        "type": "object",
+        "properties": {
+          "arrival_date": {
+            "type": "string",
+            "description": "YYYY-MM-DD",
+            "nullable": true
+          },
+          "bl_number": {
+            "type": "string",
+            "nullable": true
+          },
+          "cargo_document_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "dgd_number": {
+            "type": "string",
+            "nullable": true
+          },
+          "hs_code": {
+            "type": "string",
+            "nullable": true
+          },
+          "item_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "un_number": {
+            "type": "string",
+            "nullable": true
+          }
+        }
       },
       "CreateDepartmentRequest": {
         "type": "object",
@@ -3248,6 +3473,9 @@
     },
     {
       "name": "auth"
+    },
+    {
+      "name": "cargo_items"
     },
     {
       "name": "departments"
