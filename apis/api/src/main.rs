@@ -21,6 +21,7 @@ async fn main() {
     let state = AppState { db, config };
     let port = state.config.port;
     vespertide::vespertide_migration!(&state.db).await.unwrap();
+    utils::seed::load_master_data(&state.db).await;
 
     let app = vespera::vespera!(
         openapi = ["apps/front/openapi.json", "apps/admin/openapi.json"],
