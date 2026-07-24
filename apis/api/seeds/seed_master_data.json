@@ -68,5 +68,36 @@
 
     { "dg_class_id": 9, "equipment_type_id": 6,  "requirement_level": "REQUIRED",    "imdg_version": "42차" },
     { "dg_class_id": 9, "equipment_type_id": 7,  "requirement_level": "RECOMMENDED", "imdg_version": "42차" }
+  ],
+
+  "safety_instructions": [
+    {
+      "instruction_id": 1001,
+      "title": "인화성 액체 하역 안전수칙",
+      "summary": "점화원을 제거하고 정전기 방지 장비를 착용하며 누출 시 즉시 작업을 중지합니다.",
+      "source_law": "IMDG",
+      "version": 1
+    },
+    {
+      "instruction_id": 1002,
+      "title": "가스류 하역 안전수칙",
+      "summary": "환기 상태와 가스 농도를 확인하고 방독면 및 가스검지기를 준비합니다.",
+      "source_law": "IMDG",
+      "version": 1
+    },
+    {
+      "instruction_id": 1003,
+      "title": "위험물 공통 작업중지 기준",
+      "summary": "누출·화재·용기 손상 등 이상 징후가 확인되면 즉시 작업을 중지하고 관리자에게 보고합니다.",
+      "source_law": "KOSHA_GUIDE",
+      "version": 1
+    }
+  ],
+
+  "class_instruction_mappings": [
+    { "dg_class_id": 2, "instruction_id": 1002 },
+    { "dg_class_id": 2, "instruction_id": 1003 },
+    { "dg_class_id": 3, "instruction_id": 1001 },
+    { "dg_class_id": 3, "instruction_id": 1003 }
   ]
 }

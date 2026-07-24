@@ -4,7 +4,8 @@ use sea_orm::{
 use serde::Deserialize;
 
 use crate::models::class_equipment_mappings::{self, RequirementLevel};
-use crate::models::{dg_classes, equipment_types};
+use crate::models::safety_instructions::SourceLaw;
+use crate::models::{class_instruction_mappings, dg_classes, equipment_types, safety_instructions};
 
 /// seeds/seed_master_data.json 을 컴파일 타임에 임베드 (실행 위치 무관)
 const SEED_JSON: &str = include_str!("../../seeds/seed_master_data.json");
@@ -14,6 +15,10 @@ struct SeedData {
     dg_classes: Vec<DgClassSeed>,
     equipment_types: Vec<EquipmentTypeSeed>,
     class_equipment_mappings: Vec<MappingSeed>,
+    #[serde(default)]
+    safety_instructions: Vec<SafetyInstructionSeed>,
+    #[serde(default)]
+    class_instruction_mappings: Vec<InstructionMappingSeed>,
 }
 
 #[derive(Deserialize)]
@@ -40,6 +45,21 @@ struct MappingSeed {
     equipment_type_id: i64,
     requirement_level: String,
     imdg_version: Option<String>,
+}
+
+#[derive(Deserialize)]
+struct SafetyInstructionSeed {
+    instruction_id: i64,
+    title: String,
+    summary: String,
+    source_law: String,
+    version: i32,
+}
+
+#[derive(Deserialize)]
+struct InstructionMappingSeed {
+    dg_class_id: i64,
+    instruction_id: i64,
 }
 
 /// 마스터 데이터(위험물 등급·장비·매핑) 멱등 적재.
@@ -112,6 +132,55 @@ pub async fn load_master_data(db: &DatabaseConnection) {
             .insert(db)
             .await
             .expect("매핑 시드 삽입 실패");
+        }
+    }
+
+    for instruction in data.safety_instructions {
+        let exists = safety_instructions::Entity::find_by_id(instruction.instruction_id)
+            .one(db)
+            .await
+            .expect("안전지침 조회 실패")
+            .is_some();
+        if !exists {
+            let source_law = match instruction.source_law.as_str() {
+                "OSH_ACT" => SourceLaw::OshAct,
+                "PORT_SAFETY_ACT" => SourceLaw::PortSafetyAct,
+                "KOSHA_GUIDE" => SourceLaw::KoshaGuide,
+                "IMDG" => SourceLaw::Imdg,
+                _ => SourceLaw::Other,
+            };
+            safety_instructions::ActiveModel {
+                instruction_id: Set(instruction.instruction_id),
+                title: Set(instruction.title),
+                summary: Set(instruction.summary),
+                source_law: Set(source_law),
+                version: Set(instruction.version),
+                is_active: Set(true),
+                ..Default::default()
+            }
+            .insert(db)
+            .await
+            .expect("안전지침 시드 삽입 실패");
+        }
+    }
+
+    for mapping in data.class_instruction_mappings {
+        let exists = class_instruction_mappings::Entity::find()
+            .filter(class_instruction_mappings::Column::DgClassId.eq(mapping.dg_class_id))
+            .filter(class_instruction_mappings::Column::InstructionId.eq(mapping.instruction_id))
+            .one(db)
+            .await
+            .expect("Class-지침 매핑 조회 실패")
+            .is_some();
+        if !exists {
+            class_instruction_mappings::ActiveModel {
+                dg_class_id: Set(mapping.dg_class_id),
+                instruction_id: Set(mapping.instruction_id),
+                ..Default::default()
+            }
+            .insert(db)
+            .await
+            .expect("Class-지침 매핑 시드 삽입 실패");
         }
     }
 }
