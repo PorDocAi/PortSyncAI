@@ -282,6 +282,40 @@
         }
       }
     },
+    "/attendances/today-instructions": {
+      "get": {
+        "operationId": "get_today_instructions",
+        "tags": [
+          "attendances"
+        ],
+        "description": "오늘 입고 화물 Class에 연결된 지침을 작업자 모국어로 조회한다 (FR-B4/C1).\n번역본이 없으면 법적 원문의 기준 언어인 한국어로 대체한다.",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TodayInstructionItem"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/auth/signin": {
       "post": {
         "operationId": "signin",
@@ -928,9 +962,6 @@
             "type": "integer",
             "format": "int64"
           },
-          "language_code": {
-            "type": "string"
-          },
           "scrolled_to_end": {
             "type": "boolean",
             "description": "팝업 최하단 스크롤 완료 여부 (FR-C2 — false면 확인 불가)"
@@ -938,7 +969,6 @@
         },
         "required": [
           "instruction_id",
-          "language_code",
           "scrolled_to_end"
         ]
       },
@@ -3299,6 +3329,39 @@
         "required": [
           "equipment_id",
           "tagged_count_today"
+        ]
+      },
+      "TodayInstructionItem": {
+        "type": "object",
+        "properties": {
+          "acknowledged": {
+            "type": "boolean"
+          },
+          "body": {
+            "type": "string"
+          },
+          "instruction_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "language_code": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "required": [
+          "instruction_id",
+          "version",
+          "title",
+          "body",
+          "language_code",
+          "acknowledged"
         ]
       },
       "UnNumbersSchema": {

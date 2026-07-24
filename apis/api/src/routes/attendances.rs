@@ -9,11 +9,16 @@ use crate::models::cargo_items::{self, Entity as CargoItems};
 use crate::models::class_equipment_mappings::{
     self, Entity as ClassEquipmentMappings, RequirementLevel,
 };
+use crate::models::class_instruction_mappings::{self, Entity as ClassInstructionMappings};
+use crate::models::employees::Entity as Employees;
 use crate::models::equipment::{self, Entity as Equipment};
 use crate::models::equipment_check_logs::{self, Entity as EquipmentCheckLogs};
 use crate::models::equipment_types::{self, Entity as EquipmentTypes};
-use crate::models::instruction_acknowledgements;
-use crate::models::safety_instructions::Entity as SafetyInstructions;
+use crate::models::instruction_acknowledgements::{self, Entity as InstructionAcknowledgements};
+use crate::models::safety_instruction_translations::{
+    self, Entity as SafetyInstructionTranslations,
+};
+use crate::models::safety_instructions::{self, Entity as SafetyInstructions};
 use crate::utils::{AppState, auth::AuthUser};
 
 pub fn approval_as_str(s: &ApprovalStatus) -> &'static str {
@@ -92,6 +97,47 @@ pub async fn find_today_attendance(
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
 
+/// 오늘 입고 화물의 위험물 Class에 연결된 활성 지침을 중복 없이 조회한다.
+async fn required_instructions_for_today(
+    db: &sea_orm::DatabaseConnection,
+) -> Result<Vec<safety_instructions::Model>, StatusCode> {
+    let cargo = CargoItems::find()
+        .filter(cargo_items::Column::ArrivalDate.eq(today()))
+        .filter(cargo_items::Column::DgClassId.is_not_null())
+        .all(db)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    let class_ids: HashSet<i64> = cargo.into_iter().filter_map(|c| c.dg_class_id).collect();
+    if class_ids.is_empty() {
+        return Ok(Vec::new());
+    }
+
+    let mappings = ClassInstructionMappings::find()
+        .filter(
+            class_instruction_mappings::Column::DgClassId
+                .is_in(class_ids.into_iter().collect::<Vec<_>>()),
+        )
+        .all(db)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    let instruction_ids: HashSet<i64> = mappings.into_iter().map(|m| m.instruction_id).collect();
+    if instruction_ids.is_empty() {
+        return Ok(Vec::new());
+    }
+
+    let mut instructions = SafetyInstructions::find()
+        .filter(
+            safety_instructions::Column::InstructionId
+                .is_in(instruction_ids.into_iter().collect::<Vec<_>>()),
+        )
+        .filter(safety_instructions::Column::IsActive.eq(true))
+        .all(db)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    instructions.sort_by_key(|i| i.instruction_id);
+    Ok(instructions)
+}
+
 /// 오늘 출근 절차 시작 (이미 시작했으면 기존 레코드 반환 — 멱등)
 #[vespera::route(post, tags = ["attendances"])]
 pub async fn start_attendance(
@@ -110,6 +156,19 @@ pub async fn start_attendance(
         .insert(&state.db)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // 확인할 지침이 없는 날은 형식적인 확인 절차를 만들지 않고 자동 완료한다.
+    if required_instructions_for_today(&state.db).await?.is_empty() {
+        let mut active: attendances::ActiveModel = saved.into();
+        active.instruction_ack_completed = Set(true);
+        active.updated_at = Set(Some(chrono::Utc::now().into()));
+        let updated = active
+            .update(&state.db)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        return Ok(Json(AttendanceResponse::from(updated)));
+    }
+
     Ok(Json(AttendanceResponse::from(saved)))
 }
 
@@ -128,7 +187,6 @@ pub async fn get_today_attendance(
 #[derive(Deserialize, vespera::Schema)]
 pub struct AckRequest {
     pub instruction_id: i64,
-    pub language_code: String,
     /// 팝업 최하단 스크롤 완료 여부 (FR-C2 — false면 확인 불가)
     pub scrolled_to_end: bool,
 }
@@ -146,30 +204,75 @@ pub async fn acknowledge_instruction(
     let attendance = find_today_attendance(&state.db, claims.sub)
         .await?
         .ok_or(StatusCode::NOT_FOUND)?;
-    let instruction = SafetyInstructions::find_by_id(req.instruction_id)
+    let required = required_instructions_for_today(&state.db).await?;
+    let instruction = required
+        .iter()
+        .find(|i| i.instruction_id == req.instruction_id)
+        .ok_or(StatusCode::BAD_REQUEST)?;
+
+    let employee = Employees::find_by_id(claims.sub)
         .one(&state.db)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
-        .ok_or(StatusCode::NOT_FOUND)?;
-
-    // 인지 로그 (append-only — 면책 증빙, FR-G1)
-    let ack = instruction_acknowledgements::ActiveModel {
-        attendance_id: Set(attendance.attendance_id),
-        employee_id: Set(claims.sub),
-        instruction_id: Set(instruction.instruction_id),
-        instruction_version: Set(instruction.version),
-        language_code: Set(req.language_code),
-        scrolled_to_end: Set(true),
-        ..Default::default()
+        .ok_or(StatusCode::UNAUTHORIZED)?;
+    let has_preferred_translation = SafetyInstructionTranslations::find()
+        .filter(
+            safety_instruction_translations::Column::InstructionId.eq(instruction.instruction_id),
+        )
+        .filter(
+            safety_instruction_translations::Column::LanguageCode
+                .eq(employee.preferred_language.clone()),
+        )
+        .one(&state.db)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+        .is_some();
+    let displayed_language = if has_preferred_translation {
+        employee.preferred_language
+    } else {
+        "ko".to_string()
     };
-    ack.insert(&state.db)
+
+    // 같은 버전의 지침은 재요청해도 로그를 중복 삽입하지 않는다.
+    let existing = InstructionAcknowledgements::find()
+        .filter(instruction_acknowledgements::Column::AttendanceId.eq(attendance.attendance_id))
+        .filter(instruction_acknowledgements::Column::InstructionId.eq(instruction.instruction_id))
+        .filter(instruction_acknowledgements::Column::InstructionVersion.eq(instruction.version))
+        .one(&state.db)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    if existing.is_none() {
+        let ack = instruction_acknowledgements::ActiveModel {
+            attendance_id: Set(attendance.attendance_id),
+            employee_id: Set(claims.sub),
+            instruction_id: Set(instruction.instruction_id),
+            instruction_version: Set(instruction.version),
+            language_code: Set(displayed_language),
+            scrolled_to_end: Set(true),
+            ..Default::default()
+        };
+        ack.insert(&state.db)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    }
+
+    let acknowledgements = InstructionAcknowledgements::find()
+        .filter(instruction_acknowledgements::Column::AttendanceId.eq(attendance.attendance_id))
+        .all(&state.db)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    let acknowledged_versions: HashSet<(i64, i32)> = acknowledgements
+        .into_iter()
+        .map(|a| (a.instruction_id, a.instruction_version))
+        .collect();
+    let all_required_acknowledged = required
+        .iter()
+        .all(|i| acknowledged_versions.contains(&(i.instruction_id, i.version)));
 
     let mut active: attendances::ActiveModel = attendance.clone().into();
-    active.instruction_ack_completed = Set(true);
+    active.instruction_ack_completed = Set(all_required_acknowledged);
     let mut updated_model = attendance;
-    updated_model.instruction_ack_completed = true;
+    updated_model.instruction_ack_completed = all_required_acknowledged;
     promote_if_ready(&mut active, &updated_model);
     active.updated_at = Set(Some(chrono::Utc::now().into()));
 
@@ -178,6 +281,89 @@ pub async fn acknowledge_instruction(
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     Ok(Json(AttendanceResponse::from(saved)))
+}
+
+#[derive(Serialize, vespera::Schema)]
+pub struct TodayInstructionItem {
+    pub instruction_id: i64,
+    pub version: i32,
+    pub title: String,
+    pub body: String,
+    pub language_code: String,
+    pub acknowledged: bool,
+}
+
+/// 오늘 입고 화물 Class에 연결된 지침을 작업자 모국어로 조회한다 (FR-B4/C1).
+/// 번역본이 없으면 법적 원문의 기준 언어인 한국어로 대체한다.
+#[vespera::route(get, path = "/today-instructions", tags = ["attendances"])]
+pub async fn get_today_instructions(
+    AuthUser(claims): AuthUser,
+    State(state): State<AppState>,
+) -> Result<Json<Vec<TodayInstructionItem>>, StatusCode> {
+    let attendance = find_today_attendance(&state.db, claims.sub)
+        .await?
+        .ok_or(StatusCode::NOT_FOUND)?;
+    let employee = Employees::find_by_id(claims.sub)
+        .one(&state.db)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+        .ok_or(StatusCode::UNAUTHORIZED)?;
+    let instructions = required_instructions_for_today(&state.db).await?;
+    let ids: Vec<i64> = instructions.iter().map(|i| i.instruction_id).collect();
+
+    let translations = if ids.is_empty() {
+        Vec::new()
+    } else {
+        SafetyInstructionTranslations::find()
+            .filter(safety_instruction_translations::Column::InstructionId.is_in(ids.clone()))
+            .filter(
+                safety_instruction_translations::Column::LanguageCode
+                    .eq(employee.preferred_language.clone()),
+            )
+            .all(&state.db)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+    };
+    let translation_by_instruction: HashMap<i64, _> = translations
+        .into_iter()
+        .map(|t| (t.instruction_id, t))
+        .collect();
+
+    let acknowledgements = InstructionAcknowledgements::find()
+        .filter(instruction_acknowledgements::Column::AttendanceId.eq(attendance.attendance_id))
+        .all(&state.db)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    let acknowledged_versions: HashSet<(i64, i32)> = acknowledgements
+        .into_iter()
+        .map(|a| (a.instruction_id, a.instruction_version))
+        .collect();
+
+    let items = instructions
+        .into_iter()
+        .map(|instruction| {
+            let translation = translation_by_instruction.get(&instruction.instruction_id);
+            TodayInstructionItem {
+                instruction_id: instruction.instruction_id,
+                version: instruction.version,
+                title: translation
+                    .map(|t| t.translated_title.clone())
+                    .unwrap_or_else(|| instruction.title.clone()),
+                body: translation
+                    .map(|t| t.translated_body.clone())
+                    .unwrap_or_else(|| instruction.summary.clone()),
+                language_code: if translation.is_some() {
+                    employee.preferred_language.clone()
+                } else {
+                    "ko".to_string()
+                },
+                acknowledged: acknowledged_versions
+                    .contains(&(instruction.instruction_id, instruction.version)),
+            }
+        })
+        .collect();
+
+    Ok(Json(items))
 }
 
 /// 예외 승인 요청 (FR-E1): 미비 항목이 있을 때 관리자 승인을 요청
