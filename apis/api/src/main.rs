@@ -11,6 +11,7 @@ use crate::{
 };
 use std::net::SocketAddr;
 use tower_http::cors::CorsLayer;
+use vespera::axum::extract::DefaultBodyLimit;
 use vespera::axum::http::{HeaderValue, Method};
 
 #[tokio::main]
@@ -27,6 +28,7 @@ async fn main() {
         openapi = ["apps/front/openapi.json", "apps/admin/openapi.json"],
         docs_url = "/docs"
     )
+    .layer(DefaultBodyLimit::max(21 * 1024 * 1024))
     .with_state(state)
     .layer(
         CorsLayer::new()

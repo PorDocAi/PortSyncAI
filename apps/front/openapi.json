@@ -357,6 +357,121 @@
         }
       }
     },
+    "/cargo-documents": {
+      "get": {
+        "operationId": "list_cargo_documents",
+        "tags": [
+          "cargo_documents"
+        ],
+        "description": "업로드된 화물 문서 메타데이터 목록",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CargoDocumentResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "upload_cargo_document",
+        "tags": [
+          "cargo_documents"
+        ],
+        "description": "B/L·DGD 원문 업로드. 파일은 로컬 스토리지에 UUID 이름으로 저장하고 메타데이터만 DB에 기록한다.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadCargoDocumentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CargoDocumentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cargo-documents/{id}": {
+      "get": {
+        "operationId": "get_cargo_document",
+        "tags": [
+          "cargo_documents"
+        ],
+        "description": "업로드된 화물 문서 메타데이터 단건 조회",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CargoDocumentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/cargo-items": {
       "get": {
         "operationId": "list_cargo_items",
@@ -1233,6 +1348,56 @@
           "createdAt"
         ]
       },
+      "CargoDocumentResponse": {
+        "type": "object",
+        "properties": {
+          "cargo_document_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "content_type": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "document_type": {
+            "type": "string"
+          },
+          "file_format": {
+            "type": "string"
+          },
+          "file_hash": {
+            "type": "string",
+            "nullable": true
+          },
+          "file_size": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "file_url": {
+            "type": "string"
+          },
+          "original_file_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "uploaded_by_id": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "cargo_document_id",
+          "document_type",
+          "file_format",
+          "file_url",
+          "uploaded_by_id",
+          "created_at"
+        ]
+      },
       "CargoDocumentType": {
         "type": "string",
         "enum": [
@@ -1249,6 +1414,11 @@
             "format": "int64",
             "description": "화물문서 고유번호",
             "default": 0
+          },
+          "contentType": {
+            "type": "string",
+            "description": "업로드 MIME 타입",
+            "nullable": true
           },
           "createdAt": {
             "type": "string",
@@ -1272,9 +1442,25 @@
               }
             ]
           },
+          "fileHash": {
+            "type": "string",
+            "description": "SHA-256 파일 무결성 해시",
+            "nullable": true
+          },
+          "fileSize": {
+            "type": "integer",
+            "format": "int64",
+            "description": "파일 크기(byte)",
+            "nullable": true
+          },
           "fileUrl": {
             "type": "string",
             "description": "원본 파일 경로"
+          },
+          "originalFileName": {
+            "type": "string",
+            "description": "사용자가 업로드한 원본 파일명",
+            "nullable": true
           },
           "uploadedBy": {
             "$ref": "#/components/schemas/EmployeesSchema"
@@ -3443,6 +3629,23 @@
           }
         }
       },
+      "UploadCargoDocumentRequest": {
+        "type": "object",
+        "properties": {
+          "document_type": {
+            "type": "string",
+            "description": "BL | DGD"
+          },
+          "file": {
+            "type": "string",
+            "format": "binary"
+          }
+        },
+        "required": [
+          "document_type",
+          "file"
+        ]
+      },
       "WorkAssignmentsSchema": {
         "type": "object",
         "description": "작업 배치 (FR-F3 — 투입 가능/제외 필터 결과)",
@@ -3596,6 +3799,9 @@
     },
     {
       "name": "auth"
+    },
+    {
+      "name": "cargo_documents"
     },
     {
       "name": "cargo_items"

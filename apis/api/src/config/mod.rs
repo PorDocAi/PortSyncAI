@@ -6,6 +6,7 @@ pub struct Config {
     pub database_url: String,
     #[allow(dead_code)]
     pub jwt_secret: String,
+    pub upload_dir: String,
     pub port: u16,
 }
 
@@ -20,6 +21,7 @@ impl Config {
             database_url,
             jwt_secret: env::var("JWT_SECRET")
                 .unwrap_or_else(|_| "your-secret-key-change-in-production".to_string()),
+            upload_dir: env::var("UPLOAD_DIR").unwrap_or_else(|_| "./uploads".to_string()),
             port: env::var("PORT")
                 .unwrap_or_else(|_| "8000".to_string())
                 .parse()
