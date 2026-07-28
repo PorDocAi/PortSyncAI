@@ -1,6 +1,7 @@
 pub mod admin;
 pub mod attendances;
 pub mod auth;
+pub mod cargo_documents;
 pub mod cargo_items;
 pub mod departments;
 pub mod employees;

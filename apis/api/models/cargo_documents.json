@@ -7,6 +7,10 @@
     { "name": "document_type", "type": { "kind": "enum", "name": "cargo_document_type", "values": ["BL", "DGD"] }, "nullable": false, "comment": "문서 유형 (선하증권/위험물신고서)" },
     { "name": "file_format", "type": { "kind": "enum", "name": "file_format", "values": ["HWP", "PDF", "XLSX", "DOCX", "IMAGE"] }, "nullable": false, "comment": "파일 형식" },
     { "name": "file_url", "type": { "kind": "varchar", "length": 500 }, "nullable": false, "comment": "원본 파일 경로" },
+    { "name": "original_file_name", "type": { "kind": "varchar", "length": 255 }, "nullable": true, "comment": "사용자가 업로드한 원본 파일명" },
+    { "name": "content_type", "type": { "kind": "varchar", "length": 100 }, "nullable": true, "comment": "업로드 MIME 타입" },
+    { "name": "file_size", "type": "big_int", "nullable": true, "comment": "파일 크기(byte)" },
+    { "name": "file_hash", "type": { "kind": "char", "length": 64 }, "nullable": true, "comment": "SHA-256 파일 무결성 해시" },
     { "name": "uploaded_by_id", "type": "big_int", "nullable": false, "foreign_key": "employees.employee_id", "comment": "업로더 FK" },
     { "name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시" }
   ]

@@ -86,7 +86,7 @@ vespertide export --orm seaorm        # SeaORM 엔티티 재생성
 | 인증 | `POST /auth/signin` (JWT 발급) | ✅ |
 | 직원 | `GET/POST /employees`, `GET /employees/{id}` | ✅ |
 | 부서/직무 | `GET/POST/PUT /departments`, `/job-roles` | ✅ |
-| 출근 | `POST /attendances`, `GET /attendances/today`, `POST /attendances/ack`, `POST /attendances/equipment-complete` | ✅ |
+| 출근 | `POST /attendances`, `GET /attendances/today`, `GET /attendances/today-instructions`, `GET /attendances/required-equipment`, `POST /attendances/ack`, `POST /attendances/equipment-complete` | ✅ |
 | 장비 태깅 | `POST /equipment-checks` (돌려쓰기 차단) | ✅ |
 | 게이트 | `POST /gate/verify` (사원증 NFC 검증) | ✅ |
 | 승인 워크플로 · 화물 분석 · 법령 분석 · 배치 필터 · 리포트 | — | 🚧 [이슈 보드](../../issues) 참고 |
