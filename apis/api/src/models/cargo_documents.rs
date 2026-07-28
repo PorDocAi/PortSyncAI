@@ -53,6 +53,14 @@ pub struct Model {
     pub file_format: FileFormat,
     /// 원본 파일 경로
     pub file_url: String,
+    /// 사용자가 업로드한 원본 파일명
+    pub original_file_name: Option<String>,
+    /// 업로드 MIME 타입
+    pub content_type: Option<String>,
+    /// 파일 크기(byte)
+    pub file_size: Option<i64>,
+    /// SHA-256 파일 무결성 해시
+    pub file_hash: Option<String>,
     /// 업로더 FK
     pub uploaded_by_id: i64,
     /// 생성일시
