@@ -28,6 +28,8 @@ async fn main() {
         openapi = ["apps/front/openapi.json", "apps/admin/openapi.json"],
         docs_url = "/docs"
     )
+    // Axum multipart 기본 한도(2MiB)를 확장하되, 실제 파일 필드는 20MiB로 더 엄격하게 제한한다.
+    // 나머지 1MiB는 multipart 헤더와 일반 폼 필드의 여유분이다.
     .layer(DefaultBodyLimit::max(21 * 1024 * 1024))
     .with_state(state)
     .layer(
