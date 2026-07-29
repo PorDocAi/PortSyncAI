@@ -21,6 +21,7 @@ use crate::utils::{
 };
 
 #[derive(vespera::Multipart, vespera::Schema)]
+// 예상하지 않은 필드와 중복 필드를 거부해 클라이언트 입력을 명시된 계약으로 제한한다.
 #[try_from_multipart(strict)]
 pub struct UploadCargoDocumentRequest {
     /// BL | DGD
@@ -86,6 +87,8 @@ fn parse_document_type(value: &str) -> Result<CargoDocumentType, StatusCode> {
 }
 
 fn parse_file_format(file_name: &str) -> Result<(FileFormat, String), StatusCode> {
+    // 현재는 확장자 allowlist가 업로드 형식의 1차 경계다.
+    // 파일 시그니처 검증 전까지 content_type은 신뢰하지 않고 감사용 메타데이터로만 저장한다.
     let extension = FilePath::new(file_name)
         .extension()
         .and_then(|value| value.to_str())
@@ -104,6 +107,7 @@ fn parse_file_format(file_name: &str) -> Result<(FileFormat, String), StatusCode
 }
 
 async fn calculate_sha256(path: &FilePath) -> Result<String, StatusCode> {
+    // 파일 전체를 메모리에 올리지 않고 스트리밍 해시해 최대 파일 크기가 커져도 메모리 사용량을 제한한다.
     let mut file = tokio::fs::File::open(path)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -156,6 +160,7 @@ pub async fn upload_cargo_document(
     let file_size = i64::try_from(metadata.len()).map_err(|_| StatusCode::PAYLOAD_TOO_LARGE)?;
     let file_hash = calculate_sha256(temporary_path).await?;
 
+    // 원본 파일명을 저장 경로에 사용하면 경로 조작과 이름 충돌 위험이 있으므로 UUID 키를 사용한다.
     let storage_key = format!("cargo/{}.{}", Uuid::new_v4(), extension);
     let physical_path = PathBuf::from(&state.config.upload_dir).join(&storage_key);
     if let Some(parent) = physical_path.parent() {
@@ -181,6 +186,7 @@ pub async fn upload_cargo_document(
     let saved = match active.insert(&state.db).await {
         Ok(saved) => saved,
         Err(_) => {
+            // 파일 저장과 DB 삽입은 하나의 트랜잭션이 아니므로 DB 실패 시 파일을 보상 삭제한다.
             let _ = tokio::fs::remove_file(&physical_path).await;
             return Err(StatusCode::INTERNAL_SERVER_ERROR);
         }

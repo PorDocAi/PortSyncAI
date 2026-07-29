@@ -97,3 +97,9 @@ vespertide export --orm seaorm        # SeaORM 엔티티 재생성
 - **커밋**: `타입: 요약 (#이슈번호)` 한국어, 현재형 — `feat` `fix` `refactor` `chore` `docs` `test` `style` `ci` `perf`
 - **이슈 → 브랜치 → 커밋(#이슈) → PR(Closes #이슈) → develop 머지**
 - pre-commit: `oxlint` + `cargo clippy -D warnings` + `cargo fmt --check`
+
+### 코드 주석
+
+- 코드가 이미 보여주는 동작을 반복하지 않고 비즈니스 정책·보안 경계·기술적 제약의 이유를 설명한다.
+- 장기 작업은 일반 주석으로 숨기지 않고 GitHub Issue로 등록한다.
+- `TODO`가 필요한 경우 `TODO(#이슈번호): 이유` 형식을 사용하고 해결 즉시 제거한다.
