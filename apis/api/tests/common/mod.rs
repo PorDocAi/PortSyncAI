@@ -4,6 +4,10 @@
 //! 임시 SQLite 파일 DB → vespertide 마이그레이션 전체 적용 →
 //! 실제 `#[vespera::route]` 핸들러를 Router에 연결 → `tower::ServiceExt::oneshot` 요청.
 //! 타이밍 의존 요소(sleep, 폴링)는 일절 없다 — 모든 단언은 응답 상태/바디로만 한다.
+//
+// 각 통합 테스트 바이너리가 이 모듈을 개별 컴파일하므로, 특정 바이너리가 쓰지 않는
+// 공용 픽스처가 dead-code로 보인다 — 공용 하네스스 특성상 모듈 단위로 허용한다.
+#![allow(dead_code)]
 
 use sea_orm::{ActiveModelTrait, ActiveValue::NotSet, DatabaseConnection, EntityTrait, Set};
 use vespera::axum::{Router, http::StatusCode};
@@ -94,6 +98,10 @@ pub async fn spawn_app_with(
             vespera::axum::routing::delete(gate::revoke_gate_terminal),
         );
     let app = customize(base)
+        .route(
+            "/equipment-checks",
+            vespera::axum::routing::post(api::routes::equipment_checks::tag_equipment),
+        )
         .route(
             "/gate/verify",
             vespera::axum::routing::post(gate::verify_gate),
@@ -262,10 +270,7 @@ pub async fn seed_active_equipment(db: &DatabaseConnection) -> equipment::Model 
     equipment::ActiveModel {
         equipment_id: NotSet,
         equipment_type_id: Set(type_id),
-        asset_number: Set(Some(format!(
-            "AST-{}",
-            uuid::Uuid::new_v4().simple().to_string()
-        ))),
+        asset_number: Set(Some(format!("AST-{}", uuid::Uuid::new_v4().simple()))),
         nfc_tag_uid: Set(format!("eq-{}", uuid::Uuid::new_v4().simple())),
         braille_label: Set(None),
         is_active: Default::default(), // true
