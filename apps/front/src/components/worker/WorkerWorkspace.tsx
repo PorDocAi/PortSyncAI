@@ -5,6 +5,8 @@ import { Box, Button as UiButton, Grid, Input as UiInput } from '@devup-ui/react
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
 
+import { type EquipmentScanPayload, scanEquipmentTag } from '@/lib/nfc'
+
 type Work = {
   id: string
   code: string
@@ -188,6 +190,9 @@ function PreparationScreen({ work }: { work: Work }) {
   const [exceptionMemo, setExceptionMemo] = useState('')
   const [exceptionSubmitted, setExceptionSubmitted] = useState(false)
   const [gateReady, setGateReady] = useState(false)
+  const [scanningItem, setScanningItem] = useState<string | null>(null)
+  const [scanError, setScanError] = useState('')
+  const [lastScan, setLastScan] = useState<EquipmentScanPayload | null>(null)
 
   const isStepAvailable = (target: PreparationStep) => {
     if (target === 'education') return true
@@ -196,8 +201,22 @@ function PreparationScreen({ work }: { work: Work }) {
     return instructionRead && scanned.length === 3
   }
 
-  const scan = (item: string) => {
-    setScanned((items) => items.includes(item) ? items : [...items, item])
+  const scan = async (item: string) => {
+    setScanningItem(item)
+    setScanError('')
+
+    try {
+      const payload = await scanEquipmentTag({
+        assignmentId: work.code,
+        equipmentCategory: item,
+      })
+      setLastScan(payload)
+      setScanned((items) => items.includes(item) ? items : [...items, item])
+    } catch (error) {
+      setScanError(error instanceof Error ? error.message : 'NFC 태그를 확인하지 못했습니다.')
+    } finally {
+      setScanningItem(null)
+    }
   }
 
   return (
@@ -305,12 +324,20 @@ function PreparationScreen({ work }: { work: Work }) {
                   <div className="ppe-row" key={item}>
                     <span>{String(index + 1).padStart(2, '0')}</span>
                     <div><strong>{item}</strong><small>{index === 1 ? 'HAND · 화학물질 투과 저항' : index === 2 ? 'EYE · 측면 보호' : 'FOOT · 정전기 방지'}</small></div>
-                    <UiButton disabled={complete} onClick={() => scan(item)} type="button">{complete ? '확인됨' : 'NFC 읽기'}</UiButton>
+                    <UiButton disabled={complete || scanningItem !== null} onClick={() => void scan(item)} type="button">
+                      {complete ? '확인됨' : scanningItem === item ? 'NFC 읽는 중…' : 'NFC 읽기'}
+                    </UiButton>
                   </div>
                 )
               })}
             </div>
             <div className="nfc-note"><strong>NFC 입력 규칙</strong><p>태그 토큰만 전송하며 장비 종류·소유자·사용중지 여부는 서버에서 판정합니다.</p></div>
+            {lastScan && (
+              <p className="nfc-scan-result" role="status">
+                최근 확인 · {lastScan.equipmentCategory} · {lastScan.tagToken.slice(0, 12)}… · {lastScan.device.channel === 'phone-nfc' ? '휴대폰 NFC' : '개발 미리보기'}
+              </p>
+            )}
+            {scanError && <p className="nfc-scan-error" role="alert">{scanError}</p>}
             <UiButton className="exception-toggle" onClick={() => setExceptionOpen((open) => !open)} type="button">
               보호구 문제 신고·예외 승인 요청
             </UiButton>

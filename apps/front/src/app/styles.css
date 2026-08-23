@@ -154,6 +154,9 @@ a { color: inherit; }
 .nfc-note { padding: 16px 0; border-bottom: 1px solid var(--line-strong); }
 .nfc-note strong { font-size: 11px; }
 .nfc-note p { margin: 6px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.nfc-scan-result, .nfc-scan-error { margin: 10px 0 0; border-left: 3px solid currentColor; padding: 10px 12px; font-size: 14px; line-height: 1.5; }
+.nfc-scan-result { color: #2d5f4b; background: #f1f7f4; }
+.nfc-scan-error { color: #9e382f; background: #fff4f2; }
 .exception-toggle { width: 100%; min-height: 48px; border: 0; border-bottom: 1px solid var(--line-strong); background: white; font-size: 11px; font-weight: 800; text-align: left; cursor: pointer; }
 .exception-form { padding: 18px 0; border-bottom: 1px solid var(--line-strong); }
 .exception-form > p { margin: 0 0 18px; color: var(--muted); font-size: 11px; line-height: 1.6; }
