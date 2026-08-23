@@ -1,9 +1,15 @@
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema,
+)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "work_targets_work_target_type")]
+#[sea_orm(
+    rs_type = "String",
+    db_type = "Enum",
+    enum_name = "work_targets_work_target_type"
+)]
 pub enum WorkTargetType {
     #[sea_orm(string_value = "CONTAINER")]
     Container,
@@ -38,10 +44,9 @@ pub struct Model {
     pub cargo_item: HasOne<super::cargo_items::Entity>,
 }
 
-
 /// Composite unique constraints — declare in migrations or use Statement builder.
 pub const COMPOSITE_UNIQUES: &[&[&str]] = &[
-    &["work_id", "container_id"], // uq_work_target_container
+    &["work_id", "container_id"],  // uq_work_target_container
     &["work_id", "cargo_item_id"], // uq_work_target_cargo_item
 ];
 vespera::schema_type!(Schema from Model, name = "WorkTargetsSchema");

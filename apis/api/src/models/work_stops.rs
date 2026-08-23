@@ -1,9 +1,15 @@
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema,
+)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "work_stops_work_stop_status")]
+#[sea_orm(
+    rs_type = "String",
+    db_type = "Enum",
+    enum_name = "work_stops_work_stop_status"
+)]
 pub enum WorkStopStatus {
     #[sea_orm(string_value = "OPEN")]
     Open,
@@ -53,9 +59,19 @@ pub struct Model {
     pub work_assignment: HasOne<super::v2_work_assignments::Entity>,
     #[sea_orm(belongs_to, from = "legacy_attendance_id", to = "attendance_id")]
     pub legacy: HasOne<super::attendances::Entity>,
-    #[sea_orm(belongs_to, relation_enum = "StoppedBy", from = "stopped_by_id", to = "employee_id")]
+    #[sea_orm(
+        belongs_to,
+        relation_enum = "StoppedBy",
+        from = "stopped_by_id",
+        to = "employee_id"
+    )]
     pub stopped_by: HasOne<super::employees::Entity>,
-    #[sea_orm(belongs_to, relation_enum = "ClosedBy", from = "closed_by_id", to = "employee_id")]
+    #[sea_orm(
+        belongs_to,
+        relation_enum = "ClosedBy",
+        from = "closed_by_id",
+        to = "employee_id"
+    )]
     pub closed_by: HasOne<super::employees::Entity>,
 }
 

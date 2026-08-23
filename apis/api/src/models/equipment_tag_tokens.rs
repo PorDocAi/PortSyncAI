@@ -31,9 +31,19 @@ pub struct Model {
     pub created_at: DateTimeWithTimeZone,
     #[sea_orm(belongs_to, from = "equipment_profile_id", to = "equipment_profile_id")]
     pub equipment_profile: HasOne<super::equipment_profiles::Entity>,
-    #[sea_orm(belongs_to, relation_enum = "IssuedBy", from = "issued_by_id", to = "employee_id")]
+    #[sea_orm(
+        belongs_to,
+        relation_enum = "IssuedBy",
+        from = "issued_by_id",
+        to = "employee_id"
+    )]
     pub issued_by: HasOne<super::employees::Entity>,
-    #[sea_orm(belongs_to, relation_enum = "DeactivatedBy", from = "deactivated_by_id", to = "employee_id")]
+    #[sea_orm(
+        belongs_to,
+        relation_enum = "DeactivatedBy",
+        from = "deactivated_by_id",
+        to = "employee_id"
+    )]
     pub deactivated_by: HasOne<super::employees::Entity>,
 }
 

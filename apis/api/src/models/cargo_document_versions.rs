@@ -1,9 +1,15 @@
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema,
+)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "cargo_document_versions_v2_cargo_document_type")]
+#[sea_orm(
+    rs_type = "String",
+    db_type = "Enum",
+    enum_name = "cargo_document_versions_v2_cargo_document_type"
+)]
 pub enum V2CargoDocumentType {
     #[sea_orm(string_value = "BL")]
     Bl,
@@ -15,9 +21,15 @@ pub enum V2CargoDocumentType {
     Msds,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema,
+)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "cargo_document_versions_cargo_processing_status")]
+#[sea_orm(
+    rs_type = "String",
+    db_type = "Enum",
+    enum_name = "cargo_document_versions_cargo_processing_status"
+)]
 pub enum CargoProcessingStatus {
     #[sea_orm(string_value = "PENDING")]
     Pending,
@@ -29,9 +41,15 @@ pub enum CargoProcessingStatus {
     Failed,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema,
+)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "cargo_document_versions_cargo_review_status")]
+#[sea_orm(
+    rs_type = "String",
+    db_type = "Enum",
+    enum_name = "cargo_document_versions_cargo_review_status"
+)]
 pub enum CargoReviewStatus {
     #[sea_orm(string_value = "PENDING")]
     Pending,
@@ -72,7 +90,11 @@ pub struct Model {
     pub created_at: DateTimeWithTimeZone,
     /// 수정일시
     pub updated_at: Option<DateTimeWithTimeZone>,
-    #[sea_orm(belongs_to, from = "legacy_cargo_document_id", to = "cargo_document_id")]
+    #[sea_orm(
+        belongs_to,
+        from = "legacy_cargo_document_id",
+        to = "cargo_document_id"
+    )]
     pub legacy: HasOne<super::cargo_documents::Entity>,
     #[sea_orm(belongs_to, from = "reviewed_by_id", to = "employee_id")]
     pub reviewed_by: HasOne<super::employees::Entity>,

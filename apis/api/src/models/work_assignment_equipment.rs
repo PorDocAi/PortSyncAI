@@ -21,10 +21,13 @@ pub struct Model {
     pub work_assignment: HasOne<super::v2_work_assignments::Entity>,
     #[sea_orm(belongs_to, from = "equipment_profile_id", to = "equipment_profile_id")]
     pub equipment_profile: HasOne<super::equipment_profiles::Entity>,
-    #[sea_orm(belongs_to, from = "requirement_snapshot_id", to = "work_ppe_requirement_snapshot_id")]
+    #[sea_orm(
+        belongs_to,
+        from = "requirement_snapshot_id",
+        to = "work_ppe_requirement_snapshot_id"
+    )]
     pub requirement_snapshot: HasOne<super::work_ppe_requirement_snapshots::Entity>,
 }
-
 
 /// Composite unique constraints — declare in migrations or use Statement builder.
 pub const COMPOSITE_UNIQUES: &[&[&str]] = &[

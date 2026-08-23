@@ -1,9 +1,15 @@
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema,
+)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "improvement_orders_improvement_status")]
+#[sea_orm(
+    rs_type = "String",
+    db_type = "Enum",
+    enum_name = "improvement_orders_improvement_status"
+)]
 pub enum ImprovementStatus {
     #[sea_orm(string_value = "ISSUED")]
     Issued,
@@ -43,9 +49,19 @@ pub struct Model {
     pub created_at: DateTimeWithTimeZone,
     /// 수정일시
     pub updated_at: Option<DateTimeWithTimeZone>,
-    #[sea_orm(belongs_to, relation_enum = "IssuedBy", from = "issued_by_id", to = "employee_id")]
+    #[sea_orm(
+        belongs_to,
+        relation_enum = "IssuedBy",
+        from = "issued_by_id",
+        to = "employee_id"
+    )]
     pub issued_by: HasOne<super::employees::Entity>,
-    #[sea_orm(belongs_to, relation_enum = "TargetEmployee", from = "target_employee_id", to = "employee_id")]
+    #[sea_orm(
+        belongs_to,
+        relation_enum = "TargetEmployee",
+        from = "target_employee_id",
+        to = "employee_id"
+    )]
     pub target: HasOne<super::employees::Entity>,
     #[sea_orm(belongs_to, from = "attendance_id", to = "attendance_id")]
     pub attendance: HasOne<super::attendances::Entity>,

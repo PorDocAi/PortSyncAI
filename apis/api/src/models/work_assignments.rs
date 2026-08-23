@@ -1,9 +1,15 @@
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema,
+)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "work_assignments_eligibility_status")]
+#[sea_orm(
+    rs_type = "String",
+    db_type = "Enum",
+    enum_name = "work_assignments_eligibility_status"
+)]
 pub enum EligibilityStatus {
     #[sea_orm(string_value = "ELIGIBLE")]
     Eligible,
@@ -37,11 +43,21 @@ pub struct Model {
     pub created_at: DateTimeWithTimeZone,
     /// 수정일시
     pub updated_at: Option<DateTimeWithTimeZone>,
-    #[sea_orm(belongs_to, relation_enum = "Employee", from = "employee_id", to = "employee_id")]
+    #[sea_orm(
+        belongs_to,
+        relation_enum = "Employee",
+        from = "employee_id",
+        to = "employee_id"
+    )]
     pub employee: HasOne<super::employees::Entity>,
     #[sea_orm(belongs_to, from = "cargo_item_id", to = "cargo_item_id")]
     pub cargo_item: HasOne<super::cargo_items::Entity>,
-    #[sea_orm(belongs_to, relation_enum = "AssignedBy", from = "assigned_by_id", to = "employee_id")]
+    #[sea_orm(
+        belongs_to,
+        relation_enum = "AssignedBy",
+        from = "assigned_by_id",
+        to = "employee_id"
+    )]
     pub assigned_by: HasOne<super::employees::Entity>,
     #[sea_orm(has_one)]
     pub v2_work_assignments: HasOne<super::v2_work_assignments::Entity>,

@@ -377,7 +377,8 @@ async fn evaluate_v2_readiness(
                     work_assignment_equipment::Column::WorkAssignmentId
                         .eq(assignment.work_assignment_id)
                         .and(
-                            work_assignment_equipment::Column::RequirementSnapshotId.eq(snapshot_id),
+                            work_assignment_equipment::Column::RequirementSnapshotId
+                                .eq(snapshot_id),
                         ),
                 )
                 .one(db)

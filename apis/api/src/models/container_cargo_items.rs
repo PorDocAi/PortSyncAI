@@ -23,7 +23,6 @@ pub struct Model {
     pub cargo_item: HasOne<super::cargo_items::Entity>,
 }
 
-
 /// Composite unique constraints — declare in migrations or use Statement builder.
 pub const COMPOSITE_UNIQUES: &[&[&str]] = &[
     &["container_id", "cargo_item_id"], // uq_container_cargo_item

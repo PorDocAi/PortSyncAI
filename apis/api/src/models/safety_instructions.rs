@@ -1,9 +1,15 @@
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema,
+)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "safety_instructions_source_law")]
+#[sea_orm(
+    rs_type = "String",
+    db_type = "Enum",
+    enum_name = "safety_instructions_source_law"
+)]
 pub enum SourceLaw {
     #[sea_orm(string_value = "OSH_ACT")]
     OshAct,

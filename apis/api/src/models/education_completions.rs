@@ -30,9 +30,19 @@ pub struct Model {
     pub created_at: DateTimeWithTimeZone,
     #[sea_orm(belongs_to, from = "education_course_id", to = "education_course_id")]
     pub education_course: HasOne<super::education_courses::Entity>,
-    #[sea_orm(belongs_to, relation_enum = "Employee", from = "employee_id", to = "employee_id")]
+    #[sea_orm(
+        belongs_to,
+        relation_enum = "Employee",
+        from = "employee_id",
+        to = "employee_id"
+    )]
     pub employee: HasOne<super::employees::Entity>,
-    #[sea_orm(belongs_to, relation_enum = "RecordedBy", from = "recorded_by_id", to = "employee_id")]
+    #[sea_orm(
+        belongs_to,
+        relation_enum = "RecordedBy",
+        from = "recorded_by_id",
+        to = "employee_id"
+    )]
     pub recorded_by: HasOne<super::employees::Entity>,
 }
 

@@ -1,9 +1,15 @@
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema,
+)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "cargo_item_documents_cargo_document_role")]
+#[sea_orm(
+    rs_type = "String",
+    db_type = "Enum",
+    enum_name = "cargo_item_documents_cargo_document_role"
+)]
 pub enum CargoDocumentRole {
     #[sea_orm(string_value = "BL")]
     Bl,
@@ -37,14 +43,21 @@ pub struct Model {
     pub created_at: DateTimeWithTimeZone,
     #[sea_orm(belongs_to, from = "cargo_item_id", to = "cargo_item_id")]
     pub cargo_item: HasOne<super::cargo_items::Entity>,
-    #[sea_orm(belongs_to, from = "cargo_document_version_id", to = "cargo_document_version_id")]
+    #[sea_orm(
+        belongs_to,
+        from = "cargo_document_version_id",
+        to = "cargo_document_version_id"
+    )]
     pub cargo_document_version: HasOne<super::cargo_document_versions::Entity>,
 }
 
-
 /// Composite unique constraints — declare in migrations or use Statement builder.
 pub const COMPOSITE_UNIQUES: &[&[&str]] = &[
-    &["cargo_item_id", "cargo_document_version_id", "document_role"], // uq_cargo_item_document_role
+    &[
+        "cargo_item_id",
+        "cargo_document_version_id",
+        "document_role",
+    ], // uq_cargo_item_document_role
 ];
 vespera::schema_type!(Schema from Model, name = "CargoItemDocumentsSchema");
 impl ActiveModelBehavior for ActiveModel {}

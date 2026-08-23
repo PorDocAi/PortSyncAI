@@ -1,9 +1,15 @@
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema,
+)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "v2_work_assignments_v2_work_assignment_status")]
+#[sea_orm(
+    rs_type = "String",
+    db_type = "Enum",
+    enum_name = "v2_work_assignments_v2_work_assignment_status"
+)]
 pub enum V2WorkAssignmentStatus {
     #[sea_orm(string_value = "ASSIGNED")]
     Assigned,
@@ -53,9 +59,19 @@ pub struct Model {
     pub legacy: HasOne<super::work_assignments::Entity>,
     #[sea_orm(belongs_to, from = "work_id", to = "work_id")]
     pub work: HasOne<super::works::Entity>,
-    #[sea_orm(belongs_to, relation_enum = "Employee", from = "employee_id", to = "employee_id")]
+    #[sea_orm(
+        belongs_to,
+        relation_enum = "Employee",
+        from = "employee_id",
+        to = "employee_id"
+    )]
     pub employee: HasOne<super::employees::Entity>,
-    #[sea_orm(belongs_to, relation_enum = "AssignedBy", from = "assigned_by_id", to = "employee_id")]
+    #[sea_orm(
+        belongs_to,
+        relation_enum = "AssignedBy",
+        from = "assigned_by_id",
+        to = "employee_id"
+    )]
     pub assigned_by: HasOne<super::employees::Entity>,
     #[sea_orm(has_many)]
     pub work_assignment_equipments: HasMany<super::work_assignment_equipment::Entity>,

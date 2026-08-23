@@ -1,9 +1,15 @@
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema,
+)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "employees_system_role")]
+#[sea_orm(
+    rs_type = "String",
+    db_type = "Enum",
+    enum_name = "employees_system_role"
+)]
 pub enum SystemRole {
     #[sea_orm(string_value = "ADMIN")]
     Admin,
@@ -15,9 +21,15 @@ pub enum SystemRole {
     Worker,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema,
+)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "employees_employee_status")]
+#[sea_orm(
+    rs_type = "String",
+    db_type = "Enum",
+    enum_name = "employees_employee_status"
+)]
 pub enum EmployeeStatus {
     #[sea_orm(string_value = "ACTIVE")]
     Active,
@@ -110,7 +122,11 @@ pub struct Model {
     pub assigned_by_work_assignments: HasMany<super::work_assignments::Entity>,
     #[sea_orm(has_many, relation_enum = "V2WorkAssignments", via_rel = "Employee")]
     pub employee_v2_work_assignments: HasMany<super::v2_work_assignments::Entity>,
-    #[sea_orm(has_many, relation_enum = "V2WorkAssignmentsAssignedBy", via_rel = "AssignedBy")]
+    #[sea_orm(
+        has_many,
+        relation_enum = "V2WorkAssignmentsAssignedBy",
+        via_rel = "AssignedBy"
+    )]
     pub assigned_by_v2_work_assignments: HasMany<super::v2_work_assignments::Entity>,
     #[sea_orm(has_many)]
     pub equipment_check_events: HasMany<super::equipment_check_events::Entity>,
