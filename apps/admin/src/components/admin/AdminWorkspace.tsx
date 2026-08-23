@@ -38,7 +38,7 @@ export function AdminWorkspace() {
             </section>
           ))}
         </nav>
-        <div className="admin-sidebar__account"><span>윤</span><div><strong>윤서진</strong><small>안전 관리자</small></div><Link href="/signin">로그아웃</Link></div>
+        <div className="admin-sidebar__account"><span>윤</span><div><strong>윤서진</strong><small>안전 관리자</small></div><Link href="/gate-terminal">게이트 단말</Link></div>
       </aside>
       <main className="admin-main">
         <div className="admin-topline"><span>2026년 8월 23일 일요일 · 주간조</span><div><button type="button">알림 3</button><span>운영 연결 정상</span></div></div>
