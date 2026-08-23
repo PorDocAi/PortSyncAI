@@ -64,6 +64,37 @@ async fn assignment_to_mapped_unconfirmed_v2_msds_is_rejected() {
     assert_eq!(response.json()["code"], "MSDS_REVIEW_NOT_CONFIRMED");
 }
 
+/// 레거시 문서 없이 v2 MSDS만 연결된 화물도 확정이면 배정을 생성한다
+#[tokio::test]
+async fn assignment_to_v2_only_confirmed_msds_is_created() {
+    let app = spawn_assignment_app().await;
+    let admin_bearer = common::bearer_for(1, "ADMIN");
+    let (worker, _) = common::spawn_worker(&app.db, "nfc-v2-only-confirmed").await;
+    let item = seed_v2_only_cargo_item(&app).await;
+    seed_v2_msds(&app, item.cargo_item_id, CargoReviewStatus::Confirmed).await;
+
+    let response = app
+        .create_assignment_with(&admin_bearer, worker.employee_id, Some(item.cargo_item_id))
+        .await;
+    assert_eq!(response.status(), StatusCode::CREATED);
+}
+
+/// 레거시 문서 없이 v2 MSDS만 연결된 화물의 미확정 검수는 차단한다
+#[tokio::test]
+async fn assignment_to_v2_only_unconfirmed_msds_is_rejected() {
+    let app = spawn_assignment_app().await;
+    let admin_bearer = common::bearer_for(1, "ADMIN");
+    let (worker, _) = common::spawn_worker(&app.db, "nfc-v2-only-pending").await;
+    let item = seed_v2_only_cargo_item(&app).await;
+    seed_v2_msds(&app, item.cargo_item_id, CargoReviewStatus::Pending).await;
+
+    let response = app
+        .create_assignment_with(&admin_bearer, worker.employee_id, Some(item.cargo_item_id))
+        .await;
+    assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+    assert_eq!(response.json()["code"], "MSDS_REVIEW_NOT_CONFIRMED");
+}
+
 /// 매핑된 v2 MSDS가 확정이면 배정을 생성한다
 #[tokio::test]
 async fn assignment_to_mapped_confirmed_v2_msds_is_created() {
@@ -73,6 +104,72 @@ async fn assignment_to_mapped_confirmed_v2_msds_is_created() {
     let item = seed_cargo_item(&app, ReviewStatus::Confirmed).await;
     seed_v2_msds(&app, item.cargo_item_id, CargoReviewStatus::Confirmed).await;
 
+    let response = app
+        .create_assignment_with(&admin_bearer, worker.employee_id, Some(item.cargo_item_id))
+        .await;
+    assert_eq!(response.status(), StatusCode::CREATED);
+}
+
+#[tokio::test]
+async fn assignment_with_two_msds_mappings_one_pending_is_rejected() {
+    let app = spawn_assignment_app().await;
+    let admin_bearer = common::bearer_for(1, "ADMIN");
+    let (worker, _) = common::spawn_worker(&app.db, "nfc-two-msds").await;
+    let item = seed_cargo_item(&app, ReviewStatus::Confirmed).await;
+    seed_v2_msds(&app, item.cargo_item_id, CargoReviewStatus::Confirmed).await;
+    seed_v2_msds(&app, item.cargo_item_id, CargoReviewStatus::Rejected).await;
+    let response = app
+        .create_assignment_with(&admin_bearer, worker.employee_id, Some(item.cargo_item_id))
+        .await;
+    assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+    assert_eq!(response.json()["code"], "MSDS_REVIEW_NOT_CONFIRMED");
+}
+
+#[tokio::test]
+async fn assignment_with_rejected_v2_review_is_rejected() {
+    let app = spawn_assignment_app().await;
+    let admin_bearer = common::bearer_for(1, "ADMIN");
+    let (worker, _) = common::spawn_worker(&app.db, "nfc-rejected-v2").await;
+    let item = seed_cargo_item(&app, ReviewStatus::Confirmed).await;
+    seed_v2_msds(&app, item.cargo_item_id, CargoReviewStatus::Rejected).await;
+    let response = app
+        .create_assignment_with(&admin_bearer, worker.employee_id, Some(item.cargo_item_id))
+        .await;
+    assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+    assert_eq!(response.json()["code"], "MSDS_REVIEW_NOT_CONFIRMED");
+}
+
+#[tokio::test]
+async fn patch_revalidates_existing_cargo_when_cargo_item_id_omitted() {
+    let app = spawn_assignment_app().await;
+    let admin_bearer = common::bearer_for(1, "ADMIN");
+    let (worker, _) = common::spawn_worker(&app.db, "nfc-patch-revalidate").await;
+    let item = seed_cargo_item(&app, ReviewStatus::Confirmed).await;
+    let created = app
+        .create_assignment_with(&admin_bearer, worker.employee_id, Some(item.cargo_item_id))
+        .await;
+    assert_eq!(created.status(), StatusCode::CREATED);
+    let id = created.json()["assignment_id"].as_i64().unwrap();
+    let document = cargo_documents::Entity::find_by_id(item.cargo_document_id.unwrap())
+        .one(&app.db)
+        .await
+        .unwrap()
+        .unwrap();
+    let mut document: cargo_documents::ActiveModel = document.into();
+    document.review_status = Set(ReviewStatus::Pending);
+    document.update(&app.db).await.unwrap();
+    let response = app.update_assignment_with(&admin_bearer, id, None).await;
+    assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+    assert_eq!(response.json()["code"], "MSDS_REVIEW_NOT_CONFIRMED");
+}
+
+#[tokio::test]
+async fn confirmed_v2_with_pending_legacy_is_created() {
+    let app = spawn_assignment_app().await;
+    let admin_bearer = common::bearer_for(1, "ADMIN");
+    let (worker, _) = common::spawn_worker(&app.db, "nfc-v2-confirmed-legacy-pending").await;
+    let item = seed_cargo_item(&app, ReviewStatus::Pending).await;
+    seed_v2_msds(&app, item.cargo_item_id, CargoReviewStatus::Confirmed).await;
     let response = app
         .create_assignment_with(&admin_bearer, worker.employee_id, Some(item.cargo_item_id))
         .await;
@@ -173,6 +270,17 @@ async fn seed_cargo_item(app: &TestApp, review_status: ReviewStatus) -> cargo_it
     .insert(&app.db)
     .await
     .expect("화물 픽스처 삽입 실패")
+}
+
+async fn seed_v2_only_cargo_item(app: &TestApp) -> cargo_items::Model {
+    let mut item = seed_cargo_item(app, ReviewStatus::Confirmed).await;
+    let mut active: cargo_items::ActiveModel = item.clone().into();
+    active.cargo_document_id = Set(None);
+    item = active
+        .update(&app.db)
+        .await
+        .expect("v2-only 화물 수정 실패");
+    item
 }
 
 async fn seed_v2_msds(app: &TestApp, cargo_item_id: i64, review_status: CargoReviewStatus) {

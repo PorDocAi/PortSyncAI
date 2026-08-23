@@ -110,6 +110,10 @@ pub async fn spawn_app_with(
             "/work-assignments",
             vespera::axum::routing::post(work_assignments::create_work_assignment),
         )
+        .route(
+            "/work-assignments/{id}",
+            vespera::axum::routing::patch(work_assignments::update_work_assignment),
+        )
         .with_state(state);
 
     TestApp {
@@ -330,6 +334,25 @@ impl TestApp {
                     .to_string(),
                 )
                 .unwrap(),
+        )
+        .await
+    }
+
+    pub async fn update_assignment_with(
+        &self,
+        authorization: &str,
+        assignment_id: i64,
+        cargo_item_id: Option<i64>,
+    ) -> MockResponse {
+        self.send_request(
+            req(
+                vespera::axum::http::Method::PATCH,
+                &format!("/work-assignments/{assignment_id}"),
+            )
+            .header("Authorization", authorization)
+            .header("Content-Type", "application/json")
+            .body(serde_json::json!({ "cargo_item_id": cargo_item_id }).to_string())
+            .unwrap(),
         )
         .await
     }

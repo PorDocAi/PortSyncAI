@@ -1,12 +1,14 @@
 # Task 4V work/document API evidence
 
-- Extended existing POST /work-assignments validation.
-- When a cargo item has an MSDS cargo_item_documents bridge, cargo_document_versions.review_status must be CONFIRMED.
-- Legacy cargo_documents review validation remains in place when no v2 bridge exists.
-- Tests added for mapped unconfirmed (422, MSDS_REVIEW_NOT_CONFIRMED) and confirmed (201).
-- Verification: cargo test -p api --test work_assignment attempted; blocked by pre-existing duplicate source_document_version model errors in ppe_requirements.rs and work_ppe_requirement_snapshots.rs.
-- cargo fmt --all -- --check reports pre-existing formatting drift across generated/model files.
+- Extended work-assignment coverage for legacy and sidecar v2 MSDS review gates.
+- v2-only cargo (`cargo_document_id = NULL`) accepts a confirmed MSDS and rejects pending review with 422 `MSDS_REVIEW_NOT_CONFIRMED`.
+- Multiple MSDS mappings require every mapped review to be confirmed; pending/rejected mappings return 422 `MSDS_REVIEW_NOT_CONFIRMED`.
+- Confirmed v2 MSDS takes precedence over a pending legacy document and returns 201.
+- PATCH revalidates the existing cargo when `cargo_item_id` is omitted.
+- The existing handler helper passed all cases; no handler fix was required.
 
 ## Verification
-- `cargo test -p api --test work_assignment` (6 passed)
-- Assignment gate manually exercised by integration harness: confirmed legacy and confirmed v2 return 201; pending legacy/v2 return 422 `MSDS_REVIEW_NOT_CONFIRMED`.
+
+- `cargo test -p api --test work_assignment` — 12 passed, 0 failed.
+- Tests use the in-process router and database harness; no manual QA required.
+- Rust LSP diagnostics were unavailable because `rust-analyzer` is not installed.
