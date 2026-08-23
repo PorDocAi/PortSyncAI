@@ -24,7 +24,7 @@ pub struct Model {
     /// 확정 근거 v2 문서 버전 FK
     pub source_document_version_id: i64,
     /// 확정 근거 문서 버전
-    pub source_document_version: i32,
+    pub source_document_version_number: i32,
     /// 확정 검수자 FK
     pub reviewed_by_id: i64,
     /// 원본 검수일시
@@ -38,7 +38,11 @@ pub struct Model {
     pub ppe_requirement: HasOne<super::ppe_requirements::Entity>,
     #[sea_orm(belongs_to, from = "equipment_type_id", to = "equipment_type_id")]
     pub equipment_type: HasOne<super::equipment_types::Entity>,
-    #[sea_orm(belongs_to, from = "source_document_version_id", to = "cargo_document_version_id")]
+    #[sea_orm(
+        belongs_to,
+        from = "source_document_version_id",
+        to = "cargo_document_version_id"
+    )]
     pub source_document_version: HasOne<super::cargo_document_versions::Entity>,
     #[sea_orm(belongs_to, from = "reviewed_by_id", to = "employee_id")]
     pub reviewed_by: HasOne<super::employees::Entity>,

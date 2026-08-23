@@ -11,7 +11,7 @@
     {"name": "performance_criteria", "type": "json", "nullable": true, "comment": "확정 성능조건"},
     {"name": "source_text", "type": "text", "nullable": false, "comment": "확정 근거 원문"},
     {"name": "source_document_version_id", "type": "big_int", "nullable": false, "foreign_key": "cargo_document_versions.cargo_document_version_id", "comment": "확정 근거 v2 문서 버전 FK"},
-    {"name": "source_document_version", "type": "integer", "nullable": false, "comment": "확정 근거 문서 버전"},
+    {"name": "source_document_version_number", "type": "integer", "nullable": false, "comment": "확정 근거 문서 버전"},
     {"name": "reviewed_by_id", "type": "big_int", "nullable": false, "foreign_key": "employees.employee_id", "comment": "확정 검수자 FK"},
     {"name": "reviewed_at", "type": "timestamptz", "nullable": false, "comment": "원본 검수일시"},
     {"name": "snapshotted_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "스냅샷 생성일시"}

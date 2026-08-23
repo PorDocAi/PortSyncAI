@@ -1,9 +1,15 @@
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema,
+)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "ppe_requirements_ppe_review_status")]
+#[sea_orm(
+    rs_type = "String",
+    db_type = "Enum",
+    enum_name = "ppe_requirements_ppe_review_status"
+)]
 pub enum PpeReviewStatus {
     #[sea_orm(string_value = "PENDING")]
     Pending,
@@ -35,7 +41,7 @@ pub struct Model {
     #[sea_orm(indexed)]
     pub source_document_version_id: i64,
     /// 근거 문서 버전
-    pub source_document_version: i32,
+    pub source_document_version_number: i32,
     /// 요구조건 검수 상태
     #[sea_orm(default_value = "PENDING")]
     pub review_status: PpeReviewStatus,
@@ -53,7 +59,11 @@ pub struct Model {
     pub updated_at: Option<DateTimeWithTimeZone>,
     #[sea_orm(belongs_to, from = "equipment_type_id", to = "equipment_type_id")]
     pub equipment_type: HasOne<super::equipment_types::Entity>,
-    #[sea_orm(belongs_to, from = "source_document_version_id", to = "cargo_document_version_id")]
+    #[sea_orm(
+        belongs_to,
+        from = "source_document_version_id",
+        to = "cargo_document_version_id"
+    )]
     pub source_document_version: HasOne<super::cargo_document_versions::Entity>,
     #[sea_orm(belongs_to, from = "reviewed_by_id", to = "employee_id")]
     pub reviewed_by: HasOne<super::employees::Entity>,
