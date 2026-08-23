@@ -1,12 +1,12 @@
 {
   "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
   "name": "equipment_check_events",
-  "description": "작업 배정 범위의 append-only 장비 태깅·멱등 응답 이벤트",
+  "description": "v2 작업 배정 범위의 append-only 장비 태깅·멱등 응답 이벤트",
   "columns": [
     {"name": "equipment_check_event_id", "type": "big_int", "nullable": false, "primary_key": {"auto_increment": true}, "comment": "장비 태깅 이벤트 고유번호"},
     {"name": "employee_id", "type": "big_int", "nullable": false, "foreign_key": "employees.employee_id", "unique": "uq_equipment_check_employee_idempotency", "index": true, "comment": "JWT로 확인한 작업자 FK"},
-    {"name": "work_assignment_id", "type": "big_int", "nullable": false, "foreign_key": "work_assignments.assignment_id", "index": true, "comment": "요청 작업 배정 FK"},
-    {"name": "equipment_id", "type": "big_int", "nullable": true, "foreign_key": {"references": "equipment.equipment_id", "on_delete": "set_null"}, "comment": "토큰으로 확인한 장비 FK, 미확인 토큰은 null"},
+    {"name": "work_assignment_id", "type": "big_int", "nullable": false, "foreign_key": "v2_work_assignments.work_assignment_id", "index": true, "comment": "요청 v2 작업 배정 FK"},
+    {"name": "equipment_profile_id", "type": "big_int", "nullable": true, "foreign_key": {"references": "equipment_profiles.equipment_profile_id", "on_delete": "set_null"}, "comment": "토큰으로 확인한 v2 장비 프로필 FK, 미확인 토큰은 null"},
     {"name": "idempotency_key", "type": "uuid", "nullable": false, "unique": "uq_equipment_check_employee_idempotency", "comment": "작업자 범위 멱등키"},
     {"name": "request_fingerprint", "type": {"kind": "char", "length": 64}, "nullable": false, "comment": "정규화하지 않은 요청의 SHA-256 지문"},
     {"name": "http_status", "type": "small_int", "nullable": false, "comment": "최초 응답 HTTP 상태"},

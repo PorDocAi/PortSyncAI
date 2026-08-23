@@ -3,10 +3,47 @@
   "name": "gate_terminals",
   "description": "게이트 단말 자격증명(PR #48 보존)",
   "columns": [
-    {"name": "terminal_id", "type": "big_int", "nullable": false, "primary_key": {"auto_increment": true}, "comment": "단말 고유번호"},
-    {"name": "gate_id", "type": {"kind": "varchar", "length": 100}, "nullable": false, "comment": "게이트 식별자"},
-    {"name": "token_hash", "type": {"kind": "char", "length": 64}, "nullable": false, "unique": true, "comment": "단말 토큰 SHA-256 해시"},
-    {"name": "is_active", "type": "boolean", "nullable": false, "default": true, "comment": "활성 여부"},
-    {"name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시"}
+    {
+      "comment": "단말 고유번호",
+      "name": "terminal_id",
+      "nullable": false,
+      "primary_key": {
+        "auto_increment": true
+      },
+      "type": "big_int"
+    },
+    {
+      "comment": "게이트 식별자 (예: 북문, 남문)",
+      "name": "gate_id",
+      "nullable": false,
+      "type": {
+        "kind": "varchar",
+        "length": 100
+      }
+    },
+    {
+      "comment": "단말 토큰 SHA-256 해시 (평문 저장 금지)",
+      "name": "token_hash",
+      "nullable": false,
+      "type": {
+        "kind": "char",
+        "length": 64
+      },
+      "unique": true
+    },
+    {
+      "comment": "활성 여부 (폐기 시 false — 소프트 삭제)",
+      "default": true,
+      "name": "is_active",
+      "nullable": false,
+      "type": "boolean"
+    },
+    {
+      "comment": "생성일시",
+      "default": "NOW()",
+      "name": "created_at",
+      "nullable": false,
+      "type": "timestamptz"
+    }
   ]
 }

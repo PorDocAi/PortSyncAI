@@ -1,20 +1,15 @@
 {
   "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
   "name": "equipment",
-  "description": "소유정책·수명주기 상태를 갖는 개별 보호구 자산",
+  "description": "개별 안전장비 (NFC 태그 단위, FR-D2)",
   "columns": [
-    {"name": "equipment_id", "type": "big_int", "nullable": false, "primary_key": {"auto_increment": true}, "comment": "장비 고유번호"},
-    {"name": "equipment_type_id", "type": "big_int", "nullable": false, "foreign_key": "equipment_types.equipment_type_id", "index": true, "comment": "장비 종류 FK"},
-    {"name": "asset_number", "type": {"kind": "varchar", "length": 50}, "nullable": true, "unique": true, "comment": "자산 관리번호"},
-    {"name": "nfc_tag_uid", "type": {"kind": "char", "length": 32}, "nullable": false, "unique": true, "comment": "NFC 태그 UID (FR-D2)"},
-    {"name": "ownership_type", "type": {"kind": "enum", "name": "equipment_ownership_type", "values": ["PERSONAL", "SHARED"]}, "nullable": false, "default": "'SHARED'", "index": true, "comment": "개인 또는 공용 소유정책"},
-    {"name": "owner_employee_id", "type": "big_int", "nullable": true, "foreign_key": {"references": "employees.employee_id", "on_delete": "set_null"}, "index": true, "comment": "개인 장비 소유자 FK, 공용은 null"},
-    {"name": "status", "type": {"kind": "enum", "name": "equipment_lifecycle_status", "values": ["AVAILABLE", "BLOCKED", "DAMAGED", "LOST", "REPLACED"]}, "nullable": false, "default": "'BLOCKED'", "index": true, "comment": "장비 수명주기 상태"},
-    {"name": "is_active", "type": "boolean", "nullable": false, "default": true, "comment": "사용 가능 여부"},
-    {"name": "status_reason", "type": "text", "nullable": true, "comment": "상태 변경 사유"},
-    {"name": "braille_label", "type": {"kind": "varchar", "length": 100}, "nullable": true, "comment": "점자 스티커 병기 내용"},
-    {"name": "manufacturer_replacement_due_at", "type": "date", "nullable": true, "comment": "해당 품목에만 적용하는 제조사 교체 권고일"},
-    {"name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시"},
-    {"name": "updated_at", "type": "timestamptz", "nullable": true, "comment": "수정일시"}
+    { "name": "equipment_id", "type": "big_int", "nullable": false, "primary_key": { "auto_increment": true }, "comment": "장비 고유번호" },
+    { "name": "equipment_type_id", "type": "big_int", "nullable": false, "foreign_key": "equipment_types.equipment_type_id", "index": true, "comment": "장비 종류 FK" },
+    { "name": "asset_number", "type": { "kind": "varchar", "length": 50 }, "nullable": true, "unique": true, "comment": "자산 관리번호" },
+    { "name": "nfc_tag_uid", "type": { "kind": "char", "length": 32 }, "nullable": false, "unique": true, "comment": "NFC 태그 UID (FR-D2)" },
+    { "name": "braille_label", "type": { "kind": "varchar", "length": 100 }, "nullable": true, "comment": "점자 스티커 병기 내용 (FR-D2)" },
+    { "name": "is_active", "type": "boolean", "nullable": false, "default": true, "comment": "사용 가능 여부" },
+    { "name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시" },
+    { "name": "updated_at", "type": "timestamptz", "nullable": true, "comment": "수정일시" }
   ]
 }

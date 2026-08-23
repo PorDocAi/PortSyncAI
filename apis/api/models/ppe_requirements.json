@@ -8,7 +8,7 @@
     {"name": "category", "type": {"kind": "varchar", "length": 50}, "nullable": false, "index": true, "comment": "보호구 카테고리"},
     {"name": "performance_criteria", "type": "json", "nullable": true, "comment": "성능조건 구조화 값"},
     {"name": "source_text", "type": "text", "nullable": false, "comment": "근거 문서 원문"},
-    {"name": "source_document_id", "type": "big_int", "nullable": false, "foreign_key": "cargo_documents.cargo_document_id", "index": true, "comment": "근거 화물문서 FK"},
+    {"name": "source_document_version_id", "type": "big_int", "nullable": false, "foreign_key": "cargo_document_versions.cargo_document_version_id", "index": true, "comment": "근거 v2 화물문서 버전 FK"},
     {"name": "source_document_version", "type": "integer", "nullable": false, "comment": "근거 문서 버전"},
     {"name": "review_status", "type": {"kind": "enum", "name": "ppe_review_status", "values": ["PENDING", "CONFIRMED", "REJECTED"]}, "nullable": false, "default": "'PENDING'", "comment": "요구조건 검수 상태"},
     {"name": "reviewed_by_id", "type": "big_int", "nullable": true, "foreign_key": {"references": "employees.employee_id", "on_delete": "set_null"}, "comment": "검수자 FK"},

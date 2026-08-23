@@ -1,0 +1,19 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "equipment_profiles",
+  "description": "v2 소유정책·수명주기를 갖는 보호구 프로필",
+  "columns": [
+    {"name": "equipment_profile_id", "type": "big_int", "nullable": false, "primary_key": {"auto_increment": true}, "comment": "v2 장비 프로필 고유번호"},
+    {"name": "legacy_equipment_id", "type": "big_int", "nullable": true, "foreign_key": {"references": "equipment.equipment_id", "on_delete": "set_null"}, "unique": true, "comment": "변환된 0001 장비 FK, v2 신규 장비는 null"},
+    {"name": "equipment_type_id", "type": "big_int", "nullable": false, "foreign_key": "equipment_types.equipment_type_id", "index": true, "comment": "장비 종류 FK"},
+    {"name": "asset_number", "type": {"kind": "varchar", "length": 50}, "nullable": true, "unique": true, "comment": "v2 자산 관리번호"},
+    {"name": "ownership_type", "type": {"kind": "enum", "name": "equipment_ownership_type", "values": ["PERSONAL", "SHARED"]}, "nullable": false, "default": "'SHARED'", "index": true, "comment": "개인 또는 공용 소유정책"},
+    {"name": "owner_employee_id", "type": "big_int", "nullable": true, "foreign_key": {"references": "employees.employee_id", "on_delete": "set_null"}, "index": true, "comment": "개인 장비 소유자 FK, 공용은 null"},
+    {"name": "status", "type": {"kind": "enum", "name": "equipment_lifecycle_status", "values": ["AVAILABLE", "BLOCKED", "DAMAGED", "LOST", "REPLACED"]}, "nullable": false, "default": "'BLOCKED'", "index": true, "comment": "v2 장비 수명주기 상태"},
+    {"name": "status_reason", "type": "text", "nullable": true, "comment": "상태 변경 사유"},
+    {"name": "braille_label", "type": {"kind": "varchar", "length": 100}, "nullable": true, "comment": "v2 점자 스티커 병기 내용"},
+    {"name": "manufacturer_replacement_due_at", "type": "date", "nullable": true, "comment": "해당 품목에만 적용하는 제조사 교체 권고일"},
+    {"name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시"},
+    {"name": "updated_at", "type": "timestamptz", "nullable": true, "comment": "수정일시"}
+  ]
+}

@@ -1,81 +1,85 @@
 #!/usr/bin/env python3
-"""Validate the source-model inventory required by issues #29 and #34."""
+"""Validate the additive schema-v2 source contract for issues #29 and #34."""
 
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
+from typing import Any, TypeAlias
 
 
-ROOT = Path(__file__).resolve().parents[2]
+JsonObject: TypeAlias = dict[str, Any]
+
+DEFAULT_ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(os.environ.get("PORTDOC_SCHEMA_ROOT", DEFAULT_ROOT)).resolve()
 MODELS_DIR = ROOT / "apis/api/models"
+MIGRATIONS_DIR = ROOT / "apis/api/migrations"
 MAPPING_PATH = ROOT / ".omo/evidence/task-2-pr48-conversion-map.md"
-GATE_VERIFY_LOGS_MIGRATION = (
-    ROOT / "apis/api/migrations/0003_add_gate_terminals_and_verify_logs.vespertide.json"
-)
+
+IMMUTABLE_LEGACY_TABLES = {
+    "attendances",
+    "cargo_documents",
+    "cargo_items",
+    "equipment",
+    "equipment_check_logs",
+    "gate_terminals",
+    "gate_verify_logs",
+    "work_assignments",
+}
 
 REQUIRED_TABLES = {
     "containers",
     "container_cargo_items",
+    "cargo_document_versions",
     "cargo_item_documents",
-    "cargo_documents",
     "work_types",
     "works",
     "work_targets",
-    "work_assignments",
+    "v2_work_assignments",
     "education_courses",
     "education_target_rules",
     "education_completions",
     "ppe_requirements",
     "work_ppe_requirement_snapshots",
-    "equipment",
+    "equipment_profiles",
     "equipment_tag_tokens",
     "work_assignment_equipment",
     "shared_equipment_claims",
     "equipment_check_events",
     "work_preparations",
     "work_stops",
-    "gate_terminals",
     "gate_events",
-    "gate_verify_logs",
+    *IMMUTABLE_LEGACY_TABLES,
 }
 
 REQUIRED_COLUMNS = {
     "container_cargo_items": {"container_id", "cargo_item_id"},
-    "cargo_item_documents": {"cargo_item_id", "cargo_document_id", "document_role"},
-    "cargo_documents": {
+    "cargo_document_versions": {
+        "cargo_document_version_id",
+        "legacy_cargo_document_id",
         "document_type",
+        "document_version",
         "processing_status",
         "review_status",
-        "document_version",
         "reviewed_by_id",
         "reviewed_at",
     },
+    "cargo_item_documents": {
+        "cargo_item_id",
+        "cargo_document_version_id",
+        "document_role",
+    },
     "works": {"work_type_id", "status", "scheduled_start_at", "scheduled_end_at"},
     "work_targets": {"work_id", "target_type", "container_id", "cargo_item_id"},
-    "work_assignments": {
-        "assignment_id",
+    "v2_work_assignments": {
+        "work_assignment_id",
+        "legacy_assignment_id",
+        "work_id",
         "employee_id",
-        "work_date",
-        "cargo_item_id",
-        "assigned_by_id",
-        "eligibility_status",
-        "v2_work_id",
         "status",
         "selected_at",
-    },
-    "cargo_items": {"cargo_document_id"},
-    "gate_verify_logs": {
-        "verify_log_id",
-        "attendance_id",
-        "employee_id",
-        "terminal_id",
-        "allowed",
-        "reason",
-        "work_date",
-        "is_pass_event",
-        "created_at",
     },
     "education_target_rules": {"education_course_id", "work_type_id", "dg_class_id"},
     "education_completions": {
@@ -89,7 +93,7 @@ REQUIRED_COLUMNS = {
         "category",
         "performance_criteria",
         "source_text",
-        "source_document_id",
+        "source_document_version_id",
         "source_document_version",
         "reviewed_by_id",
         "reviewed_at",
@@ -101,19 +105,22 @@ REQUIRED_COLUMNS = {
         "equipment_type_id",
         "category",
         "performance_criteria",
-        "source_document_id",
+        "source_document_version_id",
         "source_document_version",
         "reviewed_by_id",
         "snapshotted_at",
     },
-    "equipment": {
+    "equipment_profiles": {
+        "equipment_profile_id",
+        "legacy_equipment_id",
+        "equipment_type_id",
         "ownership_type",
         "owner_employee_id",
         "status",
         "manufacturer_replacement_due_at",
     },
     "equipment_tag_tokens": {
-        "equipment_id",
+        "equipment_profile_id",
         "tag_token_hash",
         "is_active",
         "issued_by_id",
@@ -123,15 +130,19 @@ REQUIRED_COLUMNS = {
     },
     "work_assignment_equipment": {
         "work_assignment_id",
-        "equipment_id",
+        "equipment_profile_id",
         "requirement_snapshot_id",
         "accepted_at",
     },
-    "shared_equipment_claims": {"work_assignment_id", "equipment_id", "claimed_at"},
+    "shared_equipment_claims": {
+        "work_assignment_id",
+        "equipment_profile_id",
+        "claimed_at",
+    },
     "equipment_check_events": {
         "employee_id",
         "work_assignment_id",
-        "equipment_id",
+        "equipment_profile_id",
         "idempotency_key",
         "request_fingerprint",
         "http_status",
@@ -150,7 +161,6 @@ REQUIRED_COLUMNS = {
         "closed_by_id",
         "closed_at",
     },
-    "gate_terminals": {"gate_id", "token_hash", "is_active"},
     "gate_events": {
         "gate_event_id",
         "terminal_id",
@@ -171,54 +181,138 @@ REQUIRED_COLUMNS = {
 }
 
 REQUIRED_ENUM_VALUES = {
-    ("cargo_documents", "document_type"): {"BL", "DGD", "CI", "MSDS"},
-    ("equipment", "ownership_type"): {"PERSONAL", "SHARED"},
-    ("equipment", "status"): {"AVAILABLE", "BLOCKED", "DAMAGED", "LOST", "REPLACED"},
+    ("cargo_document_versions", "document_type"): {"BL", "DGD", "CI", "MSDS"},
+    ("equipment_profiles", "ownership_type"): {"PERSONAL", "SHARED"},
+    ("equipment_profiles", "status"): {
+        "AVAILABLE",
+        "BLOCKED",
+        "DAMAGED",
+        "LOST",
+        "REPLACED",
+    },
     ("works", "status"): {"PLANNED", "ACTIVE", "STOPPED", "COMPLETED", "CANCELLED"},
+    ("v2_work_assignments", "status"): {
+        "ASSIGNED",
+        "SELECTED",
+        "ACTIVE",
+        "COMPLETED",
+        "CANCELLED",
+    },
     ("gate_events", "decision"): {"PASS", "BLOCK"},
 }
 
 REQUIRED_UNIQUES = {
-    "gate_verify_logs": [
-        ("uq_attendance_workdate_passed", {"work_date", "is_pass_event"}),
+    "cargo_item_documents": [
+        (
+            "uq_cargo_item_document_role",
+            {"cargo_item_id", "cargo_document_version_id", "document_role"},
+        ),
+    ],
+    "v2_work_assignments": [
+        ("uq_v2_work_assignment_work_employee", {"work_id", "employee_id"}),
     ],
     "equipment_check_events": [
         ("uq_equipment_check_employee_idempotency", {"employee_id", "idempotency_key"}),
     ],
     "work_assignment_equipment": [
-        ("uq_assignment_equipment", {"work_assignment_id", "equipment_id"}),
+        ("uq_assignment_equipment", {"work_assignment_id", "equipment_profile_id"}),
     ],
     "shared_equipment_claims": [
-        ("uq_shared_equipment_active_claim", {"equipment_id"}),
+        ("uq_shared_equipment_active_claim", {"equipment_profile_id"}),
     ],
     "gate_events": [
         ("uq_gate_event_terminal_idempotency", {"terminal_id", "idempotency_key"}),
     ],
 }
 
+REQUIRED_FOREIGN_KEYS = {
+    ("cargo_document_versions", "legacy_cargo_document_id"): (
+        "cargo_documents.cargo_document_id"
+    ),
+    ("cargo_item_documents", "cargo_document_version_id"): (
+        "cargo_document_versions.cargo_document_version_id"
+    ),
+    ("v2_work_assignments", "legacy_assignment_id"): (
+        "work_assignments.assignment_id"
+    ),
+    ("equipment_profiles", "legacy_equipment_id"): "equipment.equipment_id",
+    ("equipment_tag_tokens", "equipment_profile_id"): (
+        "equipment_profiles.equipment_profile_id"
+    ),
+    ("work_assignment_equipment", "work_assignment_id"): (
+        "v2_work_assignments.work_assignment_id"
+    ),
+    ("work_assignment_equipment", "equipment_profile_id"): (
+        "equipment_profiles.equipment_profile_id"
+    ),
+    ("shared_equipment_claims", "work_assignment_id"): (
+        "v2_work_assignments.work_assignment_id"
+    ),
+    ("shared_equipment_claims", "equipment_profile_id"): (
+        "equipment_profiles.equipment_profile_id"
+    ),
+    ("equipment_check_events", "work_assignment_id"): (
+        "v2_work_assignments.work_assignment_id"
+    ),
+    ("equipment_check_events", "equipment_profile_id"): (
+        "equipment_profiles.equipment_profile_id"
+    ),
+    ("work_preparations", "work_assignment_id"): (
+        "v2_work_assignments.work_assignment_id"
+    ),
+    ("work_stops", "work_assignment_id"): (
+        "v2_work_assignments.work_assignment_id"
+    ),
+    ("work_stops", "legacy_attendance_id"): "attendances.attendance_id",
+    ("gate_events", "work_assignment_id"): (
+        "v2_work_assignments.work_assignment_id"
+    ),
+    ("gate_events", "legacy_verify_log_id"): (
+        "gate_verify_logs.verify_log_id"
+    ),
+    ("gate_events", "legacy_attendance_id"): "attendances.attendance_id",
+    ("ppe_requirements", "source_document_version_id"): (
+        "cargo_document_versions.cargo_document_version_id"
+    ),
+    ("work_ppe_requirement_snapshots", "source_document_version_id"): (
+        "cargo_document_versions.cargo_document_version_id"
+    ),
+}
+
+NULLABLE_LEGACY_BRIDGES = {
+    ("cargo_document_versions", "legacy_cargo_document_id"),
+    ("v2_work_assignments", "legacy_assignment_id"),
+    ("equipment_profiles", "legacy_equipment_id"),
+    ("work_stops", "legacy_attendance_id"),
+    ("gate_events", "legacy_verify_log_id"),
+    ("gate_events", "legacy_attendance_id"),
+}
+
 MAPPING_ANCHORS = {
-    "gate_terminals",
+    "immutable legacy physical tables",
+    "cargo_document_versions",
+    "v2_work_assignments",
+    "equipment_profiles",
+    "legacy_cargo_document_id",
+    "legacy_assignment_id",
+    "legacy_equipment_id",
+    "legacy_attendance_id",
+    "legacy_verify_log_id",
     "gate_verify_logs",
     "cargo_documents.review_status",
     "attendances.work_status",
-    "attendances.approval_status",
-    "attendances.instruction_ack_completed",
-    "attendances.equipment_check_completed",
     "equipment_check_logs",
     "equipment.nfc_tag_uid",
     "source",
     "target",
     "conversion",
-    "dropped legacy field",
     "retained legacy",
-    "v2 counterpart",
-    "v2_work_id",
-    "cargo_items.cargo_document_id",
+    "v2 authoritative",
 }
 
 
-def load_models() -> tuple[dict[str, dict], list[str]]:
-    models: dict[str, dict] = {}
+def load_models() -> tuple[dict[str, JsonObject], list[str]]:
+    models: dict[str, JsonObject] = {}
     errors: list[str] = []
     for path in sorted(MODELS_DIR.glob("*.json")):
         try:
@@ -236,11 +330,45 @@ def load_models() -> tuple[dict[str, dict], list[str]]:
     return models, errors
 
 
-def columns(model: dict) -> dict[str, dict]:
-    return {column["name"]: column for column in model.get("columns", [])}
+def load_historical_tables() -> tuple[dict[str, JsonObject], list[str]]:
+    tables: dict[str, JsonObject] = {}
+    errors: list[str] = []
+    paths = sorted(MIGRATIONS_DIR.glob("000[1-4]_*.vespertide.json"))
+    if len(paths) != 4:
+        errors.append(f"expected historical migrations 0001-0004, found {len(paths)}")
+        return tables, errors
+
+    for path in paths:
+        try:
+            migration = json.loads(path.read_text())
+        except (OSError, json.JSONDecodeError) as error:
+            errors.append(f"{path.name}: invalid JSON: {error}")
+            continue
+        for action in migration.get("actions", []):
+            action_type = action.get("type")
+            table_name = action.get("table")
+            if action_type == "create_table" and isinstance(table_name, str):
+                tables[table_name] = {
+                    "columns": list(action.get("columns", [])),
+                    "constraints": list(action.get("constraints", [])),
+                }
+            elif action_type == "add_column" and isinstance(table_name, str):
+                if table_name not in tables:
+                    errors.append(f"{path.name}: add_column references unknown table {table_name}")
+                    continue
+                tables[table_name]["columns"].append(action.get("column", {}))
+    return tables, errors
 
 
-def unique_groups(model: dict) -> dict[str, set[str]]:
+def columns(model: JsonObject) -> dict[str, JsonObject]:
+    return {
+        column["name"]: column
+        for column in model.get("columns", [])
+        if isinstance(column, dict) and isinstance(column.get("name"), str)
+    }
+
+
+def unique_groups(model: JsonObject) -> dict[str, set[str]]:
     groups: dict[str, set[str]] = {}
     for column in model.get("columns", []):
         unique = column.get("unique")
@@ -254,11 +382,58 @@ def unique_groups(model: dict) -> dict[str, set[str]]:
     return groups
 
 
+def foreign_key_reference(column: JsonObject) -> str | None:
+    foreign_key = column.get("foreign_key")
+    if isinstance(foreign_key, dict):
+        reference = foreign_key.get("references")
+        return reference if isinstance(reference, str) else None
+    return foreign_key if isinstance(foreign_key, str) else None
+
+
+def validate_immutable_legacy_tables(
+    models: dict[str, JsonObject], historical: dict[str, JsonObject]
+) -> list[str]:
+    errors: list[str] = []
+    for table_name in sorted(IMMUTABLE_LEGACY_TABLES):
+        model = models.get(table_name)
+        expected = historical.get(table_name)
+        if model is None or expected is None:
+            if expected is None:
+                errors.append(f"historical schema missing immutable table: {table_name}")
+            continue
+
+        actual_columns = columns(model)
+        expected_columns = columns(expected)
+        missing = expected_columns.keys() - actual_columns.keys()
+        extra = actual_columns.keys() - expected_columns.keys()
+        for column_name in sorted(missing):
+            errors.append(f"{table_name}: missing historical column {column_name}")
+        for column_name in sorted(extra):
+            errors.append(f"{table_name}: v2 column must move to an additive table: {column_name}")
+        for column_name in sorted(expected_columns.keys() & actual_columns.keys()):
+            if actual_columns[column_name] != expected_columns[column_name]:
+                errors.append(
+                    f"{table_name}.{column_name}: definition differs from migrations 0001-0004"
+                )
+
+        actual_constraints = model.get("constraints", [])
+        expected_constraints = expected.get("constraints", [])
+        if actual_constraints != expected_constraints:
+            errors.append(
+                f"{table_name}: constraints differ from migrations 0001-0004"
+            )
+    return errors
+
+
 def validate() -> list[str]:
     models, errors = load_models()
+    historical, historical_errors = load_historical_tables()
+    errors.extend(historical_errors)
 
     for table in sorted(REQUIRED_TABLES - models.keys()):
         errors.append(f"missing model: {table}")
+
+    errors.extend(validate_immutable_legacy_tables(models, historical))
 
     for table, required in REQUIRED_COLUMNS.items():
         if table not in models:
@@ -283,35 +458,51 @@ def validate() -> list[str]:
         groups = unique_groups(models[table])
         for name, expected_columns in expected_groups:
             if groups.get(name) != expected_columns:
-                errors.append(
-                    f"{table}: unique {name} must cover {sorted(expected_columns)}"
-                )
+                errors.append(f"{table}: unique {name} must cover {sorted(expected_columns)}")
 
-    equipment = models.get("equipment")
-    if equipment:
-        equipment_columns = columns(equipment)
-        legacy_uid = equipment_columns.get("nfc_tag_uid")
-        if legacy_uid is None:
-            errors.append("equipment: legacy nfc_tag_uid must be retained")
-        else:
-            if legacy_uid.get("type") != {"kind": "char", "length": 32}:
-                errors.append("equipment.nfc_tag_uid must remain char(32)")
-            if legacy_uid.get("nullable") is not False:
-                errors.append("equipment.nfc_tag_uid must remain NOT NULL")
-            if legacy_uid.get("unique") is not True:
-                errors.append("equipment.nfc_tag_uid must remain unique")
-        legacy_activity = equipment_columns.get("is_active")
-        if legacy_activity is None:
-            errors.append("equipment: legacy is_active must coexist with v2 status")
-        else:
-            if legacy_activity.get("type") != "boolean":
-                errors.append("equipment.is_active must remain boolean")
-            if legacy_activity.get("nullable") is not False:
-                errors.append("equipment.is_active must remain NOT NULL")
-            if legacy_activity.get("default") is not True:
-                errors.append("equipment.is_active must retain default true")
-        if "status" not in equipment_columns:
-            errors.append("equipment: v2 status must coexist with legacy is_active")
+    for (table, column_name), expected_reference in REQUIRED_FOREIGN_KEYS.items():
+        if table not in models:
+            continue
+        column = columns(models[table]).get(column_name)
+        if column is None:
+            continue
+        actual_reference = foreign_key_reference(column)
+        if actual_reference != expected_reference:
+            errors.append(
+                f"{table}.{column_name}: FK must reference {expected_reference}, "
+                f"found {actual_reference}"
+            )
+
+    for table, column_name in sorted(NULLABLE_LEGACY_BRIDGES):
+        if table not in models:
+            continue
+        column = columns(models[table]).get(column_name)
+        if column is not None and column.get("nullable") is not True:
+            errors.append(f"{table}.{column_name}: legacy bridge must be nullable")
+
+    versions = models.get("cargo_document_versions")
+    if versions:
+        legacy_document = columns(versions).get("legacy_cargo_document_id", {})
+        if legacy_document.get("unique") is not True:
+            errors.append(
+                "cargo_document_versions.legacy_cargo_document_id must uniquely identify an imported legacy row"
+            )
+
+    profiles = models.get("equipment_profiles")
+    if profiles:
+        legacy_equipment = columns(profiles).get("legacy_equipment_id", {})
+        if legacy_equipment.get("unique") is not True:
+            errors.append(
+                "equipment_profiles.legacy_equipment_id must uniquely identify an imported legacy asset"
+            )
+
+    assignments = models.get("v2_work_assignments")
+    if assignments:
+        legacy_assignment = columns(assignments).get("legacy_assignment_id", {})
+        if legacy_assignment.get("unique") is not True:
+            errors.append(
+                "v2_work_assignments.legacy_assignment_id must uniquely identify an imported legacy assignment"
+            )
 
     tokens = models.get("equipment_tag_tokens")
     if tokens:
@@ -321,131 +512,16 @@ def validate() -> list[str]:
         if token_hash.get("unique") is not True:
             errors.append("equipment_tag_tokens.tag_token_hash must be unique")
 
-    for table, model in models.items():
-        for name, group_columns in unique_groups(model).items():
-            if {"employee_id", "v2_work_id"} <= group_columns:
-                errors.append(
-                    f"{table}: composite unique {name} must not contain employee_id and v2_work_id"
-                )
-
-    legacy_logs = models.get("equipment_check_logs")
-    if legacy_logs and "uq_equipment_workdate" in unique_groups(legacy_logs):
-        errors.append("equipment_check_logs: legacy day-wide equipment unique must be removed")
-
-    assignments = models.get("work_assignments")
-    if assignments:
-        assignment_columns = columns(assignments)
-        if "assignment_id" not in assignment_columns:
-            errors.append("work_assignments: legacy assignment_id primary key must be retained")
-        if "work_assignment_id" in assignment_columns:
-            errors.append(
-                "work_assignments: work_assignment_id is a required replacement PK and must not replace assignment_id"
-            )
-        if "work_id" in assignment_columns:
-            errors.append(
-                "work_assignments: required work_id replacement must not exist; use nullable v2_work_id"
-            )
-        if "uq_work_assignment_work_employee" in unique_groups(assignments):
-            errors.append(
-                "work_assignments: nullable v2_work_id uniqueness must be deferred to future application-level transactional validation after non-null assignment activation"
-            )
-        v2_work = assignment_columns.get("v2_work_id")
-        if v2_work is not None:
-            if v2_work.get("nullable") is not True:
-                errors.append("work_assignments.v2_work_id must be nullable")
-            foreign_key = v2_work.get("foreign_key")
-            references = (
-                foreign_key.get("references")
-                if isinstance(foreign_key, dict)
-                else foreign_key
-            )
-            if references != "works.work_id":
-                errors.append("work_assignments.v2_work_id must reference works.work_id")
-        for legacy_column in ("work_date", "cargo_item_id", "eligibility_status"):
-            if legacy_column not in assignment_columns:
-                errors.append(f"work_assignments: missing retained legacy column {legacy_column}")
-
-    cargo_items = models.get("cargo_items")
-    if cargo_items:
-        cargo_document = columns(cargo_items).get("cargo_document_id")
-        if cargo_document is None:
-            errors.append("cargo_items: legacy cargo_document_id direct FK must be retained")
-        elif cargo_document.get("nullable") is not True:
-            errors.append("cargo_items.cargo_document_id must remain nullable")
-        else:
-            foreign_key = cargo_document.get("foreign_key")
-            references = (
-                foreign_key.get("references")
-                if isinstance(foreign_key, dict)
-                else foreign_key
-            )
-            if references != "cargo_documents.cargo_document_id":
-                errors.append(
-                    "cargo_items.cargo_document_id must reference cargo_documents.cargo_document_id"
-                )
-
-    if "cargo_item_documents" not in models:
-        errors.append("missing additive v2 counterpart: cargo_item_documents")
+    for table_name in ("equipment_check_events", "gate_events"):
+        model = models.get(table_name)
+        if model and "updated_at" in columns(model):
+            errors.append(f"{table_name}: append-only events cannot expose updated_at")
 
     gate_events = models.get("gate_events")
     if gate_events:
-        gate_columns = columns(gate_events)
-        identity = gate_columns.get("gate_event_id", {})
+        identity = columns(gate_events).get("gate_event_id", {})
         if not identity.get("primary_key"):
             errors.append("gate_events.gate_event_id must be the append-only event identity")
-        if "updated_at" in gate_columns:
-            errors.append("gate_events must be append-only and cannot expose updated_at")
-        legacy_verify = gate_columns.get("legacy_verify_log_id")
-        if legacy_verify is None:
-            errors.append("gate_events: additive nullable legacy_verify_log_id must be retained")
-        elif legacy_verify.get("nullable") is not True:
-            errors.append("gate_events.legacy_verify_log_id must be nullable")
-
-    if GATE_VERIFY_LOGS_MIGRATION.is_file():
-        migration = json.loads(GATE_VERIFY_LOGS_MIGRATION.read_text())
-        expected_columns = next(
-            (
-                action.get("columns", [])
-                for action in migration.get("actions", [])
-                if action.get("table") == "gate_verify_logs" and action.get("type") == "create_table"
-            ),
-            None,
-        )
-        if expected_columns is None:
-            errors.append("0003 migration missing gate_verify_logs create_table columns")
-        else:
-            logs = models.get("gate_verify_logs")
-            if logs:
-                actual_columns = logs.get("columns", [])
-                expected_names = [column["name"] for column in expected_columns]
-                actual_names = [column.get("name") for column in actual_columns]
-                if actual_names != expected_names:
-                    errors.append(
-                        "gate_verify_logs: column order/names must match 0003 exactly "
-                        f"{expected_names}"
-                    )
-                else:
-                    comparable_keys = (
-                        "name",
-                        "type",
-                        "nullable",
-                        "primary_key",
-                        "foreign_key",
-                        "index",
-                        "unique",
-                        "default",
-                        "comment",
-                    )
-                    for expected, actual in zip(expected_columns, actual_columns, strict=True):
-                        for key in comparable_keys:
-                            if expected.get(key) != actual.get(key):
-                                errors.append(
-                                    f"gate_verify_logs.{expected['name']}: {key} must match 0003"
-                                )
-    else:
-        errors.append(
-            f"missing 0003 migration: {GATE_VERIFY_LOGS_MIGRATION.relative_to(ROOT)}"
-        )
 
     if not MAPPING_PATH.is_file():
         errors.append(f"missing conversion map: {MAPPING_PATH.relative_to(ROOT)}")
@@ -466,9 +542,13 @@ def main() -> int:
             print(f"- {error}")
         return 1
     print("schema-v2 contract: PASS")
-    print(f"validated {len(REQUIRED_TABLES)} required #29/#34 source models")
-    print("validated retained legacy assignment/gate/cargo surfaces plus additive v2 counterparts")
-    print("validated work assignment, token hash, idempotency, claim, and gate-event identities")
+    print(
+        f"validated {len(IMMUTABLE_LEGACY_TABLES)} immutable legacy tables "
+        "against migrations 0001-0004"
+    )
+    print(f"validated {len(REQUIRED_TABLES)} required legacy/v2 source models")
+    print("validated additive legacy-ID bridges and v2 authoritative relationships")
+    print("validated token, allocation, claim, check-event, preparation, stop, and gate contracts")
     print("validated PR #48 conversion map anchors")
     return 0
 
