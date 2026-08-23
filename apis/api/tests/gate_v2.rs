@@ -36,8 +36,8 @@ async fn v2_assignment_with_all_sidecars_passes_and_appends_gate_event() {
     .await;
     assert_eq!(gate_event_count(&app).await, 0);
 
-    let request_body = request_with_assignment(common::WORKER_NFC_UID, assignment.work_assignment_id)
-        .await;
+    let request_body =
+        request_with_assignment(common::WORKER_NFC_UID, assignment.work_assignment_id).await;
     let response = app
         .verify_gate_with(Some(&format!("Bearer {terminal_token}")), &request_body)
         .await;
@@ -73,8 +73,8 @@ async fn v2_assignment_without_required_allocation_is_blocked() {
     seed_course_completion(&app, worker.employee_id).await;
     assert_eq!(gate_event_count(&app).await, 0);
 
-    let request_body = request_with_assignment(common::WORKER_NFC_UID, assignment.work_assignment_id)
-        .await;
+    let request_body =
+        request_with_assignment(common::WORKER_NFC_UID, assignment.work_assignment_id).await;
     let response = app
         .verify_gate_with(Some(&format!("Bearer {terminal_token}")), &request_body)
         .await;
