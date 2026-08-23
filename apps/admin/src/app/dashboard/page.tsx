@@ -1,5 +1,5 @@
-import { VStack } from '@devup-ui/react'
+import { AdminWorkspace } from '@/components/admin/AdminWorkspace'
 
 export default function Page() {
-  return <VStack></VStack>
+  return <AdminWorkspace />
 }

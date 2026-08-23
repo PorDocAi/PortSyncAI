@@ -1,43 +1,24 @@
-import { Button } from '@devup-ui/components'
-import { Center, Text, VStack } from '@devup-ui/react'
-
-import { Label } from '../../components/Forms/Label'
+import { Button as UiButton, Input as UiInput } from '@devup-ui/react'
+import Link from 'next/link'
+import { BrandLockup } from '@/components/BrandLockup'
 
 export default function SignInPage() {
   return (
-    <Center bg="$background" h="100vh">
-      <VStack
-        alignItems="center"
-        bg="$containerBackground"
-        border="1px solid $borderBold"
-        borderRadius={4}
-        gap="50px"
-        maxW="500px"
-        pb={20}
-        pt="50px"
-        px="20px"
-        w="100%"
-      >
-        <Text color="$title" typography="h5">
-          관리 페이지 로그인
-        </Text>
-        <VStack gap={5} maxW="300px" w="100%">
-          <Label label="아이디">
-            <input placeholder="아이디를 입력해주세요." />
-          </Label>
-          <Label label="비밀번호">
-            <input placeholder="비밀번호를 입력해주세요." />
-          </Label>
-
-          <Text color="$error" typography="bodyS">
-            에러 메시지
-          </Text>
-
-          <Button variant="primary">
-            <Text typography="body700">로그인</Text>
-          </Button>
-        </VStack>
-      </VStack>
-    </Center>
+    <main className="admin-signin">
+      <section>
+        <BrandLockup className="admin-wordmark--large" />
+        <div className="admin-signin__title">
+          <p className="admin-overline">ADMINISTRATOR ACCESS</p>
+          <h1>관리자 로그인</h1>
+          <p>권한이 부여된 사내 계정으로 접속합니다.</p>
+        </div>
+        <form>
+          <label>사내 이메일<UiInput autoComplete="username" placeholder="name@company.com" type="email" /></label>
+          <label>비밀번호<UiInput autoComplete="current-password" placeholder="비밀번호 입력" type="password" /></label>
+          <Link href="/dashboard">로그인</Link>
+        </form>
+        <footer><span>접속 기록과 관리 작업은 감사로그에 저장됩니다.</span><UiButton type="button">비밀번호 초기화</UiButton></footer>
+      </section>
+    </main>
   )
 }

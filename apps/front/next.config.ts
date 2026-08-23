@@ -2,9 +2,11 @@ import { devupApi } from '@devup-api/next-plugin'
 import { DevupUI } from '@devup-ui/next-plugin'
 import type { NextConfig } from 'next'
 
+const isTauriBuild = process.env.TAURI_BUILD === 'true'
+
 const nextConfig: NextConfig = {
-  /* config options here */
-  output: 'standalone',
+  output: isTauriBuild ? 'export' : 'standalone',
+  trailingSlash: isTauriBuild,
   experimental: {
     optimizePackageImports: ['@devup-ui/reset-css', '@devup-ui/components'],
   },
