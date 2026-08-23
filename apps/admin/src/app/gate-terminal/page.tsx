@@ -5,6 +5,7 @@ import { Button as UiButton, Input as UiInput } from '@devup-ui/react'
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import { BrandLockup } from '@/components/BrandLockup'
 
 type GateState = 'idle' | 'checking' | 'pass' | 'block'
 
@@ -61,14 +62,14 @@ export default function GateTerminalPage() {
   return (
     <main className={`gate-terminal gate-terminal--${state}`}>
       <header className="gate-terminal__header">
-        <div><span className="gate-terminal__mark">PS</span><strong>PortSyncAI GATE</strong></div>
+        <BrandLockup suffix="GATE" />
         <dl><div><dt>단말</dt><dd>GATE-01 / 1부두 정문</dd></div><div><dt>리더·API</dt><dd><i aria-hidden="true" /> 준비 완료</dd></div><div><dt>시각</dt><dd>{timestamp}</dd></div></dl>
         <div className="gate-terminal__actions"><UiButton onClick={toggleFullscreen} type="button">전체 화면</UiButton><Link href="/dashboard">관리</Link></div>
       </header>
 
       {state === 'idle' && (
         <section className="gate-idle">
-          <p className="gate-kicker">ACCESS VERIFICATION</p>
+          <p className="gate-kicker">게이트 출입 확인</p>
           <h1>사원증을<br />태그해 주세요</h1>
           <p>작업 배정과 교육, 지침, 보호구 준비 상태를 확인합니다.</p>
           <form onSubmit={(event) => { event.preventDefault(); evaluate('pass') }}>
@@ -82,7 +83,7 @@ export default function GateTerminalPage() {
 
       {state === 'checking' && (
         <section className="gate-checking" aria-live="polite">
-          <p className="gate-kicker">VERIFYING · {credential}</p>
+          <p className="gate-kicker">판정 중 · {credential}</p>
           <h1>출입 조건을<br />확인하고 있습니다</h1>
           <div><span>01 작업자 식별</span><span>02 교육 적격성</span><span>03 작업 준비</span><span>04 작업중지</span></div>
         </section>

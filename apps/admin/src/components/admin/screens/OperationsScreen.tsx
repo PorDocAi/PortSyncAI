@@ -16,12 +16,12 @@ export function OperationsScreen() {
       <section className="ops-bulletin"><span>기상 주의 · 14:00–18:00</span><p><strong>오후 강풍 예보</strong> CFS·야드 작업의 장비 고정 상태를 확인합니다.</p><UiButton type="button">영향 작업 3건</UiButton></section>
       <div className="ops-layout">
         <section className="run-sheet">
-          <header><div><span className="admin-overline">TODAY RUN SHEET</span><h2>작업 진행표</h2></div><p>시간 순 · 5건</p></header>
+          <header><div><span className="admin-overline">오늘 작업 · 시간 순</span><h2>작업 진행표</h2></div><p>전체 5건</p></header>
           <div className="run-head run-grid"><span>시작</span><span>구역</span><span>작업 ID</span><span>작업</span><span>배정팀</span><span>준비상태</span></div>
           {RUN_SHEET.map((row, index) => <UiButton className="run-row run-grid" key={row[2]} type="button"><time>{row[0]}</time><strong>{row[1]}</strong><span className="mono">{row[2]}</span><span>{row[3]}</span><span>{row[4]}</span><span className={index > 2 ? 'needs-action' : ''}>{row[5]}</span></UiButton>)}
         </section>
         <aside className="action-ledger">
-          <header><span className="admin-overline">ACTION REQUIRED · 04</span><h2>처리할 일</h2></header>
+          <header><span className="admin-overline">확인 필요 · 4건</span><h2>처리할 일</h2></header>
           <ol>
             <li><span>01</span><div><strong>교육 미충족 작업자</strong><p>WB-260823-05 · 김태완</p></div><UiButton type="button">확인</UiButton></li>
             <li><span>02</span><div><strong>MSDS 검수 대기</strong><p>DOC-260823-041 · CONT-014</p></div><UiButton type="button">검수</UiButton></li>
