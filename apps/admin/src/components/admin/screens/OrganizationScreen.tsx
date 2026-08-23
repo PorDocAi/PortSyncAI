@@ -1,3 +1,4 @@
+import { Button as UiButton } from '@devup-ui/react'
 import { ScreenHeading } from './PeopleScreen'
 
 const DEPARTMENTS = [
@@ -20,14 +21,14 @@ export function OrganizationScreen() {
       <ScreenHeading code="ORGANIZATION" title="부서·직무" description="작업배정과 교육대상 규칙에 사용하는 조직 기준정보입니다." action="기준정보 등록" />
       <div className="split-ledger">
         <section>
-          <header><div><span className="admin-overline">DEPARTMENTS</span><h2>부서</h2></div><button type="button">추가</button></header>
+          <header><div><span className="admin-overline">DEPARTMENTS</span><h2>부서</h2></div><UiButton type="button">추가</UiButton></header>
           <div className="ledger-head"><span>코드</span><span>부서명·업무</span><span>인원</span></div>
-          {DEPARTMENTS.map((item) => <button className="ledger-row" key={item[0]} type="button"><span className="mono">{item[0]}</span><span><strong>{item[1]}</strong><small>{item[2]}</small></span><span>{item[3]}</span></button>)}
+          {DEPARTMENTS.map((item) => <UiButton className="ledger-row" key={item[0]} type="button"><span className="mono">{item[0]}</span><span><strong>{item[1]}</strong><small>{item[2]}</small></span><span>{item[3]}</span></UiButton>)}
         </section>
         <section>
-          <header><div><span className="admin-overline">JOB ROLES</span><h2>직무</h2></div><button type="button">추가</button></header>
+          <header><div><span className="admin-overline">JOB ROLES</span><h2>직무</h2></div><UiButton type="button">추가</UiButton></header>
           <div className="ledger-head"><span>코드</span><span>직무명·소속</span><span>정책</span></div>
-          {JOBS.map((item) => <button className="ledger-row" key={item[0]} type="button"><span className="mono">{item[0]}</span><span><strong>{item[1]}</strong><small>{item[2]}</small></span><span>{item[3]}</span></button>)}
+          {JOBS.map((item) => <UiButton className="ledger-row" key={item[0]} type="button"><span className="mono">{item[0]}</span><span><strong>{item[1]}</strong><small>{item[2]}</small></span><span>{item[3]}</span></UiButton>)}
         </section>
       </div>
     </div>

@@ -1,5 +1,8 @@
 'use client'
 
+import { Button as UiButton } from '@devup-ui/react'
+
+
 import { useState } from 'react'
 
 import { ScreenHeading } from './PeopleScreen'
@@ -16,7 +19,7 @@ export function PpeReviewScreen() {
   return (
     <div className="admin-screen">
       <ScreenHeading code="MSDS REVIEW · 1 / 4" title="보호구 조건 검수" description="MSDS 8항 원문과 정규화 결과를 비교해 작업 기준을 확정합니다." />
-      <div className="review-context"><span className="mono">DOC-260823-041</span><strong>paint_msds_ko.pdf</strong><span>CONT-260823-014 · 도료 (PAINT)</span><button type="button">다른 문서 선택</button></div>
+      <div className="review-context"><span className="mono">DOC-260823-041</span><strong>paint_msds_ko.pdf</strong><span>CONT-260823-014 · 도료 (PAINT)</span><UiButton type="button">다른 문서 선택</UiButton></div>
       <div className="review-bench">
         <section className="source-pane">
           <header><span className="admin-overline">SOURCE · PAGE 6</span><h2>8. 노출방지 및 개인보호구</h2></header>
@@ -33,7 +36,7 @@ export function PpeReviewScreen() {
         <aside className="review-decision">
           <span className="admin-overline">DECISION</span><h2>{confirmed ? '조건 확정됨' : '관리자 검수 필요'}</h2>
           <dl><div><dt>문서 식별</dt><dd>일치</dd></div><div><dt>DGD 대조</dt><dd>UN 1263 / Class 3</dd></div><div><dt>필수 조건</dt><dd>3종</dd></div><div><dt>조건부</dt><dd>1종</dd></div></dl>
-          <button onClick={() => setConfirmed(true)} type="button">{confirmed ? '확정 기록 저장됨' : '보호구 조건 확정'}</button>
+          <UiButton onClick={() => setConfirmed(true)} type="button">{confirmed ? '확정 기록 저장됨' : '보호구 조건 확정'}</UiButton>
           <p>확정 후 연결된 작업의 준비조건 버전이 갱신됩니다.</p>
         </aside>
       </div>

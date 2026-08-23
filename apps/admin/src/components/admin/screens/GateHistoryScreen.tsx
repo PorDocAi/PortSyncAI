@@ -1,5 +1,8 @@
 'use client'
 
+import { Button as UiButton, Input as UiInput } from '@devup-ui/react'
+
+
 import { useState } from 'react'
 
 import { ScreenHeading } from './PeopleScreen'
@@ -16,13 +19,13 @@ export function GateHistoryScreen() {
   return (
     <div className="admin-screen">
       <ScreenHeading code="GATE EVENTS · TODAY" title="게이트 판정 이력" description="통과·차단 결과와 당시 사용된 판정근거 버전을 조회합니다." />
-      <div className="admin-toolbar"><input placeholder="작업자·사번·작업 ID 검색" /><button type="button">결과 전체</button><button type="button">게이트 전체</button></div>
+      <div className="admin-toolbar"><UiInput placeholder="작업자·사번·작업 ID 검색" /><UiButton type="button">결과 전체</UiButton><UiButton type="button">게이트 전체</UiButton></div>
       <div className="gate-history-layout">
         <section>
           <div className="event-head event-grid"><span>시각</span><span>게이트</span><span>작업자</span><span>작업</span><span>결과</span><span>판정 사유</span></div>
-          {EVENTS.map((event) => <button className={selected[0] === event[0] ? 'event-row event-grid is-selected' : 'event-row event-grid'} key={event[0]} onClick={() => setSelected(event)} type="button">{event.slice(1).map((value, index) => <span className={index === 0 || index === 3 ? 'mono' : ''} key={`${event[0]}-${index}`}>{value}</span>)}</button>)}
+          {EVENTS.map((event) => <UiButton className={selected[0] === event[0] ? 'event-row event-grid is-selected' : 'event-row event-grid'} key={event[0]} onClick={() => setSelected(event)} type="button">{event.slice(1).map((value, index) => <span className={index === 0 || index === 3 ? 'mono' : ''} key={`${event[0]}-${index}`}>{value}</span>)}</UiButton>)}
         </section>
-        <aside><span className="admin-overline">{selected[0]}</span><h2>{selected[5]}</h2><p>{selected[3]} · {selected[2]}</p><dl><div><dt>작업 배정</dt><dd>유효</dd></div><div><dt>교육</dt><dd>{selected[5] === 'BLOCK' ? '미충족' : '충족'}</dd></div><div><dt>지침</dt><dd>확인 완료</dd></div><div><dt>보호구</dt><dd>3 / 3</dd></div><div><dt>작업중지</dt><dd>없음</dd></div><div><dt>최종 사유</dt><dd>{selected[6]}</dd></div></dl><button type="button">감사로그 원문 보기</button></aside>
+        <aside><span className="admin-overline">{selected[0]}</span><h2>{selected[5]}</h2><p>{selected[3]} · {selected[2]}</p><dl><div><dt>작업 배정</dt><dd>유효</dd></div><div><dt>교육</dt><dd>{selected[5] === 'BLOCK' ? '미충족' : '충족'}</dd></div><div><dt>지침</dt><dd>확인 완료</dd></div><div><dt>보호구</dt><dd>3 / 3</dd></div><div><dt>작업중지</dt><dd>없음</dd></div><div><dt>최종 사유</dt><dd>{selected[6]}</dd></div></dl><UiButton type="button">감사로그 원문 보기</UiButton></aside>
       </div>
     </div>
   )

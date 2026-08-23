@@ -1,3 +1,4 @@
+import { ThemeScript } from '@devup-ui/react'
 import type { Metadata } from 'next'
 
 import './styles.css'
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
-      <body>{children}</body>
+      <body><ThemeScript auto />{children}</body>
     </html>
   )
 }

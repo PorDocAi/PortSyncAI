@@ -1,5 +1,8 @@
 'use client'
 
+import { Button as UiButton, Input as UiInput } from '@devup-ui/react'
+
+
 import { useMemo, useState } from 'react'
 
 const PEOPLE = [
@@ -18,20 +21,20 @@ export function PeopleScreen() {
   return (
     <div className="admin-screen">
       <ScreenHeading code="PEOPLE / 05" title="직원 관리" description="계정, 권한, 소속과 사원증 UID를 관리합니다." action="직원 등록" />
-      <div className="admin-toolbar"><input onChange={(event) => setQuery(event.target.value)} placeholder="이름·사번·부서 검색" value={query} /><button type="button">부서 전체</button><button type="button">재직상태 전체</button></div>
+      <div className="admin-toolbar"><UiInput onChange={(event) => setQuery(event.target.value)} placeholder="이름·사번·부서 검색" value={query} /><UiButton type="button">부서 전체</UiButton><UiButton type="button">재직상태 전체</UiButton></div>
       <div className="master-detail">
         <section className="data-region">
           <div className="data-head people-grid"><span>사번</span><span>이름</span><span>부서</span><span>직무</span><span>권한</span><span>상태</span></div>
           {filtered.map((person) => (
-            <button className={selected[0] === person[0] ? 'data-row people-grid is-selected' : 'data-row people-grid'} key={person[0]} onClick={() => setSelected(person)} type="button">
+            <UiButton className={selected[0] === person[0] ? 'data-row people-grid is-selected' : 'data-row people-grid'} key={person[0]} onClick={() => setSelected(person)} type="button">
               {person.slice(0, 6).map((value, index) => <span className={index === 0 ? 'mono' : ''} key={`${person[0]}-${value}`}>{value}</span>)}
-            </button>
+            </UiButton>
           ))}
         </section>
         <aside className="detail-rail">
           <div className="detail-rail__identity"><span className="mono">{selected[0]}</span><strong>{selected[1]}</strong><p>{selected[2]} · {selected[3]}</p></div>
           <dl><div><dt>시스템 권한</dt><dd>{selected[4]}</dd></div><div><dt>계정 상태</dt><dd>{selected[5]}</dd></div><div><dt>사원증 UID</dt><dd>{selected[6]}</dd></div><div><dt>초기 비밀번호</dt><dd>변경 완료</dd></div></dl>
-          <div className="detail-rail__actions"><button type="button">정보 수정</button><button type="button">사원증 교체</button><button type="button">임시 비밀번호 발급</button></div>
+          <div className="detail-rail__actions"><UiButton type="button">정보 수정</UiButton><UiButton type="button">사원증 교체</UiButton><UiButton type="button">임시 비밀번호 발급</UiButton></div>
         </aside>
       </div>
     </div>
@@ -42,7 +45,7 @@ export function ScreenHeading({ code, title, description, action }: { code: stri
   return (
     <header className="screen-heading">
       <div><p className="admin-overline">{code}</p><h1>{title}</h1><p>{description}</p></div>
-      {action && <button type="button">{action}</button>}
+      {action && <UiButton type="button">{action}</UiButton>}
     </header>
   )
 }

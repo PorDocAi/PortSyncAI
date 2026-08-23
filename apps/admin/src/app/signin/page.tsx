@@ -1,3 +1,4 @@
+import { Button as UiButton, Input as UiInput } from '@devup-ui/react'
 import Link from 'next/link'
 
 export default function SignInPage() {
@@ -11,11 +12,11 @@ export default function SignInPage() {
           <p>권한이 부여된 사내 계정으로 접속합니다.</p>
         </div>
         <form>
-          <label>사내 이메일<input autoComplete="username" placeholder="name@company.com" type="email" /></label>
-          <label>비밀번호<input autoComplete="current-password" placeholder="비밀번호 입력" type="password" /></label>
+          <label>사내 이메일<UiInput autoComplete="username" placeholder="name@company.com" type="email" /></label>
+          <label>비밀번호<UiInput autoComplete="current-password" placeholder="비밀번호 입력" type="password" /></label>
           <Link href="/dashboard">로그인</Link>
         </form>
-        <footer><span>접속 기록과 관리 작업은 감사로그에 저장됩니다.</span><button type="button">비밀번호 초기화</button></footer>
+        <footer><span>접속 기록과 관리 작업은 감사로그에 저장됩니다.</span><UiButton type="button">비밀번호 초기화</UiButton></footer>
       </section>
     </main>
   )

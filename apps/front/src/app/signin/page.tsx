@@ -1,3 +1,4 @@
+import { Input as UiInput } from '@devup-ui/react'
 import Link from 'next/link'
 
 export default function SignInPage() {
@@ -16,11 +17,11 @@ export default function SignInPage() {
         <form className="signin-form">
           <label>
             사번
-            <input name="employeeNumber" placeholder="예: EMP-240031" autoComplete="username" />
+            <UiInput name="employeeNumber" placeholder="예: EMP-240031" autoComplete="username" />
           </label>
           <label>
             비밀번호
-            <input name="password" type="password" placeholder="비밀번호 입력" autoComplete="current-password" />
+            <UiInput name="password" type="password" placeholder="비밀번호 입력" autoComplete="current-password" />
           </label>
           <Link className="primary-link" href="/">로그인</Link>
         </form>

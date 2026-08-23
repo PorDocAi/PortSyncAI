@@ -1,5 +1,7 @@
 'use client'
 
+import { Box, Button as UiButton, Grid, Input as UiInput } from '@devup-ui/react'
+
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
 
@@ -49,8 +51,8 @@ export function WorkerWorkspace() {
   )
 
   return (
-    <div className="worker-stage">
-      <div className="worker-app">
+    <Grid className="worker-stage">
+      <Box className="worker-app">
         <header className="worker-header">
           <div className="wordmark">
             <span aria-hidden="true">PS</span>
@@ -87,7 +89,7 @@ export function WorkerWorkspace() {
             </div>
             <div className="work-list">
               {WORKS.map((work, index) => (
-                <button
+                <UiButton
                   className={work.id === selectedId ? 'work-row is-selected' : 'work-row'}
                   key={work.id}
                   onClick={() => setSelectedId(work.id)}
@@ -102,7 +104,7 @@ export function WorkerWorkspace() {
                   <span className={work.education === '충족' ? 'text-status' : 'text-status is-blocked'}>
                     교육 {work.education}
                   </span>
-                </button>
+                </UiButton>
               ))}
             </div>
           </section>
@@ -121,9 +123,9 @@ export function WorkerWorkspace() {
                 <div><dt>대상화물</dt><dd>{selected.cargo}</dd></div>
                 <div><dt>교육</dt><dd>{selected.education}</dd></div>
               </dl>
-              <button className="text-button" onClick={() => setDetailsOpen((open) => !open)} type="button">
+              <UiButton className="text-button" onClick={() => setDetailsOpen((open) => !open)} type="button">
                 {detailsOpen ? '화물 상세 접기' : '화물 상세 보기'}
-              </button>
+              </UiButton>
               {detailsOpen && (
                 <div className="cargo-detail">
                   <div><span>01</span><p><strong>도료</strong> UN 1263 · Class 3</p></div>
@@ -136,13 +138,13 @@ export function WorkerWorkspace() {
 
           <section className="start-section">
             <p>교육 적격성을 다시 확인한 뒤 준비 절차가 열립니다.</p>
-            <button
+            <UiButton
               disabled={selected.education !== '충족'}
               onClick={() => setActiveView('preparation')}
               type="button"
             >
               {selected.education === '충족' ? '이 작업 준비 시작' : '교육 확인 후 시작 가능'}
-            </button>
+            </UiButton>
           </section>
         </main>
 
@@ -151,13 +153,13 @@ export function WorkerWorkspace() {
         {activeView === 'profile' && <ProfileScreen />}
 
         <nav className="worker-nav" aria-label="작업자 메뉴">
-          <button className={activeView === 'today' ? 'is-current' : ''} onClick={() => setActiveView('today')} type="button"><span>오늘 작업</span></button>
-          <button className={activeView === 'preparation' ? 'is-current' : ''} onClick={() => setActiveView('preparation')} type="button"><span>준비 절차</span></button>
-          <button className={activeView === 'history' ? 'is-current' : ''} onClick={() => setActiveView('history')} type="button"><span>통과 기록</span></button>
-          <button className={activeView === 'profile' ? 'is-current' : ''} onClick={() => setActiveView('profile')} type="button"><span>내 정보</span></button>
+          <UiButton className={activeView === 'today' ? 'is-current' : ''} onClick={() => setActiveView('today')} type="button"><span>오늘 작업</span></UiButton>
+          <UiButton className={activeView === 'preparation' ? 'is-current' : ''} onClick={() => setActiveView('preparation')} type="button"><span>준비 절차</span></UiButton>
+          <UiButton className={activeView === 'history' ? 'is-current' : ''} onClick={() => setActiveView('history')} type="button"><span>통과 기록</span></UiButton>
+          <UiButton className={activeView === 'profile' ? 'is-current' : ''} onClick={() => setActiveView('profile')} type="button"><span>내 정보</span></UiButton>
         </nav>
-      </div>
-    </div>
+      </Box>
+    </Grid>
   )
 }
 
@@ -190,13 +192,13 @@ function PreparationScreen({ work }: { work: Work }) {
       <ol className="flow-index" aria-label="준비 단계">
         {PREPARATION_STEPS.map((item, index) => (
           <li className={step === item.id ? 'is-current' : ''} key={item.id}>
-            <button onClick={() => setStep(item.id)} type="button">
+            <UiButton onClick={() => setStep(item.id)} type="button">
               <span>{String(index + 1).padStart(2, '0')}</span>
               <strong>{item.label}</strong>
               <small>
                 {item.id === 'instruction' && instructionRead ? '확인 완료' : item.id === 'ppe' ? `${scanned.length} / 3 확인` : item.state}
               </small>
-            </button>
+            </UiButton>
           </li>
         ))}
       </ol>
@@ -215,7 +217,7 @@ function PreparationScreen({ work }: { work: Work }) {
               <div><span>MSDS 교육 · 대상물질</span><strong>PAINT / SOLVENT</strong></div>
               <div><span>기초 안전보건교육</span><strong>정기교육 충족</strong></div>
             </div>
-            <button className="panel-action" onClick={() => setStep('instruction')} type="button">다음 · 안전지침 확인</button>
+            <UiButton className="panel-action" onClick={() => setStep('instruction')} type="button">다음 · 안전지침 확인</UiButton>
           </>
         )}
 
@@ -236,10 +238,10 @@ function PreparationScreen({ work }: { work: Work }) {
               <p>14시 이후 강풍이 예상됩니다. 적치물과 이동식 장비의 고정 상태를 재확인합니다.</p>
             </article>
             <label className="acknowledge-row">
-              <input checked={instructionRead} onChange={(event) => setInstructionRead(event.target.checked)} type="checkbox" />
+              <UiInput checked={instructionRead} onChange={(event) => setInstructionRead(event.target.checked)} type="checkbox" />
               <span>지침 전체 내용을 읽고 작업 시 준수하겠습니다.</span>
             </label>
-            <button className="panel-action" disabled={!instructionRead} onClick={() => setStep('ppe')} type="button">확인 기록 후 보호구 준비</button>
+            <UiButton className="panel-action" disabled={!instructionRead} onClick={() => setStep('ppe')} type="button">확인 기록 후 보호구 준비</UiButton>
           </>
         )}
 
@@ -253,13 +255,13 @@ function PreparationScreen({ work }: { work: Work }) {
                   <div className="ppe-row" key={item}>
                     <span>{String(index + 1).padStart(2, '0')}</span>
                     <div><strong>{item}</strong><small>{index === 1 ? 'HAND · 화학물질 투과 저항' : index === 2 ? 'EYE · 측면 보호' : 'FOOT · 정전기 방지'}</small></div>
-                    <button disabled={complete} onClick={() => scan(item)} type="button">{complete ? '확인됨' : 'NFC 읽기'}</button>
+                    <UiButton disabled={complete} onClick={() => scan(item)} type="button">{complete ? '확인됨' : 'NFC 읽기'}</UiButton>
                   </div>
                 )
               })}
             </div>
             <div className="nfc-note"><strong>NFC 입력 규칙</strong><p>태그 토큰만 전송하며 장비 종류·소유자·사용중지 여부는 서버에서 판정합니다.</p></div>
-            <button className="panel-action" disabled={scanned.length < 3} onClick={() => setStep('gate')} type="button">게이트 준비상태 확인</button>
+            <UiButton className="panel-action" disabled={scanned.length < 3} onClick={() => setStep('gate')} type="button">게이트 준비상태 확인</UiButton>
           </>
         )}
 
@@ -278,7 +280,7 @@ function PreparationScreen({ work }: { work: Work }) {
               <strong>1부두 정문</strong>
               <p>게이트 리더에 사원증을 태그해 주세요.</p>
             </div>
-            <button className="panel-action" disabled={!instructionRead || scanned.length < 3} type="button">게이트 통과 준비 완료</button>
+            <UiButton className="panel-action" disabled={!instructionRead || scanned.length < 3} type="button">게이트 통과 준비 완료</UiButton>
           </>
         )}
       </section>
@@ -318,7 +320,7 @@ function ProfileScreen() {
         <div><dt>등록 사원증</dt><dd>•••• 8A21</dd></div>
         <div><dt>선호 언어</dt><dd>한국어</dd></div>
       </dl>
-      <button className="secondary-action" type="button">비밀번호 변경</button>
+      <UiButton className="secondary-action" type="button">비밀번호 변경</UiButton>
     </main>
   )
 }

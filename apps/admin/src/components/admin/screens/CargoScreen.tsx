@@ -1,5 +1,8 @@
 'use client'
 
+import { Button as UiButton } from '@devup-ui/react'
+
+
 import { useState } from 'react'
 
 import { ScreenHeading } from './PeopleScreen'
@@ -19,13 +22,13 @@ export function CargoScreen() {
       <div className="cargo-workspace">
         <section className="container-ledger">
           <div className="cargo-head cargo-grid"><span>컨테이너</span><span>입고 예정</span><span>작업 구역</span><span>화물</span><span>안전조건</span></div>
-          {CONTAINERS.map((item) => <button className={selected[0] === item[0] ? 'cargo-row cargo-grid is-selected' : 'cargo-row cargo-grid'} key={item[0]} onClick={() => setSelected(item)} type="button">{item.map((value, index) => <span className={index === 0 ? 'mono' : ''} key={`${item[0]}-${index}`}>{value}</span>)}</button>)}
+          {CONTAINERS.map((item) => <UiButton className={selected[0] === item[0] ? 'cargo-row cargo-grid is-selected' : 'cargo-row cargo-grid'} key={item[0]} onClick={() => setSelected(item)} type="button">{item.map((value, index) => <span className={index === 0 ? 'mono' : ''} key={`${item[0]}-${index}`}>{value}</span>)}</UiButton>)}
         </section>
         <aside className="cargo-inspector">
           <header><span className="admin-overline">CONTAINER</span><h2>{selected[0]}</h2><p>{selected[2]} · {selected[1]}</p></header>
           <section><div className="cargo-item-title"><span>01</span><strong>도료 (PAINT)</strong></div><dl><div><dt>UN No.</dt><dd>UN 1263</dd></div><div><dt>Class</dt><dd>3</dd></div><div><dt>MSDS</dt><dd>검수 대기</dd></div></dl></section>
           <section><div className="cargo-item-title"><span>02</span><strong>세정제 (SOLVENT)</strong></div><dl><div><dt>UN No.</dt><dd>UN 1993</dd></div><div><dt>Class</dt><dd>3</dd></div><div><dt>MSDS</dt><dd>확정</dd></div></dl></section>
-          <footer><p>두 화물의 보호구 요구조건은 합집합 후 엄격조건으로 병합됩니다.</p><button type="button">화물 구성 수정</button></footer>
+          <footer><p>두 화물의 보호구 요구조건은 합집합 후 엄격조건으로 병합됩니다.</p><UiButton type="button">화물 구성 수정</UiButton></footer>
         </aside>
       </div>
     </div>
