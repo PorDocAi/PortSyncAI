@@ -1,0 +1,33 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "PortSyncAI Worker",
+  "version": "0.1.0",
+  "identifier": "kr.co.portsyncai.worker",
+  "build": {
+    "frontendDist": "../out",
+    "devUrl": "http://localhost:3000",
+    "beforeDevCommand": "bun run dev",
+    "beforeBuildCommand": "bun run build:tauri"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "PortSyncAI",
+        "width": 430,
+        "height": 820,
+        "minWidth": 360,
+        "minHeight": 640,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all"
+  }
+}

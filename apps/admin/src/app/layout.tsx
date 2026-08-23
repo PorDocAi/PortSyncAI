@@ -1,28 +1,17 @@
-import { globalCss, ThemeScript } from '@devup-ui/react'
-import { resetCss } from '@devup-ui/reset-css'
+import { ThemeScript } from '@devup-ui/react'
+import type { Metadata } from 'next'
 
-import { Provider } from './provider'
+import './styles.css'
 
-resetCss()
-globalCss({
-  '*': {
-    fontFamily: 'Pretendard',
-  },
-})
+export const metadata: Metadata = {
+  title: 'PortSyncAI 관리자',
+  description: '항만 안전작업 운영 관리자 서비스',
+}
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
-      <head>
-        <link
-          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
-          rel="stylesheet"
-        />
-        <ThemeScript />
-      </head>
-      <body>
-        <Provider>{children}</Provider>
-      </body>
+      <body><ThemeScript auto />{children}</body>
     </html>
   )
 }

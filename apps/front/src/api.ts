@@ -1,4 +1,5 @@
 import { createApi } from '@devup-api/fetch'
 
-export const client = createApi({ baseUrl: 'https://myapi.dev/v1/' })
-client.GET('/users/users', {})
+export const client = createApi({
+  baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000/',
+})
