@@ -1,11 +1,12 @@
 import { Button as UiButton, Input as UiInput } from '@devup-ui/react'
 import Link from 'next/link'
+import { BrandLockup } from '@/components/BrandLockup'
 
 export default function SignInPage() {
   return (
     <main className="admin-signin">
       <section>
-        <div className="admin-wordmark admin-wordmark--large"><span>PS</span><strong>PortSyncAI</strong></div>
+        <BrandLockup className="admin-wordmark--large" />
         <div className="admin-signin__title">
           <p className="admin-overline">ADMINISTRATOR ACCESS</p>
           <h1>관리자 로그인</h1>

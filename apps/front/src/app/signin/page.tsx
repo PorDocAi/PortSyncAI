@@ -1,14 +1,12 @@
 import { Input as UiInput } from '@devup-ui/react'
 import Link from 'next/link'
+import { BrandLockup } from '@/components/BrandLockup'
 
 export default function SignInPage() {
   return (
     <main className="signin-page">
       <section className="signin-panel" aria-labelledby="signin-title">
-        <header className="wordmark wordmark--large">
-          <span aria-hidden="true">PS</span>
-          <strong>PortSyncAI</strong>
-        </header>
+        <BrandLockup className="wordmark--large" />
         <div className="signin-copy">
           <p className="overline">WORKER ACCESS</p>
           <h1 id="signin-title">작업자 로그인</h1>

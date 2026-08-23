@@ -15,6 +15,7 @@ import { GateHistoryScreen } from './screens/GateHistoryScreen'
 import { OperationsScreen } from './screens/OperationsScreen'
 import { SafetyScreen } from './screens/SafetyScreen'
 import { TrainingScreen } from './screens/TrainingScreen'
+import { BrandLockup } from '../BrandLockup'
 
 type AdminView = 'operations' | 'assignments' | 'training' | 'safety' | 'gate-history' | 'documents' | 'cargo' | 'ppe-review' | 'people' | 'organization'
 
@@ -31,7 +32,7 @@ export function AdminWorkspace() {
   return (
     <Grid className="admin-shell">
       <aside className="admin-sidebar">
-        <div className="admin-wordmark"><span>PS</span><strong>PortSyncAI</strong></div>
+        <BrandLockup />
         <nav aria-label="관리자 메뉴">
           {NAV.map((group) => (
             <section key={group.group}>

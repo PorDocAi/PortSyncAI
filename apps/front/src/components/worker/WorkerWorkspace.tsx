@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useMemo, useState } from 'react'
 
 import { type EquipmentScanPayload, scanEquipmentTag } from '@/lib/nfc'
+import { BrandLockup } from '@/components/BrandLockup'
 
 type Work = {
   id: string
@@ -57,10 +58,7 @@ export function WorkerWorkspace() {
     <Grid className="worker-stage">
       <Box className="worker-app">
         <header className="worker-header">
-          <div className="wordmark">
-            <span aria-hidden="true">PS</span>
-            <strong>PortSyncAI</strong>
-          </div>
+          <BrandLockup />
           <div className="worker-header__meta">
             <UiButton className="header-alert" onClick={() => setActiveView('alerts')} type="button">
               알림 <strong>3</strong>

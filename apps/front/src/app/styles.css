@@ -1,17 +1,17 @@
 :root {
   --paper: #f3f0e8;
   --surface: #ffffff;
-  --surface-quiet: #f6f4ee;
-  --ink: #202421;
-  --muted: #68706b;
-  --line: #d8d7cf;
-  --line-strong: #8c928e;
-  --dark: #252a27;
-  --brand: #0f6558;
-  --brand-deep: #0a443c;
-  --brand-soft: #e7f0ec;
-  --signal: #df5a2f;
-  --signal-soft: #f8e9e1;
+  --surface-quiet: #f5f3ed;
+  --ink: #182630;
+  --muted: #62717b;
+  --line: #d6d8d5;
+  --line-strong: #87949c;
+  --dark: #193448;
+  --brand: #2f6582;
+  --brand-deep: #173f56;
+  --brand-soft: #e2edf1;
+  --signal: #dc5a35;
+  --signal-soft: #f8e7df;
   --radius: 6px;
   color: var(--ink);
   font-family: Pretendard, SUIT, "Noto Sans KR", sans-serif;
@@ -27,9 +27,9 @@ a { color: inherit; }
 .worker-app { position: relative; width: min(100%, 430px); min-height: calc(100vh - 48px); margin: 0 auto; padding-bottom: 82px; background: var(--surface); border: 1px solid var(--line); }
 .worker-header { height: 68px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
 .wordmark { display: inline-flex; align-items: center; gap: 9px; font-size: 18px; letter-spacing: -.04em; }
-.wordmark > span { width: 31px; height: 31px; display: grid; place-items: center; background: var(--brand); color: white; font-family: Consolas, monospace; font-size: 11px; letter-spacing: -.08em; }
+.brand-symbol { width: 32px; height: 32px; overflow: visible; fill: none; stroke: var(--brand); stroke-width: 2.25; stroke-linecap: square; stroke-linejoin: miter; }
 .wordmark--large { font-size: 22px; }
-.wordmark--large > span { width: 38px; height: 38px; }
+.wordmark--large .brand-symbol { width: 40px; height: 40px; }
 .worker-header__meta { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 12px; }
 .header-alert { min-height: 34px; padding: 0 8px; border: 0; border-bottom: 1px solid var(--line-strong); background: transparent; color: var(--ink); font-size: 11px; cursor: pointer; }
 .header-alert strong { margin-left: 3px; font-family: Consolas, monospace; }
