@@ -1,10 +1,18 @@
 use std::collections::{HashMap, HashSet};
 
-use sea_orm::{ActiveModelTrait, ActiveValue::Set, ColumnTrait, EntityTrait, QueryFilter};
+use sea_orm::{
+    ActiveModelTrait, ActiveValue::Set, ColumnTrait, EntityTrait, QueryFilter, QueryOrder,
+};
 use serde::{Deserialize, Serialize};
-use vespera::axum::{Json, extract::State, http::StatusCode};
+use vespera::axum::{
+    Json,
+    extract::{Path, State},
+    http::StatusCode,
+};
 
-use crate::models::attendances::{self, ApprovalStatus, Entity as Attendances, GateStatus};
+use crate::models::attendances::{
+    self, ApprovalStatus, Entity as Attendances, GateStatus, WorkStatus,
+};
 use crate::models::cargo_items::{self, Entity as CargoItems};
 use crate::models::class_equipment_mappings::{
     self, Entity as ClassEquipmentMappings, RequirementLevel,
@@ -19,7 +27,10 @@ use crate::models::safety_instruction_translations::{
     self, Entity as SafetyInstructionTranslations,
 };
 use crate::models::safety_instructions::{self, Entity as SafetyInstructions};
-use crate::utils::{AppState, auth::AuthUser};
+use crate::utils::{
+    AppState,
+    auth::{AdminUser, AuthUser},
+};
 
 pub fn approval_as_str(s: &ApprovalStatus) -> &'static str {
     match s {
@@ -35,6 +46,13 @@ pub fn gate_as_str(s: &GateStatus) -> &'static str {
         GateStatus::Blocked => "BLOCKED",
         GateStatus::Ready => "READY",
         GateStatus::Passed => "PASSED",
+    }
+}
+
+pub fn work_status_as_str(s: &WorkStatus) -> &'static str {
+    match s {
+        WorkStatus::Normal => "NORMAL",
+        WorkStatus::Stopped => "STOPPED",
     }
 }
 
@@ -67,6 +85,7 @@ pub struct AttendanceResponse {
     pub equipment_check_completed: bool,
     pub approval_status: String,
     pub gate_status: String,
+    pub work_status: String,
     pub gate_passed_at: Option<String>,
 }
 
@@ -80,6 +99,7 @@ impl From<attendances::Model> for AttendanceResponse {
             equipment_check_completed: m.equipment_check_completed,
             approval_status: approval_as_str(&m.approval_status).to_string(),
             gate_status: gate_as_str(&m.gate_status).to_string(),
+            work_status: work_status_as_str(&m.work_status).to_string(),
             gate_passed_at: m.gate_passed_at.map(|t| t.to_rfc3339()),
         }
     }
@@ -544,4 +564,111 @@ pub async fn complete_equipment_check(
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     Ok(Json(AttendanceResponse::from(saved)))
+}
+
+#[derive(Serialize, vespera::Schema)]
+pub struct WorkStopItem {
+    pub attendance_id: i64,
+    pub employee_id: i64,
+    pub work_date: String,
+    /// NORMAL | STOPPED
+    pub work_status: String,
+}
+
+/// 작업중지 대상(또는 오늘 전체) 출근 목록 조회 (관리 권한, 시나리오 5)
+#[vespera::route(get, path = "/work-stops", tags = ["attendances"])]
+pub async fn list_work_stops(
+    _admin: AdminUser,
+    State(state): State<AppState>,
+) -> Result<Json<Vec<WorkStopItem>>, StatusCode> {
+    let rows = Attendances::find()
+        .filter(attendances::Column::WorkStatus.eq(WorkStatus::Stopped))
+        .order_by_desc(attendances::Column::AttendanceId)
+        .all(&state.db)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    Ok(Json(
+        rows.into_iter()
+            .map(|a| WorkStopItem {
+                attendance_id: a.attendance_id,
+                employee_id: a.employee_id,
+                work_date: a.work_date.to_string(),
+                work_status: work_status_as_str(&a.work_status).to_string(),
+            })
+            .collect(),
+    ))
+}
+
+#[derive(Serialize, vespera::Schema)]
+pub struct SetWorkStopResponse {
+    pub attendance_id: i64,
+    /// NORMAL | STOPPED
+    pub work_status: String,
+}
+
+/// 작업중지 설정 (FR-E3, 시나리오 5 — 관리 권한)
+/// STOPPED로 바꾸면 이후 게이트 태깅이 \"작업중지\" 사유로 차단된다.
+#[vespera::route(post, path = "/{id}/work-stop", tags = ["attendances"])]
+pub async fn set_work_stop(
+    _admin: AdminUser,
+    State(state): State<AppState>,
+    Path(id): Path<i64>,
+) -> Result<Json<SetWorkStopResponse>, StatusCode> {
+    let attendance = Attendances::find_by_id(id)
+        .one(&state.db)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+        .ok_or(StatusCode::NOT_FOUND)?;
+    if attendance.work_status == WorkStatus::Stopped {
+        return Ok(Json(SetWorkStopResponse {
+            attendance_id: attendance.attendance_id,
+            work_status: work_status_as_str(&attendance.work_status).to_string(),
+        }));
+    }
+
+    let mut active: attendances::ActiveModel = attendance.into();
+    active.work_status = Set(WorkStatus::Stopped);
+    active.updated_at = Set(Some(chrono::Utc::now().into()));
+    let saved = active
+        .update(&state.db)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    Ok(Json(SetWorkStopResponse {
+        attendance_id: saved.attendance_id,
+        work_status: work_status_as_str(&saved.work_status).to_string(),
+    }))
+}
+
+/// 작업중지 해제 (관리 권한) — NORMAL로 되돌린다. 이미 NORMAL이어도 멱등하게 200을 반환한다.
+#[vespera::route(delete, path = "/{id}/work-stop", tags = ["attendances"])]
+pub async fn unset_work_stop(
+    _admin: AdminUser,
+    State(state): State<AppState>,
+    Path(id): Path<i64>,
+) -> Result<Json<SetWorkStopResponse>, StatusCode> {
+    let attendance = Attendances::find_by_id(id)
+        .one(&state.db)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+        .ok_or(StatusCode::NOT_FOUND)?;
+    if attendance.work_status == WorkStatus::Normal {
+        return Ok(Json(SetWorkStopResponse {
+            attendance_id: attendance.attendance_id,
+            work_status: work_status_as_str(&attendance.work_status).to_string(),
+        }));
+    }
+
+    let mut active: attendances::ActiveModel = attendance.into();
+    active.work_status = Set(WorkStatus::Normal);
+    active.updated_at = Set(Some(chrono::Utc::now().into()));
+    let saved = active
+        .update(&state.db)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    Ok(Json(SetWorkStopResponse {
+        attendance_id: saved.attendance_id,
+        work_status: work_status_as_str(&saved.work_status).to_string(),
+    }))
 }

@@ -10,6 +10,7 @@
     { "name": "equipment_check_completed", "type": "boolean", "nullable": false, "default": false, "comment": "필수 장비 착용 완료 (FR-D3)" },
     { "name": "approval_status", "type": { "kind": "enum", "name": "approval_status", "values": ["NOT_REQUIRED", "PENDING", "APPROVED", "REJECTED"] }, "nullable": false, "default": "'NOT_REQUIRED'", "comment": "관리자 승인 상태" },
     { "name": "gate_status", "type": { "kind": "enum", "name": "gate_status", "values": ["BLOCKED", "READY", "PASSED"] }, "nullable": false, "default": "'BLOCKED'", "comment": "게이트 통과 상태" },
+    { "name": "work_status", "type": { "kind": "enum", "name": "work_status", "values": ["NORMAL", "STOPPED"] }, "nullable": false, "default": "'NORMAL'", "comment": "작업중지 여부 (시나리오 5 — STOPPED면 게이트 차단)" },
     { "name": "gate_passed_at", "type": "timestamptz", "nullable": true, "comment": "사원증 태깅 통과 시각 (FR-D5)" },
     { "name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시" },
     { "name": "updated_at", "type": "timestamptz", "nullable": true, "comment": "수정일시" }

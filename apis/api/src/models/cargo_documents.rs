@@ -39,6 +39,18 @@ pub enum FileFormat {
     Image,
 }
 
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema,
+)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "review_status")]
+pub enum ReviewStatus {
+    #[sea_orm(string_value = "PENDING")]
+    Pending,
+    #[sea_orm(string_value = "CONFIRMED")]
+    Confirmed,
+}
+
 /// 화물 문서 원문 (B/L·DGD 업로드, FR-B)
 #[sea_orm::model]
 #[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel)]
@@ -61,6 +73,9 @@ pub struct Model {
     pub file_size: Option<i64>,
     /// SHA-256 파일 무결성 해시
     pub file_hash: Option<String>,
+    /// 검수 상태 (FR-B2 — CONFIRMED여야 작업 배정 가능)
+    #[sea_orm(default_value = "PENDING")]
+    pub review_status: ReviewStatus,
     /// 업로더 FK
     pub uploaded_by_id: i64,
     /// 생성일시

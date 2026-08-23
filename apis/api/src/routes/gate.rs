@@ -6,7 +6,7 @@ use vespera::axum::{
     http::StatusCode,
 };
 
-use crate::models::attendances::{self, ApprovalStatus, GateStatus};
+use crate::models::attendances::{self, ApprovalStatus, GateStatus, WorkStatus};
 use crate::models::employees::{self, Entity as Employees};
 use crate::models::gate_terminals::{self, Entity as GateTerminals};
 use crate::models::gate_verify_logs;
@@ -178,6 +178,11 @@ pub async fn verify_gate(
                 reasons.push("필수 장비 확인 미완료");
             }
         }
+    }
+
+    // 작업중지는 승인 예외(APPROVED)로도 면제되지 않는 안전 정지 조치다 (시나리오 5)
+    if attendance.work_status == WorkStatus::Stopped {
+        reasons.push("작업중지");
     }
 
     if !reasons.is_empty() {

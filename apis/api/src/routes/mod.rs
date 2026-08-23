@@ -1,5 +1,6 @@
 pub mod admin;
 pub mod attendances;
+pub mod work_assignments;
 pub mod auth;
 pub mod cargo_documents;
 pub mod cargo_items;
