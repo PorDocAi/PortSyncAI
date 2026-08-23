@@ -1,0 +1,11 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "shared_equipment_claims",
+  "description": "공용 장비의 활성 작업 배타적 점유",
+  "columns": [
+    {"name": "shared_equipment_claim_id", "type": "big_int", "nullable": false, "primary_key": {"auto_increment": true}, "comment": "공용 장비 점유 고유번호"},
+    {"name": "work_assignment_id", "type": "big_int", "nullable": false, "foreign_key": {"references": "work_assignments.work_assignment_id", "on_delete": "cascade"}, "unique": "uq_shared_equipment_assignment", "comment": "점유 작업 배정 FK"},
+    {"name": "equipment_id", "type": "big_int", "nullable": false, "foreign_key": {"references": "equipment.equipment_id", "on_delete": "cascade"}, "unique": ["uq_shared_equipment_assignment", "uq_shared_equipment_active_claim"], "comment": "점유 공용 장비 FK"},
+    {"name": "claimed_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "점유 시작일시"}
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "work_stops",
+  "description": "작업 또는 작업 배정 범위의 작업중지 기록",
+  "columns": [
+    {"name": "work_stop_id", "type": "big_int", "nullable": false, "primary_key": {"auto_increment": true}, "comment": "작업중지 고유번호"},
+    {"name": "work_id", "type": "big_int", "nullable": true, "foreign_key": {"references": "works.work_id", "on_delete": "cascade"}, "index": true, "comment": "중지 대상 작업 FK, 레거시 변환행은 null"},
+    {"name": "work_assignment_id", "type": "big_int", "nullable": true, "foreign_key": {"references": "work_assignments.work_assignment_id", "on_delete": "cascade"}, "index": true, "comment": "중지 대상 작업 배정 FK"},
+    {"name": "legacy_attendance_id", "type": "big_int", "nullable": true, "unique": true, "comment": "PR #48 출근 작업중지 변환 출처 식별자"},
+    {"name": "status", "type": {"kind": "enum", "name": "work_stop_status", "values": ["OPEN", "CLOSED"]}, "nullable": false, "default": "'OPEN'", "index": true, "comment": "작업중지 상태"},
+    {"name": "reason", "type": "text", "nullable": false, "comment": "작업중지 사유"},
+    {"name": "stopped_by_id", "type": "big_int", "nullable": true, "foreign_key": {"references": "employees.employee_id", "on_delete": "set_null"}, "comment": "작업중지 등록자 FK, PR #48 변환행은 null"},
+    {"name": "stopped_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "작업중지 일시"},
+    {"name": "closed_by_id", "type": "big_int", "nullable": true, "foreign_key": {"references": "employees.employee_id", "on_delete": "set_null"}, "comment": "작업중지 해제자 FK"},
+    {"name": "closed_at", "type": "timestamptz", "nullable": true, "comment": "작업중지 해제일시"},
+    {"name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시"},
+    {"name": "updated_at", "type": "timestamptz", "nullable": true, "comment": "수정일시"}
+  ]
+}

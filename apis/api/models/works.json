@@ -1,0 +1,18 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "works",
+  "description": "컨테이너·화물 대상을 묶는 작업 단위",
+  "columns": [
+    {"name": "work_id", "type": "big_int", "nullable": false, "primary_key": {"auto_increment": true}, "comment": "작업 고유번호"},
+    {"name": "work_type_id", "type": "big_int", "nullable": false, "foreign_key": "work_types.work_type_id", "index": true, "comment": "작업 유형 FK"},
+    {"name": "work_reference", "type": {"kind": "varchar", "length": 50}, "nullable": false, "unique": true, "comment": "운영 작업 참조번호"},
+    {"name": "status", "type": {"kind": "enum", "name": "work_lifecycle_status", "values": ["PLANNED", "ACTIVE", "STOPPED", "COMPLETED", "CANCELLED"]}, "nullable": false, "default": "'PLANNED'", "index": true, "comment": "작업 수명주기 상태"},
+    {"name": "scheduled_start_at", "type": "timestamptz", "nullable": false, "comment": "예정 시작일시"},
+    {"name": "scheduled_end_at", "type": "timestamptz", "nullable": true, "comment": "예정 종료일시"},
+    {"name": "started_at", "type": "timestamptz", "nullable": true, "comment": "실제 시작일시"},
+    {"name": "completed_at", "type": "timestamptz", "nullable": true, "comment": "완료일시"},
+    {"name": "created_by_id", "type": "big_int", "nullable": false, "foreign_key": "employees.employee_id", "comment": "작업 등록자 FK"},
+    {"name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시"},
+    {"name": "updated_at", "type": "timestamptz", "nullable": true, "comment": "수정일시"}
+  ]
+}

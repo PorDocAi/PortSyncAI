@@ -1,18 +1,23 @@
 {
   "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
   "name": "cargo_documents",
-  "description": "화물 문서 원문 (B/L·DGD 업로드, FR-B)",
+  "description": "화물 문서 원문과 처리·검수 버전(DGD·CI·MSDS)",
   "columns": [
-    { "name": "cargo_document_id", "type": "big_int", "nullable": false, "primary_key": { "auto_increment": true }, "comment": "화물문서 고유번호" },
-    { "name": "document_type", "type": { "kind": "enum", "name": "cargo_document_type", "values": ["BL", "DGD"] }, "nullable": false, "comment": "문서 유형 (선하증권/위험물신고서)" },
-    { "name": "file_format", "type": { "kind": "enum", "name": "file_format", "values": ["HWP", "PDF", "XLSX", "DOCX", "IMAGE"] }, "nullable": false, "comment": "파일 형식" },
-    { "name": "file_url", "type": { "kind": "varchar", "length": 500 }, "nullable": false, "comment": "원본 파일 경로" },
-    { "name": "original_file_name", "type": { "kind": "varchar", "length": 255 }, "nullable": true, "comment": "사용자가 업로드한 원본 파일명" },
-    { "name": "content_type", "type": { "kind": "varchar", "length": 100 }, "nullable": true, "comment": "업로드 MIME 타입" },
-    { "name": "file_size", "type": "big_int", "nullable": true, "comment": "파일 크기(byte)" },
-    { "name": "file_hash", "type": { "kind": "char", "length": 64 }, "nullable": true, "comment": "SHA-256 파일 무결성 해시" },
-    { "name": "review_status", "type": { "kind": "enum", "name": "review_status", "values": ["PENDING", "CONFIRMED"] }, "nullable": false, "default": "'PENDING'", "comment": "검수 상태 (FR-B2 — CONFIRMED여야 작업 배정 가능)" },
-    { "name": "uploaded_by_id", "type": "big_int", "nullable": false, "foreign_key": "employees.employee_id", "comment": "업로더 FK" },
-    { "name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시" }
+    {"name": "cargo_document_id", "type": "big_int", "nullable": false, "primary_key": {"auto_increment": true}, "comment": "화물문서 고유번호"},
+    {"name": "document_type", "type": {"kind": "enum", "name": "cargo_document_type", "values": ["BL", "DGD", "CI", "MSDS"]}, "nullable": false, "comment": "문서 유형"},
+    {"name": "document_version", "type": "integer", "nullable": false, "default": 1, "comment": "동일 문서의 검수 버전"},
+    {"name": "file_format", "type": {"kind": "enum", "name": "file_format", "values": ["HWP", "PDF", "XLSX", "DOCX", "IMAGE"]}, "nullable": false, "comment": "파일 형식"},
+    {"name": "file_url", "type": {"kind": "varchar", "length": 500}, "nullable": false, "comment": "원본 파일 경로"},
+    {"name": "original_file_name", "type": {"kind": "varchar", "length": 255}, "nullable": true, "comment": "사용자가 업로드한 원본 파일명"},
+    {"name": "content_type", "type": {"kind": "varchar", "length": 100}, "nullable": true, "comment": "업로드 MIME 타입"},
+    {"name": "file_size", "type": "big_int", "nullable": true, "comment": "파일 크기(byte)"},
+    {"name": "file_hash", "type": {"kind": "char", "length": 64}, "nullable": true, "comment": "SHA-256 파일 무결성 해시"},
+    {"name": "processing_status", "type": {"kind": "enum", "name": "cargo_processing_status", "values": ["PENDING", "PROCESSING", "COMPLETED", "FAILED"]}, "nullable": false, "default": "'PENDING'", "index": true, "comment": "문서 분석 처리 상태"},
+    {"name": "review_status", "type": {"kind": "enum", "name": "cargo_review_status", "values": ["PENDING", "CONFIRMED", "REJECTED"]}, "nullable": false, "default": "'PENDING'", "index": true, "comment": "관리자 검수 상태"},
+    {"name": "reviewed_by_id", "type": "big_int", "nullable": true, "foreign_key": {"references": "employees.employee_id", "on_delete": "set_null"}, "comment": "검수자 FK"},
+    {"name": "reviewed_at", "type": "timestamptz", "nullable": true, "comment": "검수일시"},
+    {"name": "uploaded_by_id", "type": "big_int", "nullable": false, "foreign_key": "employees.employee_id", "comment": "업로더 FK"},
+    {"name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시"},
+    {"name": "updated_at", "type": "timestamptz", "nullable": true, "comment": "수정일시"}
   ]
 }

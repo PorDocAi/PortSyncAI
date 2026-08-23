@@ -1,14 +1,14 @@
 {
   "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
   "name": "equipment_check_logs",
-  "description": "당일 장비 NFC 태깅 기록 (FR-D3/D4 — 돌려쓰기 방지)",
+  "description": "레거시 출근·일자 기반 장비 확인 감사 아카이브(신규 기록 금지)",
   "columns": [
-    { "name": "check_log_id", "type": "big_int", "nullable": false, "primary_key": { "auto_increment": true }, "comment": "태깅 기록 고유번호" },
-    { "name": "attendance_id", "type": "big_int", "nullable": false, "foreign_key": "attendances.attendance_id", "index": true, "comment": "출근 FK" },
-    { "name": "employee_id", "type": "big_int", "nullable": false, "foreign_key": "employees.employee_id", "comment": "직원 FK" },
-    { "name": "equipment_id", "type": "big_int", "nullable": false, "foreign_key": "equipment.equipment_id", "unique": "uq_equipment_workdate", "comment": "장비 FK" },
-    { "name": "work_date", "type": "date", "nullable": false, "unique": "uq_equipment_workdate", "comment": "작업 일자 (장비+일자 유니크로 중복사용 차단, FR-D4)" },
-    { "name": "tagged_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "태깅 시각" },
-    { "name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시" }
+    {"name": "check_log_id", "type": "big_int", "nullable": false, "primary_key": {"auto_increment": true}, "comment": "레거시 태깅 기록 고유번호"},
+    {"name": "attendance_id", "type": "big_int", "nullable": false, "foreign_key": "attendances.attendance_id", "index": true, "comment": "레거시 출근 FK"},
+    {"name": "employee_id", "type": "big_int", "nullable": false, "foreign_key": "employees.employee_id", "index": true, "comment": "작업자 FK"},
+    {"name": "equipment_id", "type": "big_int", "nullable": false, "foreign_key": "equipment.equipment_id", "index": true, "comment": "장비 FK"},
+    {"name": "work_date", "type": "date", "nullable": false, "index": true, "comment": "레거시 작업 일자(감사 전용)"},
+    {"name": "tagged_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "태깅 시각"},
+    {"name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시"}
   ]
 }

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "work_ppe_requirement_snapshots",
+  "description": "작업 확정 시점의 불변 보호구 요구조건 스냅샷",
+  "columns": [
+    {"name": "work_ppe_requirement_snapshot_id", "type": "big_int", "nullable": false, "primary_key": {"auto_increment": true}, "comment": "작업 보호구 스냅샷 고유번호"},
+    {"name": "work_id", "type": "big_int", "nullable": false, "foreign_key": {"references": "works.work_id", "on_delete": "cascade"}, "unique": "uq_work_ppe_requirement_snapshot", "comment": "작업 FK"},
+    {"name": "ppe_requirement_id", "type": "big_int", "nullable": false, "foreign_key": "ppe_requirements.ppe_requirement_id", "unique": "uq_work_ppe_requirement_snapshot", "comment": "원본 보호구 요구조건 FK"},
+    {"name": "equipment_type_id", "type": "big_int", "nullable": false, "foreign_key": "equipment_types.equipment_type_id", "index": true, "comment": "확정 장비 종류 FK"},
+    {"name": "category", "type": {"kind": "varchar", "length": 50}, "nullable": false, "comment": "확정 보호구 카테고리"},
+    {"name": "performance_criteria", "type": "json", "nullable": true, "comment": "확정 성능조건"},
+    {"name": "source_text", "type": "text", "nullable": false, "comment": "확정 근거 원문"},
+    {"name": "source_document_id", "type": "big_int", "nullable": false, "foreign_key": "cargo_documents.cargo_document_id", "comment": "확정 근거 문서 FK"},
+    {"name": "source_document_version", "type": "integer", "nullable": false, "comment": "확정 근거 문서 버전"},
+    {"name": "reviewed_by_id", "type": "big_int", "nullable": false, "foreign_key": "employees.employee_id", "comment": "확정 검수자 FK"},
+    {"name": "reviewed_at", "type": "timestamptz", "nullable": false, "comment": "원본 검수일시"},
+    {"name": "snapshotted_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "스냅샷 생성일시"}
+  ]
+}
