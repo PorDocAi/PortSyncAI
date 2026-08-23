@@ -288,10 +288,18 @@ def validate() -> list[str]:
                 )
 
     equipment = models.get("equipment")
-    if equipment and "nfc_tag_uid" in columns(equipment):
-        errors.append("equipment: legacy nfc_tag_uid must not remain in the v2 source")
     if equipment:
         equipment_columns = columns(equipment)
+        legacy_uid = equipment_columns.get("nfc_tag_uid")
+        if legacy_uid is None:
+            errors.append("equipment: legacy nfc_tag_uid must be retained")
+        else:
+            if legacy_uid.get("type") != {"kind": "char", "length": 32}:
+                errors.append("equipment.nfc_tag_uid must remain char(32)")
+            if legacy_uid.get("nullable") is not False:
+                errors.append("equipment.nfc_tag_uid must remain NOT NULL")
+            if legacy_uid.get("unique") is not True:
+                errors.append("equipment.nfc_tag_uid must remain unique")
         legacy_activity = equipment_columns.get("is_active")
         if legacy_activity is None:
             errors.append("equipment: legacy is_active must coexist with v2 status")
