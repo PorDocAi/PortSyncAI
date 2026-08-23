@@ -1,9 +1,5 @@
-import { Box } from '@devup-ui/react'
+import { WorkerWorkspace } from '@/components/worker/WorkerWorkspace'
 
 export default function HomePage() {
-  return (
-    <Box bg="red" color="white">
-      HomePage
-    </Box>
-  )
+  return <WorkerWorkspace />
 }

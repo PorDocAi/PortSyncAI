@@ -1,20 +1,15 @@
-import { resetCss } from '@devup-ui/reset-css'
 import type { Metadata } from 'next'
 
-resetCss()
+import './styles.css'
 
 export const metadata: Metadata = {
-  title: 'Devfive',
-  description: 'Devfive',
+  title: 'PortSyncAI 작업자',
+  description: '항만 작업 전 안전조건 확인 서비스',
 }
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ko" suppressHydrationWarning>
+    <html lang="ko">
       <body>{children}</body>
     </html>
   )
