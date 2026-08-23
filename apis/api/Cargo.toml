@@ -19,5 +19,10 @@ uuid = { version = "1", features = ["v4"] }
 tempfile = "3"
 sha2 = "0.10"
 
+[dev-dependencies]
+# 통합 테스트: in-process Router 요청/응답 (oneshot) 용도
+tower = { version = "0.5", features = ["util"] }
+http-body-util = "0.1"
+
 [build-dependencies]
 vespera = "0.1.51"
