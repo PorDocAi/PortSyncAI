@@ -16,7 +16,7 @@ type Work = {
   education: '충족' | '확인 필요'
 }
 
-type WorkerView = 'today' | 'preparation' | 'history' | 'profile'
+type WorkerView = 'today' | 'preparation' | 'alerts' | 'history' | 'profile'
 
 const WORKS: Work[] = [
   {
@@ -59,6 +59,9 @@ export function WorkerWorkspace() {
             <strong>PortSyncAI</strong>
           </div>
           <div className="worker-header__meta">
+            <UiButton className="header-alert" onClick={() => setActiveView('alerts')} type="button">
+              알림 <strong>3</strong>
+            </UiButton>
             <span>윤서진</span>
             <Link href="/signin">로그아웃</Link>
           </div>
@@ -71,13 +74,14 @@ export function WorkerWorkspace() {
             <p>배정된 작업을 확인한 뒤 준비 절차를 시작하세요.</p>
           </section>
 
-          <section className="field-bulletin" aria-label="현장 공지">
+          <UiButton className="field-bulletin" aria-label="기상·긴급 알림 열기" onClick={() => setActiveView('alerts')} type="button">
             <div>
               <span className="field-bulletin__label">기상 주의</span>
               <time>14:00–18:00</time>
             </div>
             <p><strong>오후 강풍 예보</strong> CFS·야드 작업은 장비 고정 상태를 재확인합니다.</p>
-          </section>
+            <span className="field-bulletin__link">영향 작업과 대응 확인 →</span>
+          </UiButton>
 
           <section className="work-selector" aria-labelledby="work-list-title">
             <div className="section-title">
@@ -149,6 +153,7 @@ export function WorkerWorkspace() {
         </main>
 
         {activeView === 'preparation' && <PreparationScreen work={selected} />}
+        {activeView === 'alerts' && <AlertsScreen onBack={() => setActiveView('today')} />}
         {activeView === 'history' && <HistoryScreen />}
         {activeView === 'profile' && <ProfileScreen />}
 
@@ -176,6 +181,20 @@ function PreparationScreen({ work }: { work: Work }) {
   const [step, setStep] = useState<PreparationStep>('education')
   const [instructionRead, setInstructionRead] = useState(false)
   const [scanned, setScanned] = useState<string[]>(['방폭형 안전화'])
+  const [educationOpen, setEducationOpen] = useState(false)
+  const [educationPlaying, setEducationPlaying] = useState(false)
+  const [exceptionOpen, setExceptionOpen] = useState(false)
+  const [exceptionReason, setExceptionReason] = useState('')
+  const [exceptionMemo, setExceptionMemo] = useState('')
+  const [exceptionSubmitted, setExceptionSubmitted] = useState(false)
+  const [gateReady, setGateReady] = useState(false)
+
+  const isStepAvailable = (target: PreparationStep) => {
+    if (target === 'education') return true
+    if (target === 'instruction') return work.education === '충족'
+    if (target === 'ppe') return instructionRead
+    return instructionRead && scanned.length === 3
+  }
 
   const scan = (item: string) => {
     setScanned((items) => items.includes(item) ? items : [...items, item])
@@ -190,17 +209,25 @@ function PreparationScreen({ work }: { work: Work }) {
       </header>
 
       <ol className="flow-index" aria-label="준비 단계">
-        {PREPARATION_STEPS.map((item, index) => (
-          <li className={step === item.id ? 'is-current' : ''} key={item.id}>
-            <UiButton onClick={() => setStep(item.id)} type="button">
+        {PREPARATION_STEPS.map((item, index) => {
+          const available = isStepAvailable(item.id)
+          return (
+          <li className={`${step === item.id ? 'is-current' : ''}${available ? '' : ' is-locked'}`} key={item.id}>
+            <UiButton disabled={!available} onClick={() => setStep(item.id)} type="button">
               <span>{String(index + 1).padStart(2, '0')}</span>
               <strong>{item.label}</strong>
               <small>
-                {item.id === 'instruction' && instructionRead ? '확인 완료' : item.id === 'ppe' ? `${scanned.length} / 3 확인` : item.state}
+                {item.id === 'instruction' && instructionRead
+                  ? '확인 완료'
+                  : item.id === 'ppe'
+                    ? `${scanned.length} / 3 확인`
+                    : item.id === 'gate' && gateReady
+                      ? '준비 완료'
+                      : available ? item.state : '이전 단계 필요'}
               </small>
             </UiButton>
           </li>
-        ))}
+        )})}
       </ol>
 
       <section className="step-panel">
@@ -217,6 +244,29 @@ function PreparationScreen({ work }: { work: Work }) {
               <div><span>MSDS 교육 · 대상물질</span><strong>PAINT / SOLVENT</strong></div>
               <div><span>기초 안전보건교육</span><strong>정기교육 충족</strong></div>
             </div>
+            <UiButton className="inline-disclosure" onClick={() => setEducationOpen((open) => !open)} type="button">
+              {educationOpen ? '교육 상세 접기' : '교육 이력·내용 확인'}
+            </UiButton>
+            {educationOpen && (
+              <section className="education-detail" aria-label="위험물 취급 특별교육 상세">
+                <header>
+                  <div><span>필수교육 01</span><strong>위험물 취급 특별교육</strong></div>
+                  <small>유효 · 2028.05.19까지</small>
+                </header>
+                <div className={educationPlaying ? 'education-player is-playing' : 'education-player'}>
+                  <p>교육 영상 · 25분</p>
+                  <strong>{educationPlaying ? '재생 중 · 12:34 / 25:00' : 'MSDS와 개인보호구 기본 절차'}</strong>
+                  <UiButton onClick={() => setEducationPlaying((playing) => !playing)} type="button">
+                    {educationPlaying ? '일시정지' : '재생 시연'}
+                  </UiButton>
+                </div>
+                <dl>
+                  <div><dt>이수일</dt><dd>2026.05.20</dd></div>
+                  <div><dt>수료 조건</dt><dd>영상 100% · 평가 80점</dd></div>
+                  <div><dt>이수 결과</dt><dd>92점 · 수료</dd></div>
+                </dl>
+              </section>
+            )}
             <UiButton className="panel-action" onClick={() => setStep('instruction')} type="button">다음 · 안전지침 확인</UiButton>
           </>
         )}
@@ -261,6 +311,38 @@ function PreparationScreen({ work }: { work: Work }) {
               })}
             </div>
             <div className="nfc-note"><strong>NFC 입력 규칙</strong><p>태그 토큰만 전송하며 장비 종류·소유자·사용중지 여부는 서버에서 판정합니다.</p></div>
+            <UiButton className="exception-toggle" onClick={() => setExceptionOpen((open) => !open)} type="button">
+              보호구 문제 신고·예외 승인 요청
+            </UiButton>
+            {exceptionOpen && (
+              <section className="exception-form" aria-label="예외 승인 요청">
+                {exceptionSubmitted ? (
+                  <div className="exception-result">
+                    <span>승인 대기</span>
+                    <strong>관리자 검토 전까지 게이트 통과가 제한됩니다.</strong>
+                    <p>요청번호 EX-260823-014 · 대체 보호구 또는 현장 조치가 확인되어야 합니다.</p>
+                  </div>
+                ) : (
+                  <>
+                    <p>예외 승인은 교육 미이수나 보호구 미착용을 면제하지 않습니다. 장비 교체·대체품 확인이 필요한 경우에만 요청하세요.</p>
+                    <label>
+                      <span>요청 사유</span>
+                      <select value={exceptionReason} onChange={(event) => setExceptionReason(event.target.value)}>
+                        <option value="">선택해 주세요</option>
+                        <option value="damaged">태그 장비 파손·사용중지</option>
+                        <option value="replacement">대체 보호구 확인 필요</option>
+                        <option value="personal">개인 보호구 등록 요청</option>
+                      </select>
+                    </label>
+                    <label>
+                      <span>현장 메모</span>
+                      <textarea maxLength={300} onChange={(event) => setExceptionMemo(event.target.value)} placeholder="장비명과 현재 상황을 입력하세요." value={exceptionMemo} />
+                    </label>
+                    <UiButton disabled={!exceptionReason || exceptionMemo.trim().length < 5} onClick={() => setExceptionSubmitted(true)} type="button">관리자에게 검토 요청</UiButton>
+                  </>
+                )}
+              </section>
+            )}
             <UiButton className="panel-action" disabled={scanned.length < 3} onClick={() => setStep('gate')} type="button">게이트 준비상태 확인</UiButton>
           </>
         )}
@@ -275,14 +357,69 @@ function PreparationScreen({ work }: { work: Work }) {
               <div><span>필수 보호구</span><strong>{scanned.length === 3 ? '3종 완료' : `${3 - scanned.length}종 미확인`}</strong></div>
               <div><span>작업중지</span><strong>없음</strong></div>
             </div>
-            <div className="gate-direction">
-              <span>GATE</span>
-              <strong>1부두 정문</strong>
-              <p>게이트 리더에 사원증을 태그해 주세요.</p>
-            </div>
-            <UiButton className="panel-action" disabled={!instructionRead || scanned.length < 3} type="button">게이트 통과 준비 완료</UiButton>
+            {gateReady ? (
+              <div className="gate-ready-result">
+                <span>READY · 07:36:18</span>
+                <strong>게이트 이동 가능</strong>
+                <p>1부두 정문 태블릿에서 사원증을 태그하면 서버가 모든 조건을 다시 판정합니다.</p>
+                <dl>
+                  <div><dt>작업</dt><dd>{work.code}</dd></div>
+                  <div><dt>준비기록</dt><dd>PREP-260823-0031</dd></div>
+                </dl>
+              </div>
+            ) : (
+              <div className="gate-direction">
+                <span>GATE</span>
+                <strong>1부두 정문</strong>
+                <p>준비 완료를 기록한 뒤 게이트 리더에 사원증을 태그해 주세요.</p>
+              </div>
+            )}
+            <UiButton className="panel-action" disabled={!instructionRead || scanned.length < 3 || gateReady} onClick={() => setGateReady(true)} type="button">
+              {gateReady ? '준비 완료 기록됨' : '게이트 통과 준비 완료'}
+            </UiButton>
           </>
         )}
+      </section>
+    </main>
+  )
+}
+
+function AlertsScreen({ onBack }: { onBack: () => void }) {
+  const [acknowledged, setAcknowledged] = useState<string[]>([])
+  const notices = [
+    { id: 'wind', level: '주의', time: '오늘 07:10', title: '오후 강풍 예보', body: '14시 이후 순간풍속 증가가 예상됩니다. CFS·야드 작업은 적치물과 이동식 장비 고정을 재확인합니다.', source: '기상 연동' },
+    { id: 'crane', level: '긴급', time: '오늘 08:40', title: '3부두 크레인 점검 중', body: '점검 종료 공지 전까지 3부두 작업자 출입과 장비 접근을 금지합니다.', source: '안전관리자' },
+    { id: 'wave', level: '주의', time: '어제 14:20', title: '높은 파고 주의', body: '해상 작업자는 구명조끼 체결 상태와 작업구역 통제선을 확인하세요.', source: '기상 연동' },
+  ]
+
+  return (
+    <main className="alerts-screen">
+      <header>
+        <UiButton onClick={onBack} type="button">← 오늘 작업</UiButton>
+        <p className="overline">BUSAN PORT · LIVE</p>
+        <h1>기상·긴급 알림</h1>
+        <p>현재 작업에 영향을 주는 공지만 우선 표시합니다.</p>
+      </header>
+      <section className="weather-summary">
+        <div><span>현재</span><strong>27°C</strong></div>
+        <dl>
+          <div><dt>풍속</dt><dd>3m/s</dd></div>
+          <div><dt>습도</dt><dd>62%</dd></div>
+          <div><dt>기준</dt><dd>08:55</dd></div>
+        </dl>
+      </section>
+      <section className="notice-list" aria-label="안전 알림 목록">
+        {notices.map((notice) => {
+          const done = acknowledged.includes(notice.id)
+          return (
+            <article className={notice.level === '긴급' ? 'is-urgent' : ''} key={notice.id}>
+              <header><span>{notice.level}</span><time>{notice.time}</time></header>
+              <h2>{notice.title}</h2>
+              <p>{notice.body}</p>
+              <footer><small>{notice.source}</small><UiButton disabled={done} onClick={() => setAcknowledged((items) => [...items, notice.id])} type="button">{done ? '확인 기록됨' : '내용 확인'}</UiButton></footer>
+            </article>
+          )
+        })}
       </section>
     </main>
   )
