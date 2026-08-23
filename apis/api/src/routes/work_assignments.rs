@@ -1,16 +1,18 @@
-use sea_orm::{ActiveModelTrait, ActiveValue::Set, EntityTrait};
+use sea_orm::{ActiveModelTrait, ActiveValue::Set, ColumnTrait, EntityTrait, QueryFilter};
 use serde::{Deserialize, Serialize};
 use vespera::axum::{
-    Json,
     extract::{Path, State},
     http::StatusCode,
+    Json,
 };
 
+use crate::models::cargo_document_versions::{CargoReviewStatus, Entity as CargoDocumentVersions};
 use crate::models::cargo_documents::{Entity as CargoDocuments, ReviewStatus};
+use crate::models::cargo_item_documents::{CargoDocumentRole, Entity as CargoItemDocuments};
 use crate::models::cargo_items::Entity as CargoItems;
 use crate::models::work_assignments::{self, EligibilityStatus, Entity as WorkAssignments};
 use crate::routes::attendances::today;
-use crate::utils::{AppState, auth::AdminUser};
+use crate::utils::{auth::AdminUser, AppState};
 
 #[derive(Deserialize, vespera::Schema)]
 pub struct CreateWorkAssignmentRequest {
@@ -102,6 +104,28 @@ async fn ensure_source_document_confirmed(
             "연결된 화물 문서가 없어 작업을 배정할 수 없습니다.",
         ));
     };
+    if let Some(bridge) = CargoItemDocuments::find()
+        .filter(crate::models::cargo_item_documents::Column::CargoItemId.eq(cargo_item_id))
+        .filter(
+            crate::models::cargo_item_documents::Column::DocumentRole.eq(CargoDocumentRole::Msds),
+        )
+        .one(db)
+        .await
+        .map_err(|_| internal_error())?
+    {
+        let version = CargoDocumentVersions::find_by_id(bridge.cargo_document_version_id)
+            .one(db)
+            .await
+            .map_err(|_| internal_error())?
+            .ok_or_else(internal_error)?;
+        if version.review_status != CargoReviewStatus::Confirmed {
+            return Err(assignment_error(
+                "MSDS_REVIEW_NOT_CONFIRMED",
+                "MSDS 검수가 확정되지 않은 화물에는 작업을 배정할 수 없습니다.",
+            ));
+        }
+    }
+
     let document = CargoDocuments::find_by_id(document_id)
         .one(db)
         .await
