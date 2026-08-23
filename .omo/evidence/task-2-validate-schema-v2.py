@@ -299,6 +299,13 @@ def validate() -> list[str]:
         if token_hash.get("unique") is not True:
             errors.append("equipment_tag_tokens.tag_token_hash must be unique")
 
+    for table, model in models.items():
+        for name, group_columns in unique_groups(model).items():
+            if {"employee_id", "v2_work_id"} <= group_columns:
+                errors.append(
+                    f"{table}: composite unique {name} must not contain employee_id and v2_work_id"
+                )
+
     legacy_logs = models.get("equipment_check_logs")
     if legacy_logs and "uq_equipment_workdate" in unique_groups(legacy_logs):
         errors.append("equipment_check_logs: legacy day-wide equipment unique must be removed")
