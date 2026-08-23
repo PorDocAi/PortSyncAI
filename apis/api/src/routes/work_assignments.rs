@@ -10,10 +10,7 @@ use crate::models::cargo_documents::{Entity as CargoDocuments, ReviewStatus};
 use crate::models::cargo_items::Entity as CargoItems;
 use crate::models::work_assignments::{self, EligibilityStatus, Entity as WorkAssignments};
 use crate::routes::attendances::today;
-use crate::utils::{
-    AppState,
-    auth::AdminUser,
-};
+use crate::utils::{AppState, auth::AdminUser};
 
 #[derive(Deserialize, vespera::Schema)]
 pub struct CreateWorkAssignmentRequest {
@@ -109,7 +106,7 @@ async fn ensure_source_document_confirmed(
         .one(db)
         .await
         .map_err(|_| internal_error())?
-        .ok_or_else(|| internal_error())?;
+        .ok_or_else(internal_error)?;
     if document.review_status != ReviewStatus::Confirmed {
         return Err(assignment_error(
             "MSDS_REVIEW_NOT_CONFIRMED",
@@ -144,7 +141,10 @@ pub async fn create_work_assignment(
         .await
         .map_err(|_| internal_error())?;
 
-    Ok((StatusCode::CREATED, Json(WorkAssignmentResponse::from(saved))))
+    Ok((
+        StatusCode::CREATED,
+        Json(WorkAssignmentResponse::from(saved)),
+    ))
 }
 
 #[derive(Deserialize, vespera::Schema)]
@@ -190,7 +190,10 @@ pub async fn update_work_assignment(
         active.eligibility_status = Set(eligibility_status);
     }
     active.updated_at = Set(Some(chrono::Utc::now().into()));
-    let saved = active.update(&state.db).await.map_err(|_| internal_error())?;
+    let saved = active
+        .update(&state.db)
+        .await
+        .map_err(|_| internal_error())?;
 
     Ok(Json(WorkAssignmentResponse::from(saved)))
 }

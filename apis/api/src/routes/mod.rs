@@ -1,6 +1,5 @@
 pub mod admin;
 pub mod attendances;
-pub mod work_assignments;
 pub mod auth;
 pub mod cargo_documents;
 pub mod cargo_items;
@@ -9,6 +8,7 @@ pub mod employees;
 pub mod equipment_checks;
 pub mod gate;
 pub mod job_roles;
+pub mod work_assignments;
 
 use std::collections::HashMap;
 
