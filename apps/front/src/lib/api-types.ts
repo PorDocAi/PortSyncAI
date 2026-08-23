@@ -4,6180 +4,6201 @@
  */
 
 export interface paths {
-    "/admin/approvals": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description 승인 대기 목록 (FR-E1 — 관리자 대기함) */
-        get: operations["list_pending_approvals"];
-        put?: never;
-        /** @description 승인/반려 결정 (FR-E2): 사유·승인자·시각을 approvals에 기록 */
-        post: operations["decide_approval"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/attendances": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** @description 오늘 출근 절차 시작 (이미 시작했으면 기존 레코드 반환 — 멱등) */
-        post: operations["start_attendance"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/attendances/ack": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** @description 안전지침 확인 (FR-C2/C3): 스크롤 완료 시에만 인지 로그 기록 */
-        post: operations["acknowledge_instruction"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/attendances/equipment-complete": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * @description 장비 착용 완료 선언 (FR-D1): 당일 화물 Class 기반 필수(REQUIRED) 장비를
-         *     전부 태깅해야 완료. 미충족 항목이 있으면 400.
-         */
-        post: operations["complete_equipment_check"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/attendances/request-approval": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * @description 예외 승인 요청 (FR-E1): 미비 항목이 있을 때 관리자 승인을 요청
-         *     미비 항목이 없으면 400 (승인이 필요 없는 상태)
-         */
-        post: operations["request_approval"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/attendances/required-equipment": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description 당일 화물 기반 필수/권장 장비 목록 조회 (FR-D1) */
-        get: operations["get_required_equipment"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/attendances/today": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description 오늘 내 출근 상태 조회 */
-        get: operations["get_today_attendance"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/attendances/today-instructions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * @description 오늘 입고 화물 Class에 연결된 지침을 작업자 모국어로 조회한다 (FR-B4/C1).
-         *     번역본이 없으면 법적 원문의 기준 언어인 한국어로 대체한다.
-         */
-        get: operations["get_today_instructions"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/attendances/work-stops": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description 작업중지 대상(또는 오늘 전체) 출근 목록 조회 (관리 권한, 시나리오 5) */
-        get: operations["list_work_stops"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/attendances/{id}/work-stop": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * @description 작업중지 설정 (FR-E3, 시나리오 5 — 관리 권한)
-         *     STOPPED로 바꾸면 이후 게이트 태깅이 \"작업중지\" 사유로 차단된다.
-         */
-        post: operations["set_work_stop"];
-        /** @description 작업중지 해제 (관리 권한) — NORMAL로 되돌린다. 이미 NORMAL이어도 멱등하게 200을 반환한다. */
-        delete: operations["unset_work_stop"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/signin": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** @description 로그인: 이메일+비밀번호 검증 후 JWT 발급 */
-        post: operations["signin"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/cargo-documents": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description 업로드된 화물 문서 메타데이터 목록 */
-        get: operations["list_cargo_documents"];
-        put?: never;
-        /** @description B/L·DGD 원문 업로드. 파일은 로컬 스토리지에 UUID 이름으로 저장하고 메타데이터만 DB에 기록한다. */
-        post: operations["upload_cargo_document"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/cargo-documents/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description 업로드된 화물 문서 메타데이터 단건 조회 */
-        get: operations["get_cargo_document"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/cargo-documents/{id}/confirm-review": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * @description 화물 문서 검수 확정 (FR-B2, 데모 시나리오 6)
-         *     MSDS 원문을 관리자가 확인한 뒤 CONFIRMED로 확정한다.
-         *     이미 CONFIRMED인 문서도 멱등하게 200을 반환한다.
-         */
-        post: operations["confirm_cargo_document_review"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/cargo-items": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description 입고 화물 목록 (arrival_date로 필터 가능) */
-        get: operations["list_cargo_items"];
-        put?: never;
-        /** @description 입고 화물 등록 (관리 권한): UN No./HS Code로 위험물 등급 자동 확정 + DGD 누락 검증 */
-        post: operations["create_cargo_item"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/cargo-items/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description 입고 화물 단건 조회 */
-        get: operations["get_cargo_item"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/departments": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description 부서 목록 조회 */
-        get: operations["list_departments"];
-        put?: never;
-        /** @description 부서 생성 (관리 권한) */
-        post: operations["create_department"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/departments/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** @description 부서 수정 (관리 권한) */
-        put: operations["update_department"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/education/completions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description 교육 이수 목록. employee_id/course_id로 작업자의 이수 이력을 조회할 수 있다. */
-        get: operations["list_education_completions"];
-        put?: never;
-        /** @description 교육 이수 등록 (관리 권한). 동일 과정 재이수를 허용한다. */
-        post: operations["create_education_completion"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/education/courses": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description 교육 과정 목록 */
-        get: operations["list_education_courses"];
-        put?: never;
-        /** @description 교육 과정 생성 (관리 권한) */
-        post: operations["create_education_course"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/education/readiness": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description 작업 배정 전 교육 충족 여부. CURRENT / EXPIRED / MISSING 을 구분한다. */
-        get: operations["get_education_readiness"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/education/rules": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description 교육 대상 규칙 목록 */
-        get: operations["list_education_target_rules"];
-        put?: never;
-        /** @description 교육 대상 규칙 생성 (관리 권한) */
-        post: operations["create_education_target_rule"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/employees": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description 직원 목록 조회 */
-        get: operations["list_employees"];
-        put?: never;
-        /** @description 직원 등록 (비밀번호는 argon2 해시 저장) */
-        post: operations["create_employee"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/employees/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description 직원 단건 조회 */
-        get: operations["get_employee"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/equipment-checks": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** @description 장비 NFC 태깅. v2 sidecar의 불투명 토큰만 장비 식별에 사용한다. */
-        post: operations["tag_equipment"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/equipment-checks/tag-tokens": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** @description 관리자 장비 프로필 태그 토큰 발급. 평문은 이 응답에서만 반환하고 DB에는 SHA-256만 저장한다. */
-        post: operations["issue_equipment_tag_token"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/equipment-checks/tag-tokens/{equipment-profile-id}/rotate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** @description 기존 활성 토큰을 폐기하고 새 토큰을 발급한다. */
-        post: operations["rotate_equipment_tag_token"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/equipment-checks/tag-tokens/{tokenid}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** @description 관리자 태그 토큰 폐기. 행은 남기고 활성 플래그만 끈다. */
-        delete: operations["revoke_equipment_tag_token"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/equipment-checks/{equipment-profile-id}/tag-token": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** @description 프로필 경로를 사용하는 관리자 발급 별칭. */
-        post: operations["issue_equipment_tag_token_for_profile"];
-        /** @description 프로필 경로를 사용하는 관리자 폐기 별칭. 해당 프로필의 활성 토큰을 모두 폐기한다. */
-        delete: operations["revoke_equipment_tag_token_for_profile"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/gate/terminals": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * @description 게이트 단말 자격증명 발급 (관리 권한)
-         *     무작위 토큰을 생성하고 SHA-256 해시만 저장한다. 평문은 이 응답으로만 전달된다.
-         */
-        post: operations["issue_gate_terminal"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/gate/terminals/{terminalid}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * @description 게이트 단말 폐기 (관리 권한) — 행을 지우지 않고 is_active만 false로 바꾼다 (소프트 삭제)
-         *     이미 폐기된 단말도 멱등하게 200을 반환한다.
-         */
-        delete: operations["revoke_gate_terminal"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/gate/verify": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * @description 게이트 사원증 태깅 검증 (FR-D5, 데모 시나리오 1)
-         *     게이트 단말 자격증명(Bearer 토큰)으로만 호출 가능하다.
-         *     (지침 확인 + 장비 완료 + 승인) 충족 시 통과 처리, 아니면 사유와 함께 차단.
-         *     통과 판정은 (출근 건, 작업일) 유니크 제약으로 멱등 기록된다(AC-5).
-         */
-        post: operations["verify_gate"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/health": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["health"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/job-roles": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description 직무 목록 조회 */
-        get: operations["list_job_roles"];
-        put?: never;
-        /** @description 직무 생성 (관리 권한) */
-        post: operations["create_job_role"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/job-roles/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** @description 직무 수정 (관리 권한) */
-        put: operations["update_job_role"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/ppe/requirements": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description 보호구 요구조건 목록 */
-        get: operations["list_ppe_requirements"];
-        put?: never;
-        /** @description 보호구 요구조건 생성 (관리 권한). 검수 전 PENDING 으로 저장한다. */
-        post: operations["create_ppe_requirement"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/ppe/requirements/{id}/confirm": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** @description 보호구 요구조건 검수 확정 (관리 권한) */
-        post: operations["confirm_ppe_requirement"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/ppe/snapshots": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description 작업 확정 시점의 불변 보호구 스냅샷 목록 */
-        get: operations["list_ppe_snapshots"];
-        put?: never;
-        /** @description 검수 확정된 요구조건을 작업 스냅샷으로 고정한다. */
-        post: operations["create_ppe_snapshot"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/work-assignments": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * @description 작업 배정 생성 (FR-F3, 데모 시나리오 6 — 관리 권한)
-         *     배정일은 요청 당일로 기록하고, 배정 담당자는 호출한 관리자 계정으로 남긴다.
-         */
-        post: operations["create_work_assignment"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/work-assignments/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * @description 작업 배정 수정 (관리 권한)
-         *     배정 대상 화물을 변경하는 경우에도 검수 확정 여부를 동일하게 강제한다 (시나리오 6).
-         */
-        patch: operations["update_work_assignment"];
-        trace?: never;
-    };
-    "/work-preparations": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** @description v2 배정 준비 상태를 생성하거나 재계산한다 (관리 권한) */
-        post: operations["upsert_work_preparation"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/work-preparations/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description v2 배정 준비 상태 조회 */
-        get: operations["get_work_preparation"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/work-stops": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description 작업중지 목록. OPEN 은 미충족, CLOSED 는 충족으로 구분한다. */
-        get: operations["list_work_stops_2"];
-        put?: never;
-        /** @description 작업 또는 v2 배정 범위의 작업중지를 연다 (관리 권한) */
-        post: operations["create_work_stop"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/work-stops/{id}/close": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** @description 작업중지를 해제한다 (관리 권한). 이미 CLOSED 이면 멱등하게 200을 반환한다. */
-        post: operations["close_work_stop"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
+  '/admin/approvals': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description 승인 대기 목록 (FR-E1 — 관리자 대기함) */
+    get: operations['list_pending_approvals']
+    put?: never
+    /** @description 승인/반려 결정 (FR-E2): 사유·승인자·시각을 approvals에 기록 */
+    post: operations['decide_approval']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/attendances': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** @description 오늘 출근 절차 시작 (이미 시작했으면 기존 레코드 반환 — 멱등) */
+    post: operations['start_attendance']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/attendances/ack': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** @description 안전지침 확인 (FR-C2/C3): 스크롤 완료 시에만 인지 로그 기록 */
+    post: operations['acknowledge_instruction']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/attendances/equipment-complete': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * @description 장비 착용 완료 선언 (FR-D1): 당일 화물 Class 기반 필수(REQUIRED) 장비를
+     *     전부 태깅해야 완료. 미충족 항목이 있으면 400.
+     */
+    post: operations['complete_equipment_check']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/attendances/request-approval': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * @description 예외 승인 요청 (FR-E1): 미비 항목이 있을 때 관리자 승인을 요청
+     *     미비 항목이 없으면 400 (승인이 필요 없는 상태)
+     */
+    post: operations['request_approval']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/attendances/required-equipment': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description 당일 화물 기반 필수/권장 장비 목록 조회 (FR-D1) */
+    get: operations['get_required_equipment']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/attendances/today': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description 오늘 내 출근 상태 조회 */
+    get: operations['get_today_attendance']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/attendances/today-instructions': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * @description 오늘 입고 화물 Class에 연결된 지침을 작업자 모국어로 조회한다 (FR-B4/C1).
+     *     번역본이 없으면 법적 원문의 기준 언어인 한국어로 대체한다.
+     */
+    get: operations['get_today_instructions']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/attendances/work-stops': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description 작업중지 대상(또는 오늘 전체) 출근 목록 조회 (관리 권한, 시나리오 5) */
+    get: operations['list_work_stops']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/attendances/{id}/work-stop': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * @description 작업중지 설정 (FR-E3, 시나리오 5 — 관리 권한)
+     *     STOPPED로 바꾸면 이후 게이트 태깅이 \"작업중지\" 사유로 차단된다.
+     */
+    post: operations['set_work_stop']
+    /** @description 작업중지 해제 (관리 권한) — NORMAL로 되돌린다. 이미 NORMAL이어도 멱등하게 200을 반환한다. */
+    delete: operations['unset_work_stop']
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/auth/signin': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** @description 로그인: 이메일+비밀번호 검증 후 JWT 발급 */
+    post: operations['signin']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/cargo-documents': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description 업로드된 화물 문서 메타데이터 목록 */
+    get: operations['list_cargo_documents']
+    put?: never
+    /** @description B/L·DGD 원문 업로드. 파일은 로컬 스토리지에 UUID 이름으로 저장하고 메타데이터만 DB에 기록한다. */
+    post: operations['upload_cargo_document']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/cargo-documents/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description 업로드된 화물 문서 메타데이터 단건 조회 */
+    get: operations['get_cargo_document']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/cargo-documents/{id}/confirm-review': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * @description 화물 문서 검수 확정 (FR-B2, 데모 시나리오 6)
+     *     MSDS 원문을 관리자가 확인한 뒤 CONFIRMED로 확정한다.
+     *     이미 CONFIRMED인 문서도 멱등하게 200을 반환한다.
+     */
+    post: operations['confirm_cargo_document_review']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/cargo-items': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description 입고 화물 목록 (arrival_date로 필터 가능) */
+    get: operations['list_cargo_items']
+    put?: never
+    /** @description 입고 화물 등록 (관리 권한): UN No./HS Code로 위험물 등급 자동 확정 + DGD 누락 검증 */
+    post: operations['create_cargo_item']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/cargo-items/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description 입고 화물 단건 조회 */
+    get: operations['get_cargo_item']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/departments': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description 부서 목록 조회 */
+    get: operations['list_departments']
+    put?: never
+    /** @description 부서 생성 (관리 권한) */
+    post: operations['create_department']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/departments/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    /** @description 부서 수정 (관리 권한) */
+    put: operations['update_department']
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/education/completions': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description 교육 이수 목록. employee_id/course_id로 작업자의 이수 이력을 조회할 수 있다. */
+    get: operations['list_education_completions']
+    put?: never
+    /** @description 교육 이수 등록 (관리 권한). 동일 과정 재이수를 허용한다. */
+    post: operations['create_education_completion']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/education/courses': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description 교육 과정 목록 */
+    get: operations['list_education_courses']
+    put?: never
+    /** @description 교육 과정 생성 (관리 권한) */
+    post: operations['create_education_course']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/education/readiness': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description 작업 배정 전 교육 충족 여부. CURRENT / EXPIRED / MISSING 을 구분한다. */
+    get: operations['get_education_readiness']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/education/rules': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description 교육 대상 규칙 목록 */
+    get: operations['list_education_target_rules']
+    put?: never
+    /** @description 교육 대상 규칙 생성 (관리 권한) */
+    post: operations['create_education_target_rule']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/employees': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description 직원 목록 조회 */
+    get: operations['list_employees']
+    put?: never
+    /** @description 직원 등록 (비밀번호는 argon2 해시 저장) */
+    post: operations['create_employee']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/employees/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description 직원 단건 조회 */
+    get: operations['get_employee']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/equipment-checks': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** @description 장비 NFC 태깅. v2 sidecar의 불투명 토큰만 장비 식별에 사용한다. */
+    post: operations['tag_equipment']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/equipment-checks/tag-tokens': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** @description 관리자 장비 프로필 태그 토큰 발급. 평문은 이 응답에서만 반환하고 DB에는 SHA-256만 저장한다. */
+    post: operations['issue_equipment_tag_token']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/equipment-checks/tag-tokens/{equipment-profile-id}/rotate': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** @description 기존 활성 토큰을 폐기하고 새 토큰을 발급한다. */
+    post: operations['rotate_equipment_tag_token']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/equipment-checks/tag-tokens/{tokenid}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post?: never
+    /** @description 관리자 태그 토큰 폐기. 행은 남기고 활성 플래그만 끈다. */
+    delete: operations['revoke_equipment_tag_token']
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/equipment-checks/{equipment-profile-id}/tag-token': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** @description 프로필 경로를 사용하는 관리자 발급 별칭. */
+    post: operations['issue_equipment_tag_token_for_profile']
+    /** @description 프로필 경로를 사용하는 관리자 폐기 별칭. 해당 프로필의 활성 토큰을 모두 폐기한다. */
+    delete: operations['revoke_equipment_tag_token_for_profile']
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/gate/terminals': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * @description 게이트 단말 자격증명 발급 (관리 권한)
+     *     무작위 토큰을 생성하고 SHA-256 해시만 저장한다. 평문은 이 응답으로만 전달된다.
+     */
+    post: operations['issue_gate_terminal']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/gate/terminals/{terminalid}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post?: never
+    /**
+     * @description 게이트 단말 폐기 (관리 권한) — 행을 지우지 않고 is_active만 false로 바꾼다 (소프트 삭제)
+     *     이미 폐기된 단말도 멱등하게 200을 반환한다.
+     */
+    delete: operations['revoke_gate_terminal']
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/gate/verify': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * @description 게이트 사원증 태깅 검증 (FR-D5, 데모 시나리오 1)
+     *     게이트 단말 자격증명(Bearer 토큰)으로만 호출 가능하다.
+     *     (지침 확인 + 장비 완료 + 승인) 충족 시 통과 처리, 아니면 사유와 함께 차단.
+     *     통과 판정은 (출근 건, 작업일) 유니크 제약으로 멱등 기록된다(AC-5).
+     */
+    post: operations['verify_gate']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/health': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['health']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/job-roles': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description 직무 목록 조회 */
+    get: operations['list_job_roles']
+    put?: never
+    /** @description 직무 생성 (관리 권한) */
+    post: operations['create_job_role']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/job-roles/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    /** @description 직무 수정 (관리 권한) */
+    put: operations['update_job_role']
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/ppe/requirements': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description 보호구 요구조건 목록 */
+    get: operations['list_ppe_requirements']
+    put?: never
+    /** @description 보호구 요구조건 생성 (관리 권한). 검수 전 PENDING 으로 저장한다. */
+    post: operations['create_ppe_requirement']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/ppe/requirements/{id}/confirm': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** @description 보호구 요구조건 검수 확정 (관리 권한) */
+    post: operations['confirm_ppe_requirement']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/ppe/snapshots': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description 작업 확정 시점의 불변 보호구 스냅샷 목록 */
+    get: operations['list_ppe_snapshots']
+    put?: never
+    /** @description 검수 확정된 요구조건을 작업 스냅샷으로 고정한다. */
+    post: operations['create_ppe_snapshot']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/work-assignments': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * @description 작업 배정 생성 (FR-F3, 데모 시나리오 6 — 관리 권한)
+     *     배정일은 요청 당일로 기록하고, 배정 담당자는 호출한 관리자 계정으로 남긴다.
+     */
+    post: operations['create_work_assignment']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/work-assignments/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    /**
+     * @description 작업 배정 수정 (관리 권한)
+     *     배정 대상 화물을 변경하는 경우에도 검수 확정 여부를 동일하게 강제한다 (시나리오 6).
+     */
+    patch: operations['update_work_assignment']
+    trace?: never
+  }
+  '/work-preparations': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** @description v2 배정 준비 상태를 생성하거나 재계산한다 (관리 권한) */
+    post: operations['upsert_work_preparation']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/work-preparations/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description v2 배정 준비 상태 조회 */
+    get: operations['get_work_preparation']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/work-stops': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description 작업중지 목록. OPEN 은 미충족, CLOSED 는 충족으로 구분한다. */
+    get: operations['list_work_stops_2']
+    put?: never
+    /** @description 작업 또는 v2 배정 범위의 작업중지를 연다 (관리 권한) */
+    post: operations['create_work_stop']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/work-stops/{id}/close': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** @description 작업중지를 해제한다 (관리 권한). 이미 CLOSED 이면 멱등하게 200을 반환한다. */
+    post: operations['close_work_stop']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
 }
-export type webhooks = Record<string, never>;
+export type webhooks = Record<string, never>
 export interface components {
-    schemas: {
-        AckRequest: {
-            /** Format: int64 */
-            instruction_id: number;
-            /** @description 팝업 최하단 스크롤 완료 여부 (FR-C2 — false면 확인 불가) */
-            scrolled_to_end: boolean;
-        };
-        /** @enum {string} */
-        ApprovalDecision: "APPROVED" | "REJECTED";
-        /** @enum {string} */
-        ApprovalStatus: "NOT_REQUIRED" | "PENDING" | "APPROVED" | "REJECTED";
-        /** @description 관리자 승인/반려 기록 (FR-E1/E2) */
-        ApprovalsSchema: {
-            /**
-             * Format: int64
-             * @description 승인 고유번호
-             * @default 0
-             */
-            approvalId: number;
-            approver: components["schemas"]["EmployeesSchema"];
-            /**
-             * Format: int64
-             * @description 승인자 FK
-             */
-            approverId: number;
-            attendance: components["schemas"]["AttendancesSchema"];
-            /**
-             * Format: int64
-             * @description 출근 FK
-             */
-            attendanceId: number;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            /**
-             * Format: date-time
-             * @description 결정 시각
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            decidedAt: string;
-            /** @description 승인/반려 */
-            decision: components["schemas"]["ApprovalDecision"];
-            /** @description 사유 (FR-E2) */
-            reason?: string | null;
-        };
-        AssignmentErrorResponse: {
-            /** @description 기계 판독용 사유 코드 (예: MSDS_REVIEW_NOT_CONFIRMED) */
-            code: string;
-            /** @description 작업자에게 표시할 한국어 사유 */
-            message: string;
-        };
-        AttendanceResponse: {
-            approval_status: string;
-            /** Format: int64 */
-            attendance_id: number;
-            /** Format: int64 */
-            employee_id: number;
-            equipment_check_completed: boolean;
-            gate_passed_at?: string | null;
-            gate_status: string;
-            instruction_ack_completed: boolean;
-            work_date: string;
-            work_status: string;
-        };
-        /** @description 출근/게이트 통과 상태 (FR-C4, D5 — 인지·장비·승인 집계) */
-        AttendancesSchema: {
-            /**
-             * @description 관리자 승인 상태
-             * @default NOT_REQUIRED
-             */
-            approvalStatus: components["schemas"]["ApprovalStatus"];
-            /**
-             * Format: int64
-             * @description 출근 고유번호
-             * @default 0
-             */
-            attendanceId: number;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            employee: components["schemas"]["EmployeesSchema"];
-            /**
-             * Format: int64
-             * @description 직원 FK
-             */
-            employeeId: number;
-            /**
-             * @description 필수 장비 착용 완료 (FR-D3)
-             * @default false
-             */
-            equipmentCheckCompleted: boolean;
-            /**
-             * Format: date-time
-             * @description 사원증 태깅 통과 시각 (FR-D5)
-             */
-            gatePassedAt?: string | null;
-            /**
-             * @description 게이트 통과 상태
-             * @default BLOCKED
-             */
-            gateStatus: components["schemas"]["GateStatus"];
-            /**
-             * @description 안전지침 확인 완료 (FR-C4)
-             * @default false
-             */
-            instructionAckCompleted: boolean;
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-            /**
-             * Format: date
-             * @description 작업 일자
-             */
-            workDate: string;
-            /**
-             * @description 작업중지 여부 (시나리오 5 — STOPPED면 게이트 차단)
-             * @default NORMAL
-             */
-            workStatus: components["schemas"]["WorkStatus"];
-            workStops?: components["schemas"]["AttendancesSchema_WorkStops"];
-        };
-        AttendancesSchema_WorkStops: {
-            /**
-             * Format: date-time
-             * @description 작업중지 해제일시
-             */
-            closedAt?: string | null;
-            /**
-             * Format: int64
-             * @description 작업중지 해제자 FK
-             */
-            closedById?: number | null;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             */
-            createdAt: string;
-            /**
-             * Format: int64
-             * @description PR #48 출근 작업중지 변환 출처 FK
-             */
-            legacyAttendanceId?: number | null;
-            /** @description 작업중지 사유 */
-            reason: string;
-            /** @description 작업중지 상태 */
-            status: components["schemas"]["WorkStopStatus"];
-            /**
-             * Format: date-time
-             * @description 작업중지 일시
-             */
-            stoppedAt: string;
-            /**
-             * Format: int64
-             * @description 작업중지 등록자 FK, PR #48 변환행은 null
-             */
-            stoppedById?: number | null;
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-            /**
-             * Format: int64
-             * @description 중지 대상 v2 작업 배정 FK
-             */
-            workAssignmentId?: number | null;
-            /**
-             * Format: int64
-             * @description 중지 대상 작업 FK, 레거시 변환행은 null
-             */
-            workId?: number | null;
-            /**
-             * Format: int64
-             * @description 작업중지 고유번호
-             */
-            workStopId: number;
-        };
-        /** @description 감사 로그 (FR-G1, append-only — 누가/언제/무엇을/어떤 버전, NFR 무결성) */
-        AuditLogsSchema: {
-            actor?: components["schemas"]["EmployeesSchema"];
-            /**
-             * Format: int64
-             * @description 행위자 FK (시스템 이벤트는 null)
-             */
-            actorEmployeeId?: number | null;
-            /**
-             * Format: int64
-             * @description 감사 로그 고유번호
-             * @default 0
-             */
-            auditLogId: number;
-            /**
-             * Format: date-time
-             * @description 발생 시각
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            /** @description 상세 이벤트 데이터 */
-            detail?: Record<string, never> | null;
-            /** @description 이벤트 유형 (INSTRUCTION_ACK/EQUIPMENT_CHECK/APPROVAL/GATE_PASS 등) */
-            eventType: string;
-            /**
-             * Format: int32
-             * @description 관련 지침 버전 (FR-G1)
-             */
-            instructionVersion?: number | null;
-            /**
-             * Format: int64
-             * @description 대상 레코드 PK
-             */
-            targetId?: number | null;
-            /** @description 대상 엔티티명 */
-            targetType?: string | null;
-        };
-        CargoDocumentResponse: {
-            /** Format: int64 */
-            cargo_document_id: number;
-            content_type?: string | null;
-            created_at: string;
-            document_type: string;
-            file_format: string;
-            file_hash?: string | null;
-            /** Format: int64 */
-            file_size?: number | null;
-            file_url: string;
-            original_file_name?: string | null;
-            /** @description PENDING | CONFIRMED */
-            review_status: string;
-            /** Format: int64 */
-            uploaded_by_id: number;
-        };
-        /** @enum {string} */
-        CargoDocumentRole: "BL" | "DGD" | "CI" | "MSDS";
-        /** @enum {string} */
-        CargoDocumentType: "BL" | "DGD";
-        /** @description 화물 문서의 v2 유형·처리·검수 버전 상태 */
-        CargoDocumentVersionsSchema: {
-            /**
-             * Format: int64
-             * @description v2 화물문서 버전 고유번호
-             * @default 0
-             */
-            cargoDocumentVersionId: number;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            /** @description v2 문서 유형 */
-            documentType: components["schemas"]["V2CargoDocumentType"];
-            /**
-             * Format: int32
-             * @description 동일 문서의 검수 버전
-             * @default 1
-             */
-            documentVersion: number;
-            legacy?: components["schemas"]["CargoDocumentVersionsSchema_Legacy"];
-            /**
-             * Format: int64
-             * @description 변환된 0001-0004 화물문서 FK, v2 신규 문서는 null
-             */
-            legacyCargoDocumentId?: number | null;
-            /**
-             * @description 문서 분석 처리 상태
-             * @default PENDING
-             */
-            processingStatus: components["schemas"]["CargoProcessingStatus"];
-            /**
-             * @description v2 관리자 검수 상태
-             * @default PENDING
-             */
-            reviewStatus: components["schemas"]["CargoReviewStatus"];
-            /**
-             * Format: date-time
-             * @description 검수일시
-             */
-            reviewedAt?: string | null;
-            reviewedBy?: components["schemas"]["EmployeesSchema"];
-            /**
-             * Format: int64
-             * @description 검수자 FK
-             */
-            reviewedById?: number | null;
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-        };
-        CargoDocumentVersionsSchema_Legacy: {
-            /**
-             * Format: int64
-             * @description 화물문서 고유번호
-             */
-            cargoDocumentId: number;
-            /** @description 업로드 MIME 타입 */
-            contentType?: string | null;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             */
-            createdAt: string;
-            /** @description 문서 유형 (선하증권/위험물신고서) */
-            documentType: components["schemas"]["CargoDocumentType"];
-            /** @description 파일 형식 */
-            fileFormat: components["schemas"]["FileFormat"];
-            /** @description SHA-256 파일 무결성 해시 */
-            fileHash?: string | null;
-            /**
-             * Format: int64
-             * @description 파일 크기(byte)
-             */
-            fileSize?: number | null;
-            /** @description 원본 파일 경로 */
-            fileUrl: string;
-            /** @description 사용자가 업로드한 원본 파일명 */
-            originalFileName?: string | null;
-            /** @description 검수 상태 (FR-B2 — CONFIRMED여야 작업 배정 가능) */
-            reviewStatus: components["schemas"]["ReviewStatus"];
-            /**
-             * Format: int64
-             * @description 업로더 FK
-             */
-            uploadedById: number;
-        };
-        /** @description 화물 문서 원문 (B/L·DGD 업로드, FR-B) */
-        CargoDocumentsSchema: {
-            /**
-             * Format: int64
-             * @description 화물문서 고유번호
-             * @default 0
-             */
-            cargoDocumentId: number;
-            cargoDocumentVersions?: components["schemas"]["CargoDocumentsSchema_CargoDocumentVersions"];
-            /** @description 업로드 MIME 타입 */
-            contentType?: string | null;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            /** @description 문서 유형 (선하증권/위험물신고서) */
-            documentType: components["schemas"]["CargoDocumentType"];
-            /** @description 파일 형식 */
-            fileFormat: components["schemas"]["FileFormat"];
-            /** @description SHA-256 파일 무결성 해시 */
-            fileHash?: string | null;
-            /**
-             * Format: int64
-             * @description 파일 크기(byte)
-             */
-            fileSize?: number | null;
-            /** @description 원본 파일 경로 */
-            fileUrl: string;
-            /** @description 사용자가 업로드한 원본 파일명 */
-            originalFileName?: string | null;
-            /**
-             * @description 검수 상태 (FR-B2 — CONFIRMED여야 작업 배정 가능)
-             * @default PENDING
-             */
-            reviewStatus: components["schemas"]["ReviewStatus"];
-            uploadedBy: components["schemas"]["EmployeesSchema"];
-            /**
-             * Format: int64
-             * @description 업로더 FK
-             */
-            uploadedById: number;
-        };
-        CargoDocumentsSchema_CargoDocumentVersions: {
-            /**
-             * Format: int64
-             * @description v2 화물문서 버전 고유번호
-             */
-            cargoDocumentVersionId: number;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             */
-            createdAt: string;
-            /** @description v2 문서 유형 */
-            documentType: components["schemas"]["V2CargoDocumentType"];
-            /**
-             * Format: int32
-             * @description 동일 문서의 검수 버전
-             */
-            documentVersion: number;
-            /**
-             * Format: int64
-             * @description 변환된 0001-0004 화물문서 FK, v2 신규 문서는 null
-             */
-            legacyCargoDocumentId?: number | null;
-            /** @description 문서 분석 처리 상태 */
-            processingStatus: components["schemas"]["CargoProcessingStatus"];
-            /** @description v2 관리자 검수 상태 */
-            reviewStatus: components["schemas"]["CargoReviewStatus"];
-            /**
-             * Format: date-time
-             * @description 검수일시
-             */
-            reviewedAt?: string | null;
-            /**
-             * Format: int64
-             * @description 검수자 FK
-             */
-            reviewedById?: number | null;
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-        };
-        /** @description 화물과 v2 문서 버전의 역할별 다대다 관계 */
-        CargoItemDocumentsSchema: {
-            cargoDocumentVersion: Record<string, never>;
-            /**
-             * Format: int64
-             * @description v2 화물문서 버전 FK
-             */
-            cargoDocumentVersionId: number;
-            cargoItem: Record<string, never>;
-            /**
-             * Format: int64
-             * @description 화물 문서 관계 고유번호
-             * @default 0
-             */
-            cargoItemDocumentId: number;
-            /**
-             * Format: int64
-             * @description 레거시 화물 FK
-             */
-            cargoItemId: number;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            /** @description 화물에서 문서가 담당하는 역할 */
-            documentRole: components["schemas"]["CargoDocumentRole"];
-            /**
-             * @description 동일 역할의 대표 문서 여부
-             * @default false
-             */
-            isPrimary: boolean;
-        };
-        CargoItemResponse: {
-            arrival_date?: string | null;
-            bl_number?: string | null;
-            /** Format: int64 */
-            cargo_item_id: number;
-            /** Format: int64 */
-            dg_class_id?: number | null;
-            /** @description DGD 부재 + 위험물 의심 HS Code → 경고 (FR-B3) */
-            dgd_missing_warning: boolean;
-            dgd_number?: string | null;
-            hs_code?: string | null;
-            is_dangerous: boolean;
-            item_name?: string | null;
-            un_number?: string | null;
-        };
-        /** @description 입고 화물 (B/L·DGD에서 추출·확정, FR-B1~B4) */
-        CargoItemsSchema: {
-            /**
-             * Format: date
-             * @description 입고 예정일 (FR-C1 당일 매칭)
-             */
-            arrivalDate?: string | null;
-            /** @description 선하증권 번호 */
-            blNumber?: string | null;
-            cargoDocument?: Record<string, never> | null;
-            /**
-             * Format: int64
-             * @description 출처 화물문서 FK
-             */
-            cargoDocumentId?: number | null;
-            /**
-             * Format: int64
-             * @description 화물 고유번호
-             * @default 0
-             */
-            cargoItemId: number;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            /** @description 화물 상세 */
-            description?: string | null;
-            dgClass?: Record<string, never> | null;
-            /**
-             * Format: int64
-             * @description 확정된 위험물 등급 FK
-             */
-            dgClassId?: number | null;
-            /**
-             * @description DGD 누락 경고 (FR-B3)
-             * @default false
-             */
-            dgdMissingWarning: boolean;
-            /** @description 위험물신고서 번호 (부재 시 null) */
-            dgdNumber?: string | null;
-            /** @description B/L HS Code */
-            hsCode?: string | null;
-            /**
-             * @description 위험물 여부
-             * @default false
-             */
-            isDangerous: boolean;
-            /** @description 품목명 (B/L 16번 Description) */
-            itemName?: string | null;
-            /** @description 추출된 UN No. */
-            unNumber?: string | null;
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-        };
-        CargoListQuery: {
-            /** @description 입고 예정일 필터 (YYYY-MM-DD) */
-            arrival_date?: string | null;
-        };
-        /** @enum {string} */
-        CargoProcessingStatus: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
-        /** @enum {string} */
-        CargoReviewStatus: "PENDING" | "CONFIRMED" | "REJECTED";
-        /** @enum {string} */
-        ChangeType: "ADDED" | "MODIFIED" | "DELETED";
-        ChecklistItem: {
-            category: string;
-            /** Format: int64 */
-            id: number;
-            satisfied: boolean;
-        };
-        /** @description 위험물 등급 ↔ 필수/권장 안전장비 매핑 (FR-B5, D1, 설정 데이터) */
-        ClassEquipmentMappingsSchema: {
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            dgClass: Record<string, never>;
-            /**
-             * Format: int64
-             * @description 위험물 등급 FK
-             */
-            dgClassId: number;
-            equipmentType: Record<string, never>;
-            /**
-             * Format: int64
-             * @description 장비 종류 FK
-             */
-            equipmentTypeId: number;
-            /** @description 적용 IMDG 차수 */
-            imdgVersion?: string | null;
-            /**
-             * Format: int64
-             * @description 매핑 고유번호
-             * @default 0
-             */
-            mappingId: number;
-            /**
-             * @description 필수/권장 구분
-             * @default REQUIRED
-             */
-            requirementLevel: components["schemas"]["RequirementLevel"];
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-        };
-        /** @description 위험물 등급 ↔ 안전지침 매핑 (FR-B4, 화물유형별 지침 자동 전송) */
-        ClassInstructionMappingsSchema: {
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            dgClass: Record<string, never>;
-            /**
-             * Format: int64
-             * @description 위험물 등급 FK
-             */
-            dgClassId: number;
-            instruction: Record<string, never>;
-            /**
-             * Format: int64
-             * @description 안전지침 FK
-             */
-            instructionId: number;
-            /**
-             * Format: int64
-             * @description 매핑 고유번호
-             * @default 0
-             */
-            mappingId: number;
-        };
-        /** @description 컨테이너와 혼재 화물의 다대다 관계 */
-        ContainerCargoItemsSchema: {
-            cargoItem: Record<string, never>;
-            /**
-             * Format: int64
-             * @description 화물 FK
-             */
-            cargoItemId: number;
-            container: components["schemas"]["ContainersSchema"];
-            /**
-             * Format: int64
-             * @description 컨테이너 화물 관계 고유번호
-             * @default 0
-             */
-            containerCargoItemId: number;
-            /**
-             * Format: int64
-             * @description 컨테이너 FK
-             */
-            containerId: number;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            /**
-             * Format: date-time
-             * @description 적재 확인일시
-             */
-            loadedAt?: string | null;
-        };
-        /** @description 작업 대상 컨테이너 */
-        ContainersSchema: {
-            /**
-             * Format: date-time
-             * @description 터미널 도착일시
-             */
-            arrivalAt?: string | null;
-            /**
-             * Format: int64
-             * @description 컨테이너 고유번호
-             * @default 0
-             */
-            containerId: number;
-            /** @description ISO 6346 컨테이너 번호 */
-            containerNumber: string;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            /**
-             * Format: date-time
-             * @description 터미널 출발일시
-             */
-            departureAt?: string | null;
-            /** @description 봉인 번호 */
-            sealNumber?: string | null;
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-        };
-        CreateCargoItemRequest: {
-            /** @description YYYY-MM-DD */
-            arrival_date?: string | null;
-            bl_number?: string | null;
-            /** Format: int64 */
-            cargo_document_id?: number | null;
-            description?: string | null;
-            dgd_number?: string | null;
-            hs_code?: string | null;
-            item_name?: string | null;
-            un_number?: string | null;
-        };
-        CreateDepartmentRequest: {
-            department_code: string;
-            description?: string | null;
-            name: string;
-        };
-        CreateEducationCompletionRequest: {
-            /** @description RFC3339 */
-            completed_at: string;
-            /** Format: int32 */
-            course_version?: number | null;
-            /** Format: int64 */
-            education_course_id: number;
-            /** Format: int64 */
-            employee_id: number;
-            evidence_url?: string | null;
-            /** @description RFC3339, 생략 시 과정의 validity_days로 계산 */
-            expires_at?: string | null;
-        };
-        CreateEducationCourseRequest: {
-            course_code: string;
-            description?: string | null;
-            title: string;
-            /** Format: int32 */
-            validity_days?: number | null;
-            /** Format: int32 */
-            version?: number | null;
-        };
-        CreateEducationTargetRuleRequest: {
-            /** Format: int64 */
-            dg_class_id?: number | null;
-            /** Format: int64 */
-            education_course_id: number;
-            is_required?: boolean | null;
-            /** Format: int64 */
-            work_type_id?: number | null;
-        };
-        CreateEmployeeRequest: {
-            /** Format: int64 */
-            department_id: number;
-            email: string;
-            employee_number: string;
-            /** @description YYYY-MM-DD */
-            hire_date: string;
-            /** Format: int64 */
-            job_role_id: number;
-            name: string;
-            password: string;
-            phone_number?: string | null;
-            position?: string | null;
-            preferred_language?: string | null;
-            system_role?: components["schemas"]["SystemRole"];
-        };
-        CreateJobRoleRequest: {
-            description?: string | null;
-            job_role_code: string;
-            name: string;
-        };
-        CreatePpeRequirementRequest: {
-            category: string;
-            /** Format: int64 */
-            equipment_type_id: number;
-            performance_criteria?: Record<string, never> | null;
-            /** Format: int64 */
-            source_document_version_id: number;
-            source_text: string;
-        };
-        CreatePpeSnapshotRequest: {
-            /** Format: int64 */
-            ppe_requirement_id: number;
-            /** Format: int64 */
-            work_id: number;
-        };
-        CreateWorkAssignmentRequest: {
-            /**
-             * Format: int64
-             * @description 배정 대상 화물 고유번호 (없으면 null — 공용 작업)
-             */
-            cargo_item_id?: number | null;
-            /**
-             * Format: int64
-             * @description 작업자 직원 고유번호
-             */
-            employee_id: number;
-        };
-        CreateWorkStopRequest: {
-            reason: string;
-            /** Format: int64 */
-            work_assignment_id?: number | null;
-            /** Format: int64 */
-            work_id?: number | null;
-        };
-        DecideApprovalRequest: {
-            /** Format: int64 */
-            attendance_id: number;
-            /** @description APPROVED | REJECTED */
-            decision: components["schemas"]["ApprovalDecision"];
-            /** @description 결정 사유 (FR-E2 — 필수) */
-            reason: string;
-        };
-        DecideApprovalResponse: {
-            /** Format: int64 */
-            approval_id: number;
-            approval_status: string;
-            /** Format: int64 */
-            attendance_id: number;
-            decision: string;
-        };
-        DepartmentResponse: {
-            department_code: string;
-            /** Format: int64 */
-            department_id: number;
-            description?: string | null;
-            name: string;
-        };
-        /** @description 부서 */
-        DepartmentsSchema: {
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            /** @description 부서 코드 */
-            departmentCode: string;
-            /**
-             * Format: int64
-             * @description 부서 고유번호
-             * @default 0
-             */
-            departmentId: number;
-            /** @description 설명 */
-            description?: string | null;
-            /** @description 부서명 */
-            name: string;
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-        };
-        /** @description 위험물 등급 (IMDG Class) 마스터 (FR-B, 설정 데이터) */
-        DgClassesSchema: {
-            /** @description Class 코드 (예: 1, 2.1, 3, 9) */
-            classCode: string;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            /** @description 설명 */
-            description?: string | null;
-            /**
-             * Format: int64
-             * @description 등급 고유번호
-             * @default 0
-             */
-            dgClassId: number;
-            /** @description 적용 IMDG 개정 차수 (예: 42차) */
-            imdgVersion?: string | null;
-            /** @description 등급 영문명 */
-            nameEn?: string | null;
-            /** @description 등급 한글명 (화약류/가스류 등) */
-            nameKo: string;
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-        };
-        EducationCompletionQuery: {
-            /** Format: int64 */
-            education_course_id?: number | null;
-            /** Format: int64 */
-            employee_id?: number | null;
-        };
-        EducationCompletionResponse: {
-            completed_at: string;
-            /** Format: int32 */
-            course_version: number;
-            /** Format: int64 */
-            education_completion_id: number;
-            /** Format: int64 */
-            education_course_id: number;
-            /** Format: int64 */
-            employee_id: number;
-            evidence_url?: string | null;
-            expires_at?: string | null;
-            fulfilled: boolean;
-            /** Format: int64 */
-            recorded_by_id: number;
-        };
-        /** @description 작업자 교육 이수 이력(재이수 허용) */
-        EducationCompletionsSchema: {
-            /**
-             * Format: date-time
-             * @description 이수일시
-             */
-            completedAt: string;
-            /**
-             * Format: int32
-             * @description 이수한 교육 과정 버전
-             */
-            courseVersion: number;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            /**
-             * Format: int64
-             * @description 교육 이수 고유번호
-             * @default 0
-             */
-            educationCompletionId: number;
-            educationCourse: Record<string, never>;
-            /**
-             * Format: int64
-             * @description 교육 과정 FK
-             */
-            educationCourseId: number;
-            employee: components["schemas"]["EmployeesSchema"];
-            /**
-             * Format: int64
-             * @description 이수 작업자 FK
-             */
-            employeeId: number;
-            /** @description 이수 증빙 경로 */
-            evidenceUrl?: string | null;
-            /**
-             * Format: date-time
-             * @description 이수 만료일시
-             */
-            expiresAt?: string | null;
-            recordedBy: components["schemas"]["EmployeesSchema"];
-            /**
-             * Format: int64
-             * @description 이수 등록자 FK
-             */
-            recordedById: number;
-        };
-        EducationCourseResponse: {
-            course_code: string;
-            description?: string | null;
-            /** Format: int64 */
-            education_course_id: number;
-            is_active: boolean;
-            title: string;
-            /** Format: int32 */
-            validity_days?: number | null;
-            /** Format: int32 */
-            version: number;
-        };
-        /** @description 작업 투입 전 교육 과정 기준정보 */
-        EducationCoursesSchema: {
-            /** @description 교육 과정 코드 */
-            courseCode: string;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            /** @description 교육 과정 설명 */
-            description?: string | null;
-            /**
-             * Format: int64
-             * @description 교육 과정 고유번호
-             * @default 0
-             */
-            educationCourseId: number;
-            /**
-             * @description 사용 여부
-             * @default true
-             */
-            isActive: boolean;
-            /** @description 교육 과정명 */
-            title: string;
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-            /**
-             * Format: int32
-             * @description 이수 유효기간 일수, null이면 무기한
-             */
-            validityDays?: number | null;
-            /**
-             * Format: int32
-             * @description 교육 과정 버전
-             * @default 1
-             */
-            version: number;
-        };
-        EducationErrorResponse: {
-            code: string;
-            message: string;
-        };
-        EducationReadinessQuery: {
-            /** Format: int64 */
-            employee_id: number;
-            /** Format: int64 */
-            work_id: number;
-        };
-        EducationReadinessResponse: {
-            /** Format: int64 */
-            employee_id: number;
-            fulfilled: boolean;
-            requirements: components["schemas"]["EducationRequirementStatus"][];
-            /** Format: int64 */
-            work_id: number;
-        };
-        EducationRequirementStatus: {
-            course_code: string;
-            /** Format: int64 */
-            education_completion_id?: number | null;
-            /** Format: int64 */
-            education_course_id: number;
-            expires_at?: string | null;
-            fulfilled: boolean;
-            /** @description CURRENT | EXPIRED | MISSING */
-            status: string;
-            title: string;
-        };
-        EducationTargetRuleResponse: {
-            /** Format: int64 */
-            dg_class_id?: number | null;
-            /** Format: int64 */
-            education_course_id: number;
-            /** Format: int64 */
-            education_target_rule_id: number;
-            is_active: boolean;
-            is_required: boolean;
-            /** Format: int64 */
-            work_type_id?: number | null;
-        };
-        /** @description 작업유형·위험물 등급별 필수 교육 규칙 */
-        EducationTargetRulesSchema: {
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            dgClass?: Record<string, never> | null;
-            /**
-             * Format: int64
-             * @description 대상 위험물 등급 FK
-             */
-            dgClassId?: number | null;
-            educationCourse: Record<string, never>;
-            /**
-             * Format: int64
-             * @description 교육 과정 FK
-             */
-            educationCourseId: number;
-            /**
-             * Format: int64
-             * @description 교육 대상 규칙 고유번호
-             * @default 0
-             */
-            educationTargetRuleId: number;
-            /**
-             * @description 규칙 사용 여부
-             * @default true
-             */
-            isActive: boolean;
-            /**
-             * @description 필수 교육 여부
-             * @default true
-             */
-            isRequired: boolean;
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-            workType?: Record<string, never> | null;
-            /**
-             * Format: int64
-             * @description 대상 작업 유형 FK
-             */
-            workTypeId?: number | null;
-        };
-        /** @enum {string} */
-        EligibilityStatus: "ELIGIBLE" | "EXCLUDED";
-        /** @description 직원 건강·신체 정보 (FR-F1, 민감정보 분리 저장) */
-        EmployeeHealthProfilesSchema: {
-            /** @description 알레르기 유발물질 코드 배열 (예: ["RICE"]) */
-            allergens?: Record<string, never> | null;
-            /**
-             * @description 개인정보(건강) 수집·이용 동의
-             * @default false
-             */
-            consentAgreed: boolean;
-            /**
-             * Format: date-time
-             * @description 동의 시각
-             */
-            consentAt?: string | null;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            employee: components["schemas"]["EmployeeHealthProfilesSchema_Employee"];
-            /**
-             * Format: int64
-             * @description 직원 FK (1:1)
-             */
-            employeeId: number;
-            /**
-             * @description 천식 보유 여부
-             * @default false
-             */
-            hasAsthma: boolean;
-            /**
-             * @description 폐쇄공포 보유 여부
-             * @default false
-             */
-            hasClaustrophobia: boolean;
-            /**
-             * Format: int64
-             * @description 건강정보 고유번호
-             * @default 0
-             */
-            healthProfileId: number;
-            /**
-             * Format: int32
-             * @description 신장(cm)
-             */
-            heightCm?: number | null;
-            /** @description 기타 특이사항 */
-            otherConditions?: string | null;
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-            /**
-             * Format: int32
-             * @description 체중(kg)
-             */
-            weightKg?: number | null;
-        };
-        EmployeeHealthProfilesSchema_Employee: {
-            /**
-             * Format: date-time
-             * @description 생성일시
-             */
-            createdAt: string;
-            /**
-             * Format: int64
-             * @description 부서 FK
-             */
-            departmentId: number;
-            /** @description 사내 이메일 */
-            email: string;
-            /**
-             * Format: int64
-             * @description 직원 고유번호 (내부 식별자)
-             */
-            employeeId: number;
-            /** @description 회사 표준 사번 */
-            employeeNumber: string;
-            /**
-             * Format: date
-             * @description 입사일
-             */
-            hireDate: string;
-            /**
-             * Format: int64
-             * @description 직무 FK
-             */
-            jobRoleId: number;
-            /** @description 이름 */
-            name: string;
-            /**
-             * Format: date-time
-             * @description 사원증 발급일
-             */
-            nfcCardIssuedAt?: string | null;
-            /** @description 사원증 NFC UID (게이트 태깅 식별자) */
-            nfcCardUid?: string | null;
-            /** @description bcrypt/argon2 해시 */
-            passwordHash: string;
-            /** @description 전화번호 */
-            phoneNumber?: string | null;
-            /** @description 직급 (사원/대리/과장 등) */
-            position?: string | null;
-            /** @description 모국어 코드 (번역/TTS 기준, FR-C1) */
-            preferredLanguage: string;
-            /**
-             * Format: date-time
-             * @description 퇴사일시
-             */
-            resignedAt?: string | null;
-            /** @description 상태 */
-            status: components["schemas"]["EmployeeStatus"];
-            /** @description 시스템 권한 */
-            systemRole: components["schemas"]["SystemRole"];
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-        };
-        /** @description 응답 DTO — password_hash를 절대 밖으로 내보내지 않기 위해 Model과 분리 */
-        EmployeeResponse: {
-            /** Format: int64 */
-            department_id: number;
-            email: string;
-            /** Format: int64 */
-            employee_id: number;
-            employee_number: string;
-            hire_date: string;
-            /** Format: int64 */
-            job_role_id: number;
-            name: string;
-            phone_number?: string | null;
-            position?: string | null;
-            preferred_language: string;
-            status: string;
-            system_role: string;
-        };
-        /** @enum {string} */
-        EmployeeStatus: "ACTIVE" | "ON_LEAVE" | "SUSPENDED" | "RESIGNED";
-        /** @description 직원 */
-        EmployeesSchema: {
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            department: components["schemas"]["DepartmentsSchema"];
-            /**
-             * Format: int64
-             * @description 부서 FK
-             */
-            departmentId: number;
-            /** @description 사내 이메일 */
-            email: string;
-            employeeHealthProfiles?: components["schemas"]["EmployeesSchema_EmployeeHealthProfiles"];
-            /**
-             * Format: int64
-             * @description 직원 고유번호 (내부 식별자)
-             * @default 0
-             */
-            employeeId: number;
-            /** @description 회사 표준 사번 */
-            employeeNumber: string;
-            /**
-             * Format: date
-             * @description 입사일
-             */
-            hireDate: string;
-            jobRole: Record<string, never>;
-            /**
-             * Format: int64
-             * @description 직무 FK
-             */
-            jobRoleId: number;
-            /** @description 이름 */
-            name: string;
-            /**
-             * Format: date-time
-             * @description 사원증 발급일
-             */
-            nfcCardIssuedAt?: string | null;
-            /** @description 사원증 NFC UID (게이트 태깅 식별자) */
-            nfcCardUid?: string | null;
-            /** @description bcrypt/argon2 해시 */
-            passwordHash: string;
-            /** @description 전화번호 */
-            phoneNumber?: string | null;
-            /** @description 직급 (사원/대리/과장 등) */
-            position?: string | null;
-            /**
-             * @description 모국어 코드 (번역/TTS 기준, FR-C1)
-             * @default ko
-             */
-            preferredLanguage: string;
-            /**
-             * Format: date-time
-             * @description 퇴사일시
-             */
-            resignedAt?: string | null;
-            /**
-             * @description 상태
-             * @default ACTIVE
-             */
-            status: components["schemas"]["EmployeeStatus"];
-            /**
-             * @description 시스템 권한
-             * @default WORKER
-             */
-            systemRole: components["schemas"]["SystemRole"];
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-        };
-        EmployeesSchema_EmployeeHealthProfiles: {
-            /** @description 알레르기 유발물질 코드 배열 (예: ["RICE"]) */
-            allergens?: Record<string, never> | null;
-            /** @description 개인정보(건강) 수집·이용 동의 */
-            consentAgreed: boolean;
-            /**
-             * Format: date-time
-             * @description 동의 시각
-             */
-            consentAt?: string | null;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             */
-            createdAt: string;
-            /**
-             * Format: int64
-             * @description 직원 FK (1:1)
-             */
-            employeeId: number;
-            /** @description 천식 보유 여부 */
-            hasAsthma: boolean;
-            /** @description 폐쇄공포 보유 여부 */
-            hasClaustrophobia: boolean;
-            /**
-             * Format: int64
-             * @description 건강정보 고유번호
-             */
-            healthProfileId: number;
-            /**
-             * Format: int32
-             * @description 신장(cm)
-             */
-            heightCm?: number | null;
-            /** @description 기타 특이사항 */
-            otherConditions?: string | null;
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-            /**
-             * Format: int32
-             * @description 체중(kg)
-             */
-            weightKg?: number | null;
-        };
-        /** @description v2 작업 배정 범위의 append-only 장비 태깅·멱등 응답 이벤트 */
-        EquipmentCheckEventsSchema: {
-            /** @description 장비 태깅 수락 여부 */
-            accepted: boolean;
-            /**
-             * Format: date-time
-             * @description 클라이언트 스캔 감사시각
-             */
-            clientScannedAt: string;
-            employee: components["schemas"]["EmployeesSchema"];
-            /**
-             * Format: int64
-             * @description JWT로 확인한 작업자 FK
-             */
-            employeeId: number;
-            /**
-             * Format: int64
-             * @description 장비 태깅 이벤트 고유번호
-             * @default 0
-             */
-            equipmentCheckEventId: number;
-            equipmentProfile?: Record<string, never> | null;
-            /**
-             * Format: int64
-             * @description 토큰으로 확인한 v2 장비 프로필 FK, 미확인 토큰은 null
-             */
-            equipmentProfileId?: number | null;
-            /**
-             * Format: int16
-             * @description 최초 응답 HTTP 상태
-             */
-            httpStatus: number;
-            /**
-             * Format: uuid
-             * @description 작업자 범위 멱등키
-             */
-            idempotencyKey: string;
-            /**
-             * Format: date-time
-             * @description 서버 이벤트 발생일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            occurredAt: string;
-            /** @description 안정된 결과 코드 */
-            reasonCode: string;
-            /** @description 정규화하지 않은 요청의 SHA-256 지문 */
-            requestFingerprint: string;
-            /** @description 재전송할 최초 정확 응답 JSON */
-            responseJson: Record<string, never>;
-            workAssignment: Record<string, never>;
-            /**
-             * Format: int64
-             * @description 요청 v2 작업 배정 FK
-             */
-            workAssignmentId: number;
-        };
-        /** @description 당일 장비 NFC 태깅 기록 (FR-D3/D4 — 돌려쓰기 방지) */
-        EquipmentCheckLogsSchema: {
-            attendance: components["schemas"]["AttendancesSchema"];
-            /**
-             * Format: int64
-             * @description 출근 FK
-             */
-            attendanceId: number;
-            /**
-             * Format: int64
-             * @description 태깅 기록 고유번호
-             * @default 0
-             */
-            checkLogId: number;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            employee: components["schemas"]["EmployeesSchema"];
-            /**
-             * Format: int64
-             * @description 직원 FK
-             */
-            employeeId: number;
-            equipment: components["schemas"]["EquipmentSchema"];
-            /**
-             * Format: int64
-             * @description 장비 FK
-             */
-            equipmentId: number;
-            /**
-             * Format: date-time
-             * @description 태깅 시각
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            taggedAt: string;
-            /**
-             * Format: date
-             * @description 작업 일자 (장비+일자 유니크로 중복사용 차단, FR-D4)
-             */
-            workDate: string;
-        };
-        /** @enum {string} */
-        EquipmentLifecycleStatus: "AVAILABLE" | "BLOCKED" | "DAMAGED" | "LOST" | "REPLACED";
-        /** @enum {string} */
-        EquipmentOwnershipType: "PERSONAL" | "SHARED";
-        /** @description v2 소유정책·수명주기를 갖는 보호구 프로필 */
-        EquipmentProfilesSchema: {
-            /** @description v2 자산 관리번호 */
-            assetNumber?: string | null;
-            /** @description v2 점자 스티커 병기 내용 */
-            brailleLabel?: string | null;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            /**
-             * Format: int64
-             * @description v2 장비 프로필 고유번호
-             * @default 0
-             */
-            equipmentProfileId: number;
-            equipmentType: Record<string, never>;
-            /**
-             * Format: int64
-             * @description 장비 종류 FK
-             */
-            equipmentTypeId: number;
-            legacy?: components["schemas"]["EquipmentProfilesSchema_Legacy"];
-            /**
-             * Format: int64
-             * @description 변환된 0001 장비 FK, v2 신규 장비는 null
-             */
-            legacyEquipmentId?: number | null;
-            /**
-             * Format: date
-             * @description 해당 품목에만 적용하는 제조사 교체 권고일
-             */
-            manufacturerReplacementDueAt?: string | null;
-            owner?: components["schemas"]["EmployeesSchema"];
-            /**
-             * Format: int64
-             * @description 개인 장비 소유자 FK, 공용은 null
-             */
-            ownerEmployeeId?: number | null;
-            /**
-             * @description 개인 또는 공용 소유정책
-             * @default SHARED
-             */
-            ownershipType: components["schemas"]["EquipmentOwnershipType"];
-            sharedEquipmentClaims?: components["schemas"]["EquipmentProfilesSchema_SharedEquipmentClaims"];
-            /**
-             * @description v2 장비 수명주기 상태
-             * @default BLOCKED
-             */
-            status: components["schemas"]["EquipmentLifecycleStatus"];
-            /** @description 상태 변경 사유 */
-            statusReason?: string | null;
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-        };
-        EquipmentProfilesSchema_Legacy: {
-            /** @description 자산 관리번호 */
-            assetNumber?: string | null;
-            /** @description 점자 스티커 병기 내용 (FR-D2) */
-            brailleLabel?: string | null;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             */
-            createdAt: string;
-            /**
-             * Format: int64
-             * @description 장비 고유번호
-             */
-            equipmentId: number;
-            /**
-             * Format: int64
-             * @description 장비 종류 FK
-             */
-            equipmentTypeId: number;
-            /** @description 사용 가능 여부 */
-            isActive: boolean;
-            /** @description NFC 태그 UID (FR-D2) */
-            nfcTagUid: string;
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-        };
-        EquipmentProfilesSchema_SharedEquipmentClaims: {
-            /**
-             * Format: date-time
-             * @description 점유 시작일시
-             */
-            claimedAt: string;
-            /**
-             * Format: int64
-             * @description 점유 v2 공용 장비 프로필 FK
-             */
-            equipmentProfileId: number;
-            /**
-             * Format: int64
-             * @description 공용 장비 점유 고유번호
-             */
-            sharedEquipmentClaimId: number;
-            /**
-             * Format: int64
-             * @description v2 점유 작업 배정 FK
-             */
-            workAssignmentId: number;
-        };
-        /** @description 개별 안전장비 (NFC 태그 단위, FR-D2) */
-        EquipmentSchema: {
-            /** @description 자산 관리번호 */
-            assetNumber?: string | null;
-            /** @description 점자 스티커 병기 내용 (FR-D2) */
-            brailleLabel?: string | null;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            /**
-             * Format: int64
-             * @description 장비 고유번호
-             * @default 0
-             */
-            equipmentId: number;
-            equipmentProfiles?: components["schemas"]["EquipmentSchema_EquipmentProfiles"];
-            equipmentType: Record<string, never>;
-            /**
-             * Format: int64
-             * @description 장비 종류 FK
-             */
-            equipmentTypeId: number;
-            /**
-             * @description 사용 가능 여부
-             * @default true
-             */
-            isActive: boolean;
-            /** @description NFC 태그 UID (FR-D2) */
-            nfcTagUid: string;
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-        };
-        EquipmentSchema_EquipmentProfiles: {
-            /** @description v2 자산 관리번호 */
-            assetNumber?: string | null;
-            /** @description v2 점자 스티커 병기 내용 */
-            brailleLabel?: string | null;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             */
-            createdAt: string;
-            /**
-             * Format: int64
-             * @description v2 장비 프로필 고유번호
-             */
-            equipmentProfileId: number;
-            /**
-             * Format: int64
-             * @description 장비 종류 FK
-             */
-            equipmentTypeId: number;
-            /**
-             * Format: int64
-             * @description 변환된 0001 장비 FK, v2 신규 장비는 null
-             */
-            legacyEquipmentId?: number | null;
-            /**
-             * Format: date
-             * @description 해당 품목에만 적용하는 제조사 교체 권고일
-             */
-            manufacturerReplacementDueAt?: string | null;
-            /**
-             * Format: int64
-             * @description 개인 장비 소유자 FK, 공용은 null
-             */
-            ownerEmployeeId?: number | null;
-            /** @description 개인 또는 공용 소유정책 */
-            ownershipType: components["schemas"]["EquipmentOwnershipType"];
-            /** @description v2 장비 수명주기 상태 */
-            status: components["schemas"]["EquipmentLifecycleStatus"];
-            /** @description 상태 변경 사유 */
-            statusReason?: string | null;
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-        };
-        EquipmentSummary: {
-            asset_number?: string | null;
-            /** Format: int64 */
-            id: number;
-            ownership: string;
-            status: string;
-            type: components["schemas"]["EquipmentTypeSummary"];
-        };
-        /** @description v2 장비 프로필 NFC 불투명 토큰 해시와 발급 수명주기 */
-        EquipmentTagTokensSchema: {
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            /**
-             * Format: date-time
-             * @description 토큰 비활성화일시
-             */
-            deactivatedAt?: string | null;
-            deactivatedBy?: components["schemas"]["EmployeesSchema"];
-            /**
-             * Format: int64
-             * @description 토큰 비활성화 관리자 FK
-             */
-            deactivatedById?: number | null;
-            equipmentProfile: Record<string, never>;
-            /**
-             * Format: int64
-             * @description v2 장비 프로필 FK
-             */
-            equipmentProfileId: number;
-            /**
-             * Format: int64
-             * @description 장비 태그 토큰 고유번호
-             * @default 0
-             */
-            equipmentTagTokenId: number;
-            /**
-             * @description 활성 토큰 여부
-             * @default true
-             */
-            isActive: boolean;
-            /**
-             * Format: date-time
-             * @description 토큰 발급일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            issuedAt: string;
-            issuedBy: components["schemas"]["EmployeesSchema"];
-            /**
-             * Format: int64
-             * @description 토큰 발급 관리자 FK
-             */
-            issuedById: number;
-            /** @description 서버 발급 불투명 토큰 SHA-256 해시 */
-            tagTokenHash: string;
-        };
-        EquipmentTypeSummary: {
-            /** Format: int64 */
-            id: number;
-            name: string;
-        };
-        /** @description 안전장비 종류 마스터 (FR-D1) */
-        EquipmentTypesSchema: {
-            /** @description 분류 (안전화/장갑/호흡보호구 등) */
-            category?: string | null;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            /** @description 설명 */
-            description?: string | null;
-            /**
-             * Format: int64
-             * @description 장비 종류 고유번호
-             * @default 0
-             */
-            equipmentTypeId: number;
-            /** @description 장비명 (방폭형 안전화/내화학 장갑 등) */
-            name: string;
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-        };
-        /** @enum {string} */
-        FileFormat: "HWP" | "PDF" | "XLSX" | "DOCX" | "IMAGE";
-        /** @enum {string} */
-        GateDecision: "PASS" | "BLOCK";
-        /** @description 작업 배정 준비도를 기록하는 append-only 게이트 PASS/BLOCK 이벤트 */
-        GateEventsSchema: {
-            /** @description 통과 또는 차단 판정 */
-            decision: components["schemas"]["GateDecision"];
-            /** @description 판정에 사용한 문서·교육·보호구·중지 버전 */
-            decisionInputVersions: Record<string, never>;
-            employee: components["schemas"]["EmployeesSchema"];
-            /**
-             * Format: int64
-             * @description 판정 작업자 FK
-             */
-            employeeId: number;
-            /**
-             * Format: int64
-             * @description 게이트 이벤트 고유번호
-             * @default 0
-             */
-            gateEventId: number;
-            /** @description 판정 시점 게이트 식별자 */
-            gateId: string;
-            /**
-             * Format: int16
-             * @description 최초 응답 HTTP 상태
-             */
-            httpStatus: number;
-            /**
-             * Format: uuid
-             * @description 단말 범위 멱등키, 레거시 변환행은 null
-             */
-            idempotencyKey?: string | null;
-            legacy?: components["schemas"]["GateEventsSchema_Legacy"];
-            legacy1?: components["schemas"]["AttendancesSchema"];
-            /**
-             * Format: int64
-             * @description PR #48 출근 참조 FK
-             */
-            legacyAttendanceId?: number | null;
-            /**
-             * Format: int64
-             * @description PR #48 게이트 검증 기록 변환 출처 FK
-             */
-            legacyVerifyLogId?: number | null;
-            /**
-             * Format: date
-             * @description PR #48 작업일 감사값
-             */
-            legacyWorkDate?: string | null;
-            /**
-             * Format: date-time
-             * @description 서버 판정 발생일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            occurredAt: string;
-            /** @description 우선순위가 가장 높은 안정된 판정 코드 */
-            reasonCode: string;
-            /** @description 우선순위대로 정렬된 전체 판정 코드 */
-            reasonCodes: Record<string, never>;
-            /** @description 요청 SHA-256 지문, 레거시 변환행은 null */
-            requestFingerprint?: string | null;
-            /** @description 멱등 재전송할 최초 정확 응답 JSON */
-            responseJson: Record<string, never>;
-            terminal?: Record<string, never> | null;
-            /**
-             * Format: int64
-             * @description 검증 단말 FK
-             */
-            terminalId?: number | null;
-            workAssignment?: Record<string, never> | null;
-            /**
-             * Format: int64
-             * @description 판정 v2 작업 배정 FK, 변환 불가 레거시는 null
-             */
-            workAssignmentId?: number | null;
-        };
-        GateEventsSchema_Legacy: {
-            /** @description 통과 허용 여부 */
-            allowed: boolean;
-            /**
-             * Format: int64
-             * @description 출근 FK (출근 절차 시작 전 스캔은 NULL)
-             */
-            attendanceId?: number | null;
-            /**
-             * Format: date-time
-             * @description 기록 시각
-             */
-            createdAt: string;
-            /**
-             * Format: int64
-             * @description 직원 FK
-             */
-            employeeId: number;
-            /** @description 통과 이벤트 멱등 플래그 — PASSED 건만 true로 기록해 유니크 제약 대상이 된다 */
-            isPassEvent: boolean;
-            /** @description 판정 사유 (한국어 안내 문구) */
-            reason: string;
-            /**
-             * Format: int64
-             * @description 검증 단말 FK (게이트 단말 자격증명)
-             */
-            terminalId?: number | null;
-            /**
-             * Format: int64
-             * @description 게이트 검증 기록 고유번호
-             */
-            verifyLogId: number;
-            /**
-             * Format: date
-             * @description 작업 일자 (출근일 기준 통과 이벤트 멱등키 구성 요소)
-             */
-            workDate: string;
-        };
-        /** @enum {string} */
-        GateStatus: "BLOCKED" | "READY" | "PASSED";
-        /** @description 게이트 단말 자격증명(PR #48 보존) */
-        GateTerminalsSchema: {
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            /** @description 게이트 식별자 (예: 북문, 남문) */
-            gateId: string;
-            /**
-             * @description 활성 여부 (폐기 시 false — 소프트 삭제)
-             * @default true
-             */
-            isActive: boolean;
-            /**
-             * Format: int64
-             * @description 단말 고유번호
-             * @default 0
-             */
-            terminalId: number;
-            /** @description 단말 토큰 SHA-256 해시 (평문 저장 금지) */
-            tokenHash: string;
-        };
-        /** @description 게이트 검증 기록 (FR-D5, AC-5 — 이벤트 멱등 보장) */
-        GateVerifyLogsSchema: {
-            /**
-             * @description 통과 허용 여부
-             * @default false
-             */
-            allowed: boolean;
-            attendance?: components["schemas"]["AttendancesSchema"];
-            /**
-             * Format: int64
-             * @description 출근 FK (출근 절차 시작 전 스캔은 NULL)
-             */
-            attendanceId?: number | null;
-            /**
-             * Format: date-time
-             * @description 기록 시각
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            employee: components["schemas"]["EmployeesSchema"];
-            /**
-             * Format: int64
-             * @description 직원 FK
-             */
-            employeeId: number;
-            gateEvents?: components["schemas"]["GateVerifyLogsSchema_GateEvents"];
-            /**
-             * @description 통과 이벤트 멱등 플래그 — PASSED 건만 true로 기록해 유니크 제약 대상이 된다
-             * @default false
-             */
-            isPassEvent: boolean;
-            /** @description 판정 사유 (한국어 안내 문구) */
-            reason: string;
-            terminal?: Record<string, never> | null;
-            /**
-             * Format: int64
-             * @description 검증 단말 FK (게이트 단말 자격증명)
-             */
-            terminalId?: number | null;
-            /**
-             * Format: int64
-             * @description 게이트 검증 기록 고유번호
-             * @default 0
-             */
-            verifyLogId: number;
-            /**
-             * Format: date
-             * @description 작업 일자 (출근일 기준 통과 이벤트 멱등키 구성 요소)
-             */
-            workDate: string;
-        };
-        GateVerifyLogsSchema_GateEvents: {
-            /** @description 통과 또는 차단 판정 */
-            decision: components["schemas"]["GateDecision"];
-            /** @description 판정에 사용한 문서·교육·보호구·중지 버전 */
-            decisionInputVersions: Record<string, never>;
-            /**
-             * Format: int64
-             * @description 판정 작업자 FK
-             */
-            employeeId: number;
-            /**
-             * Format: int64
-             * @description 게이트 이벤트 고유번호
-             */
-            gateEventId: number;
-            /** @description 판정 시점 게이트 식별자 */
-            gateId: string;
-            /**
-             * Format: int16
-             * @description 최초 응답 HTTP 상태
-             */
-            httpStatus: number;
-            /**
-             * Format: uuid
-             * @description 단말 범위 멱등키, 레거시 변환행은 null
-             */
-            idempotencyKey?: string | null;
-            /**
-             * Format: int64
-             * @description PR #48 출근 참조 FK
-             */
-            legacyAttendanceId?: number | null;
-            /**
-             * Format: int64
-             * @description PR #48 게이트 검증 기록 변환 출처 FK
-             */
-            legacyVerifyLogId?: number | null;
-            /**
-             * Format: date
-             * @description PR #48 작업일 감사값
-             */
-            legacyWorkDate?: string | null;
-            /**
-             * Format: date-time
-             * @description 서버 판정 발생일시
-             */
-            occurredAt: string;
-            /** @description 우선순위가 가장 높은 안정된 판정 코드 */
-            reasonCode: string;
-            /** @description 우선순위대로 정렬된 전체 판정 코드 */
-            reasonCodes: Record<string, never>;
-            /** @description 요청 SHA-256 지문, 레거시 변환행은 null */
-            requestFingerprint?: string | null;
-            /** @description 멱등 재전송할 최초 정확 응답 JSON */
-            responseJson: Record<string, never>;
-            /**
-             * Format: int64
-             * @description 검증 단말 FK
-             */
-            terminalId?: number | null;
-            /**
-             * Format: int64
-             * @description 판정 v2 작업 배정 FK, 변환 불가 레거시는 null
-             */
-            workAssignmentId?: number | null;
-        };
-        GateVerifyRequest: {
-            /** @description 사원증 NFC UID (FR-D5) */
-            nfc_card_uid: string;
-            /**
-             * Format: int64
-             * @description v2 작업 배정 준비도를 함께 검증할 때 사용하는 선택 식별자
-             */
-            v2_work_assignment_id?: number | null;
-        };
-        GateVerifyResponse: {
-            allowed: boolean;
-            employee_name: string;
-            reason: string;
-        };
-        /** @description HS Code 마스터 (FR-B2/B3, 위험물 의심 판정) */
-        HsCodesSchema: {
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            default?: Record<string, never> | null;
-            /**
-             * Format: int64
-             * @description 기본 매핑 등급 FK
-             */
-            defaultDgClassId?: number | null;
-            /** @description 품목 설명 */
-            description?: string | null;
-            /** @description HS Code */
-            hsCode: string;
-            /**
-             * Format: int64
-             * @description HS Code 고유번호
-             * @default 0
-             */
-            hsCodeId: number;
-            /**
-             * @description 위험물 의심 여부 (DGD 누락 검증용, FR-B3)
-             * @default false
-             */
-            isDangerousSuspect: boolean;
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-        };
-        /** @description 항만안전점검관 개선명령 워크플로 (FR-E3, 3단계) */
-        ImprovementOrdersSchema: {
-            /** @description 조치 사진 경로 (FR-E3) */
-            actionPhotoUrl?: string | null;
-            /**
-             * Format: date-time
-             * @description 조치 시각
-             */
-            actionTakenAt?: string | null;
-            attendance?: components["schemas"]["AttendancesSchema"];
-            /**
-             * Format: int64
-             * @description 관련 출근 FK
-             */
-            attendanceId?: number | null;
-            /**
-             * Format: date-time
-             * @description 완료 보고 시각
-             */
-            completedAt?: string | null;
-            /** @description 개선명령 내용 */
-            content: string;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            issuedBy: components["schemas"]["EmployeesSchema"];
-            /**
-             * Format: int64
-             * @description 명령 등록자 FK (관리자/점검관)
-             */
-            issuedById: number;
-            /**
-             * Format: int64
-             * @description 개선명령 고유번호
-             * @default 0
-             */
-            orderId: number;
-            /**
-             * @description 진행 상태 (등록→조치→완료)
-             * @default ISSUED
-             */
-            status: components["schemas"]["ImprovementStatus"];
-            target?: components["schemas"]["EmployeesSchema"];
-            /**
-             * Format: int64
-             * @description 대상 작업자 FK
-             */
-            targetEmployeeId?: number | null;
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-        };
-        /** @enum {string} */
-        ImprovementStatus: "ISSUED" | "ACTION_TAKEN" | "COMPLETED";
-        /** @description 안전수칙 인지 로그 (FR-C2/C3, append-only — 수정 불가, NFR 무결성) */
-        InstructionAcknowledgementsSchema: {
-            /**
-             * Format: date-time
-             * @description 확인 시각 (FR-C3)
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            acknowledgedAt: string;
-            /**
-             * Format: int64
-             * @description 인지 로그 고유번호
-             * @default 0
-             */
-            acknowledgementId: number;
-            attendance: components["schemas"]["AttendancesSchema"];
-            /**
-             * Format: int64
-             * @description 출근 FK
-             */
-            attendanceId: number;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            employee: components["schemas"]["EmployeesSchema"];
-            /**
-             * Format: int64
-             * @description 직원 FK
-             */
-            employeeId: number;
-            instruction: Record<string, never>;
-            /**
-             * Format: int64
-             * @description 안전지침 FK
-             */
-            instructionId: number;
-            /**
-             * Format: int32
-             * @description 확인 당시 지침 버전 (FR-G1)
-             */
-            instructionVersion: number;
-            /** @description 표시된 언어 */
-            languageCode: string;
-            /**
-             * @description 최하단 스크롤 완료 여부 (FR-C2)
-             * @default false
-             */
-            scrolledToEnd: boolean;
-        };
-        IssueEquipmentTagTokenRequest: {
-            /** Format: int64 */
-            equipment_profile_id: number;
-        };
-        IssueEquipmentTagTokenResponse: {
-            /** Format: int64 */
-            equipment_profile_id: number;
-            /** Format: int64 */
-            equipment_tag_token_id: number;
-            ndef_mime_type: string;
-            /** @description 평문은 발급/회전 응답으로만 한 번 반환한다. */
-            token: string;
-            token_uri: string;
-        };
-        IssueTerminalRequest: {
-            /** @description 게이트 식별자 (예: 북문, 남문) */
-            gate_id: string;
-        };
-        IssueTerminalResponse: {
-            gate_id: string;
-            /**
-             * Format: int64
-             * @description 단말 고유번호
-             */
-            terminal_id: number;
-            /** @description 단말 토큰 평문 — 발급 시 단 한 번만 반환되며 다시 조회할 수 없다 */
-            token: string;
-        };
-        JobRoleResponse: {
-            description?: string | null;
-            job_role_code: string;
-            /** Format: int64 */
-            job_role_id: number;
-            name: string;
-        };
-        /** @description 직무 */
-        JobRolesSchema: {
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            /** @description 설명 */
-            description?: string | null;
-            /** @description 직무 코드 */
-            jobRoleCode: string;
-            /**
-             * Format: int64
-             * @description 직무 고유번호
-             * @default 0
-             */
-            jobRoleId: number;
-            /** @description 직무명 (하역/검수/컨테이너점검 등) */
-            name: string;
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-        };
-        PendingApprovalItem: {
-            /** Format: int64 */
-            attendance_id: number;
-            /** Format: int64 */
-            employee_id: number;
-            employee_name: string;
-            equipment_check_completed: boolean;
-            /** @description 미비 항목 파악용 */
-            instruction_ack_completed: boolean;
-            work_date: string;
-        };
-        PpeErrorResponse: {
-            code: string;
-            message: string;
-        };
-        PpeRequirementResponse: {
-            category: string;
-            /** Format: int64 */
-            equipment_type_id: number;
-            is_active: boolean;
-            performance_criteria?: Record<string, never> | null;
-            /** Format: int64 */
-            ppe_requirement_id: number;
-            review_status: string;
-            reviewed_at?: string | null;
-            /** Format: int64 */
-            reviewed_by_id?: number | null;
-            /** Format: int64 */
-            source_document_version_id: number;
-            /** Format: int32 */
-            source_document_version_number: number;
-            source_text: string;
-        };
-        /** @description 검수된 문서 원문 기반 보호구 요구조건 */
-        PpeRequirementsSchema: {
-            /** @description 보호구 카테고리 */
-            category: string;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            equipmentType: Record<string, never>;
-            /**
-             * Format: int64
-             * @description 요구 장비 종류 FK
-             */
-            equipmentTypeId: number;
-            /**
-             * @description 사용 여부
-             * @default true
-             */
-            isActive: boolean;
-            /** @description 성능조건 구조화 값 */
-            performanceCriteria?: Record<string, never> | null;
-            /**
-             * Format: int64
-             * @description 보호구 요구조건 고유번호
-             * @default 0
-             */
-            ppeRequirementId: number;
-            /**
-             * @description 요구조건 검수 상태
-             * @default PENDING
-             */
-            reviewStatus: components["schemas"]["PpeReviewStatus"];
-            /**
-             * Format: date-time
-             * @description 검수일시
-             */
-            reviewedAt?: string | null;
-            reviewedBy?: components["schemas"]["EmployeesSchema"];
-            /**
-             * Format: int64
-             * @description 검수자 FK
-             */
-            reviewedById?: number | null;
-            sourceDocumentVersion: Record<string, never>;
-            /**
-             * Format: int64
-             * @description 근거 v2 화물문서 버전 FK
-             */
-            sourceDocumentVersionId: number;
-            /**
-             * Format: int32
-             * @description 근거 문서 버전
-             */
-            sourceDocumentVersionNumber: number;
-            /** @description 근거 문서 원문 */
-            sourceText: string;
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-        };
-        /** @enum {string} */
-        PpeReviewStatus: "PENDING" | "CONFIRMED" | "REJECTED";
-        PpeSnapshotListQuery: {
-            /** Format: int64 */
-            work_id?: number | null;
-        };
-        PpeSnapshotResponse: {
-            category: string;
-            /** Format: int64 */
-            equipment_type_id: number;
-            performance_criteria?: Record<string, never> | null;
-            /** Format: int64 */
-            ppe_requirement_id: number;
-            reviewed_at: string;
-            /** Format: int64 */
-            reviewed_by_id: number;
-            snapshotted_at: string;
-            /** Format: int64 */
-            source_document_version_id: number;
-            /** Format: int32 */
-            source_document_version_number: number;
-            source_text: string;
-            /** Format: int64 */
-            work_id: number;
-            /** Format: int64 */
-            work_ppe_requirement_snapshot_id: number;
-        };
-        /** @enum {string} */
-        ProcessingStatus: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
-        /** @description 법령·공문 원문 업로드 (FR-A1) */
-        RegulationDocumentsSchema: {
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            /**
-             * Format: int64
-             * @description 문서 고유번호
-             * @default 0
-             */
-            documentId: number;
-            /**
-             * Format: date
-             * @description 시행일
-             */
-            effectiveDate?: string | null;
-            /** @description 파일 형식 */
-            fileFormat: components["schemas"]["FileFormat"];
-            /** @description 파일 해시 (무결성) */
-            fileHash?: string | null;
-            /** @description 원본 파일 경로 */
-            fileUrl: string;
-            /**
-             * @description 일부개정 공문 여부 (FR-A3)
-             * @default false
-             */
-            isAmendment: boolean;
-            /** @description 배포 기관 (관세청/해수부 등) */
-            issuingAuthority?: string | null;
-            /**
-             * @description 분석 처리 상태
-             * @default PENDING
-             */
-            processingStatus: components["schemas"]["ProcessingStatus"];
-            /** @description 근거 법령 (산안법/항만안전특별법/KOSHA/IMDG) */
-            sourceLaw: components["schemas"]["SourceLaw"];
-            /** @description 문서 제목 */
-            title: string;
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-            uploadedBy: components["schemas"]["EmployeesSchema"];
-            /**
-             * Format: int64
-             * @description 업로더 FK
-             */
-            uploadedById: number;
-        };
-        /** @description 신구조문대비표 개정 내역 (FR-A3, diff) */
-        RegulationRevisionsSchema: {
-            /** @description 변경 유형 */
-            changeType: components["schemas"]["ChangeType"];
-            /** @description 조문 번호 */
-            clauseNo?: string | null;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            document: Record<string, never>;
-            /**
-             * Format: int64
-             * @description 출처 문서 FK
-             */
-            documentId: number;
-            /** @description 신조문 */
-            newText?: string | null;
-            /** @description 구조문 */
-            oldText?: string | null;
-            /**
-             * Format: int64
-             * @description 개정내역 고유번호
-             * @default 0
-             */
-            revisionId: number;
-        };
-        RequiredEquipmentItem: {
-            /** Format: int64 */
-            equipment_type_id: number;
-            name: string;
-            /** @description REQUIRED | RECOMMENDED */
-            requirement_level: string;
-            /** @description 이 출근 건에서 해당 종류 장비를 태깅 완료했는지 */
-            satisfied: boolean;
-        };
-        /** @enum {string} */
-        RequirementLevel: "REQUIRED" | "RECOMMENDED";
-        RequirementProgress: {
-            complete: boolean;
-            /** Format: uint64 */
-            required: number;
-            /** Format: uint64 */
-            satisfied: number;
-        };
-        RequirementSummary: {
-            category: string;
-            /** Format: int64 */
-            id: number;
-            satisfied: boolean;
-        };
-        /** @enum {string} */
-        RestrictionCondition: "ASTHMA" | "ALLERGY" | "CLAUSTROPHOBIA" | "HEIGHT_LIMIT" | "WEIGHT_LIMIT" | "OTHER";
-        /** @enum {string} */
-        ReviewStatus: "PENDING" | "CONFIRMED";
-        RevokeEquipmentTagTokenResponse: {
-            /** Format: int64 */
-            equipment_profile_id: number;
-            /** Format: int64 */
-            equipment_tag_token_id: number;
-            is_active: boolean;
-        };
-        RevokeTerminalResponse: {
-            gate_id: string;
-            is_active: boolean;
-            /** Format: int64 */
-            terminal_id: number;
-        };
-        /** @description 안전지침 다국어/TTS/점자 변환 (FR-A4, C1, NFR 접근성) */
-        SafetyInstructionTranslationsSchema: {
-            /** @description 점자 변환 데이터 경로 */
-            brailleDataUrl?: string | null;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            instruction: Record<string, never>;
-            /**
-             * Format: int64
-             * @description 안전지침 FK
-             */
-            instructionId: number;
-            /** @description 언어 코드 (ko/en/vi/zh 등) */
-            languageCode: string;
-            /** @description 번역 본문 */
-            translatedBody: string;
-            /** @description 번역 제목 */
-            translatedTitle: string;
-            /**
-             * Format: int64
-             * @description 번역 고유번호
-             * @default 0
-             */
-            translationId: number;
-            /** @description TTS 음성 파일 경로 */
-            ttsAudioUrl?: string | null;
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-        };
-        /** @description 안전지침 (문서에서 추출·요약, FR-A2/A4) */
-        SafetyInstructionsSchema: {
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            document?: Record<string, never> | null;
-            /**
-             * Format: int64
-             * @description 출처 문서 FK (화물기반 지침은 null 가능)
-             */
-            documentId?: number | null;
-            /**
-             * Format: date
-             * @description 시행일
-             */
-            effectiveDate?: string | null;
-            /**
-             * Format: int64
-             * @description 안전지침 고유번호
-             * @default 0
-             */
-            instructionId: number;
-            /**
-             * @description 현행 여부
-             * @default true
-             */
-            isActive: boolean;
-            /** @description 위반 시 과태료 조항 (FR-A2) */
-            penaltyClause?: string | null;
-            /** @description 근거 법령 */
-            sourceLaw: components["schemas"]["SourceLaw"];
-            /** @description 요약 구조화 텍스트 */
-            summary: string;
-            /** @description 지침 제목 */
-            title: string;
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-            /**
-             * Format: int32
-             * @description 지침 버전 (인지 로그에 기록, FR-G1)
-             * @default 1
-             */
-            version: number;
-        };
-        SetWorkStopResponse: {
-            /** Format: int64 */
-            attendance_id: number;
-            /** @description NORMAL | STOPPED */
-            work_status: string;
-        };
-        /** @description v2 공용 장비 프로필의 활성 작업 배타적 점유 */
-        SharedEquipmentClaimsSchema: {
-            /**
-             * Format: date-time
-             * @description 점유 시작일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            claimedAt: string;
-            equipmentProfile: components["schemas"]["SharedEquipmentClaimsSchema_EquipmentProfile"];
-            /**
-             * Format: int64
-             * @description 점유 v2 공용 장비 프로필 FK
-             */
-            equipmentProfileId: number;
-            /**
-             * Format: int64
-             * @description 공용 장비 점유 고유번호
-             * @default 0
-             */
-            sharedEquipmentClaimId: number;
-            workAssignment: Record<string, never>;
-            /**
-             * Format: int64
-             * @description v2 점유 작업 배정 FK
-             */
-            workAssignmentId: number;
-        };
-        SharedEquipmentClaimsSchema_EquipmentProfile: {
-            /** @description v2 자산 관리번호 */
-            assetNumber?: string | null;
-            /** @description v2 점자 스티커 병기 내용 */
-            brailleLabel?: string | null;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             */
-            createdAt: string;
-            /**
-             * Format: int64
-             * @description v2 장비 프로필 고유번호
-             */
-            equipmentProfileId: number;
-            /**
-             * Format: int64
-             * @description 장비 종류 FK
-             */
-            equipmentTypeId: number;
-            /**
-             * Format: int64
-             * @description 변환된 0001 장비 FK, v2 신규 장비는 null
-             */
-            legacyEquipmentId?: number | null;
-            /**
-             * Format: date
-             * @description 해당 품목에만 적용하는 제조사 교체 권고일
-             */
-            manufacturerReplacementDueAt?: string | null;
-            /**
-             * Format: int64
-             * @description 개인 장비 소유자 FK, 공용은 null
-             */
-            ownerEmployeeId?: number | null;
-            /** @description 개인 또는 공용 소유정책 */
-            ownershipType: components["schemas"]["EquipmentOwnershipType"];
-            /** @description v2 장비 수명주기 상태 */
-            status: components["schemas"]["EquipmentLifecycleStatus"];
-            /** @description 상태 변경 사유 */
-            statusReason?: string | null;
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-        };
-        SignInRequest: {
-            email: string;
-            password: string;
-        };
-        SignInResponse: {
-            /** Format: int64 */
-            employee_id: number;
-            name: string;
-            system_role: string;
-            token: string;
-        };
-        /** @enum {string} */
-        SourceLaw: "OSH_ACT" | "PORT_SAFETY_ACT" | "KOSHA_GUIDE" | "IMDG" | "OTHER";
-        /** @enum {string} */
-        SystemRole: "ADMIN" | "SAFETY_MANAGER" | "SUPERVISOR" | "WORKER";
-        /**
-         * @description v2 장비 태깅 요청. 작업자·장비·종류는 요청에서 받지 않고 JWT, 배정, 토큰에서
-         *     각각 확인한다.
-         */
-        TagRequest: {
-            /** @description RFC3339 클라이언트 감사 시각. 작업 선택이나 서버 시각 대체에 사용하지 않는다. */
-            client_scanned_at: string;
-            idempotency_key: string;
-            /** @description 서버가 발급한 대소문자 구분 불투명 토큰. 공백 제거·정규화를 하지 않는다. */
-            tag_token: string;
-            /** Format: int64 */
-            work_assignment_id: number;
-        };
-        TagResponse: {
-            accepted: boolean;
-            checklist: components["schemas"]["ChecklistItem"][];
-            equipment?: components["schemas"]["EquipmentSummary"];
-            message?: string | null;
-            progress: components["schemas"]["RequirementProgress"];
-            reason_code: string;
-            requirement?: components["schemas"]["RequirementSummary"];
-        };
-        TodayInstructionItem: {
-            acknowledged: boolean;
-            body: string;
-            /** Format: int64 */
-            instruction_id: number;
-            language_code: string;
-            title: string;
-            /** Format: int32 */
-            version: number;
-        };
-        TokenAdminError: {
-            reason_code: string;
-        };
-        /** @description UN 번호 마스터 (FR-B1, UN No → Class 확정) */
-        UnNumbersSchema: {
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            dgClass: Record<string, never>;
-            /**
-             * Format: int64
-             * @description 위험물 등급 FK
-             */
-            dgClassId: number;
-            /** @description 포장등급 (I/II/III) */
-            packingGroup?: string | null;
-            /** @description 정식 운송품명 */
-            properShippingName?: string | null;
-            /** @description UN No. (4자리) */
-            unNumber: string;
-            /**
-             * Format: int64
-             * @description UN번호 고유번호
-             * @default 0
-             */
-            unNumberId: number;
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-        };
-        UpdateDepartmentRequest: {
-            description?: string | null;
-            name?: string | null;
-        };
-        UpdateJobRoleRequest: {
-            description?: string | null;
-            name?: string | null;
-        };
-        UpdateWorkAssignmentRequest: {
-            /**
-             * Format: int64
-             * @description 변경할 배정 대상 화물 고유번호 (생략 시 기존 값 유지)
-             */
-            cargo_item_id?: number | null;
-            /** @description ELIGIBLE | EXCLUDED (생략 시 기존 값 유지) */
-            eligibility_status?: components["schemas"]["EligibilityStatus"];
-        };
-        UploadCargoDocumentRequest: {
-            /** @description BL | DGD */
-            document_type: string;
-            /** Format: binary */
-            file: string;
-        };
-        UpsertWorkPreparationRequest: {
-            document_ready?: boolean | null;
-            instruction_ready?: boolean | null;
-            /** Format: int64 */
-            work_assignment_id: number;
-        };
-        /** @enum {string} */
-        V2CargoDocumentType: "BL" | "DGD" | "CI" | "MSDS";
-        /** @enum {string} */
-        V2WorkAssignmentStatus: "ASSIGNED" | "SELECTED" | "ACTIVE" | "COMPLETED" | "CANCELLED";
-        /** @description v2 작업과 작업자를 연결하는 authoritative 작업 배정 */
-        V2WorkAssignmentsSchema: {
-            assignedBy: components["schemas"]["EmployeesSchema"];
-            /**
-             * Format: int64
-             * @description 배치 담당자 FK
-             */
-            assignedById: number;
-            /**
-             * Format: date-time
-             * @description 배정 작업 완료일시
-             */
-            completedAt?: string | null;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            employee: components["schemas"]["EmployeesSchema"];
-            /**
-             * Format: int64
-             * @description 작업자 FK
-             */
-            employeeId: number;
-            legacy?: components["schemas"]["V2WorkAssignmentsSchema_Legacy"];
-            /**
-             * Format: int64
-             * @description 변환된 0001 작업 배정 FK, v2 신규 배정은 null
-             */
-            legacyAssignmentId?: number | null;
-            /**
-             * Format: date-time
-             * @description 작업자가 NFC 대상 작업으로 선택한 일시
-             */
-            selectedAt?: string | null;
-            /**
-             * Format: date-time
-             * @description 배정 작업 시작일시
-             */
-            startedAt?: string | null;
-            /**
-             * @description v2 배정 수명주기 상태
-             * @default ASSIGNED
-             */
-            status: components["schemas"]["V2WorkAssignmentStatus"];
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-            work: components["schemas"]["WorksSchema"];
-            /**
-             * Format: int64
-             * @description v2 작업 배정 고유번호
-             * @default 0
-             */
-            workAssignmentId: number;
-            /**
-             * Format: int64
-             * @description v2 작업 FK
-             */
-            workId: number;
-            workPreparations?: components["schemas"]["V2WorkAssignmentsSchema_WorkPreparations"];
-        };
-        V2WorkAssignmentsSchema_Legacy: {
-            /**
-             * Format: int64
-             * @description 배치 담당자 FK
-             */
-            assignedById: number;
-            /**
-             * Format: int64
-             * @description 배치 고유번호
-             */
-            assignmentId: number;
-            /**
-             * Format: int64
-             * @description 대상 화물 FK
-             */
-            cargoItemId?: number | null;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             */
-            createdAt: string;
-            /** @description 투입 가능 여부 (제한규칙 대조 결과) */
-            eligibilityStatus: components["schemas"]["EligibilityStatus"];
-            /**
-             * Format: int64
-             * @description 작업자 FK
-             */
-            employeeId: number;
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-            /**
-             * Format: date
-             * @description 작업 일자
-             */
-            workDate: string;
-        };
-        V2WorkAssignmentsSchema_WorkPreparations: {
-            /**
-             * Format: date-time
-             * @description 생성일시
-             */
-            createdAt: string;
-            /** @description 준비 판정 입력 버전 */
-            decisionInputVersions: Record<string, never>;
-            /** @description 관련 문서 검수 충족 여부 */
-            documentReady: boolean;
-            /** @description 교육 이수 충족 여부 */
-            educationReady: boolean;
-            /** @description 작업 지침 확인 여부 */
-            instructionReady: boolean;
-            /** @description 보호구 준비 충족 여부 */
-            ppeReady: boolean;
-            /**
-             * Format: date-time
-             * @description 준비 완료일시
-             */
-            preparedAt?: string | null;
-            /** @description 종합 준비 상태 */
-            status: components["schemas"]["WorkPreparationStatus"];
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-            /**
-             * Format: int64
-             * @description v2 작업 배정 FK
-             */
-            workAssignmentId: number;
-            /**
-             * Format: int64
-             * @description 작업 준비 고유번호
-             */
-            workPreparationId: number;
-        };
-        /** @description v2 작업 배정에 수락된 보호구 할당 이력 */
-        WorkAssignmentEquipmentSchema: {
-            /**
-             * Format: date-time
-             * @description 수락일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            acceptedAt: string;
-            equipmentProfile: Record<string, never>;
-            /**
-             * Format: int64
-             * @description 수락 v2 장비 프로필 FK
-             */
-            equipmentProfileId: number;
-            requirementSnapshot: Record<string, never>;
-            /**
-             * Format: int64
-             * @description 충족한 보호구 스냅샷 FK
-             */
-            requirementSnapshotId: number;
-            workAssignment: Record<string, never>;
-            /**
-             * Format: int64
-             * @description 작업 장비 할당 고유번호
-             * @default 0
-             */
-            workAssignmentEquipmentId: number;
-            /**
-             * Format: int64
-             * @description v2 작업 배정 FK
-             */
-            workAssignmentId: number;
-        };
-        WorkAssignmentResponse: {
-            /** Format: int64 */
-            assigned_by_id: number;
-            /** Format: int64 */
-            assignment_id: number;
-            /** Format: int64 */
-            cargo_item_id?: number | null;
-            created_at: string;
-            /** @description ELIGIBLE | EXCLUDED */
-            eligibility_status: string;
-            /** Format: int64 */
-            employee_id: number;
-            work_date: string;
-        };
-        /** @description 작업 배치 (FR-F3 — 투입 가능/제외 필터 결과) */
-        WorkAssignmentsSchema: {
-            assignedBy: components["schemas"]["EmployeesSchema"];
-            /**
-             * Format: int64
-             * @description 배치 담당자 FK
-             */
-            assignedById: number;
-            /**
-             * Format: int64
-             * @description 배치 고유번호
-             * @default 0
-             */
-            assignmentId: number;
-            cargoItem?: Record<string, never> | null;
-            /**
-             * Format: int64
-             * @description 대상 화물 FK
-             */
-            cargoItemId?: number | null;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            /**
-             * @description 투입 가능 여부 (제한규칙 대조 결과)
-             * @default ELIGIBLE
-             */
-            eligibilityStatus: components["schemas"]["EligibilityStatus"];
-            employee: components["schemas"]["EmployeesSchema"];
-            /**
-             * Format: int64
-             * @description 작업자 FK
-             */
-            employeeId: number;
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-            v2WorkAssignments?: components["schemas"]["WorkAssignmentsSchema_V2WorkAssignments"];
-            /**
-             * Format: date
-             * @description 작업 일자
-             */
-            workDate: string;
-        };
-        WorkAssignmentsSchema_V2WorkAssignments: {
-            /**
-             * Format: int64
-             * @description 배치 담당자 FK
-             */
-            assignedById: number;
-            /**
-             * Format: date-time
-             * @description 배정 작업 완료일시
-             */
-            completedAt?: string | null;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             */
-            createdAt: string;
-            /**
-             * Format: int64
-             * @description 작업자 FK
-             */
-            employeeId: number;
-            /**
-             * Format: int64
-             * @description 변환된 0001 작업 배정 FK, v2 신규 배정은 null
-             */
-            legacyAssignmentId?: number | null;
-            /**
-             * Format: date-time
-             * @description 작업자가 NFC 대상 작업으로 선택한 일시
-             */
-            selectedAt?: string | null;
-            /**
-             * Format: date-time
-             * @description 배정 작업 시작일시
-             */
-            startedAt?: string | null;
-            /** @description v2 배정 수명주기 상태 */
-            status: components["schemas"]["V2WorkAssignmentStatus"];
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-            /**
-             * Format: int64
-             * @description v2 작업 배정 고유번호
-             */
-            workAssignmentId: number;
-            /**
-             * Format: int64
-             * @description v2 작업 FK
-             */
-            workId: number;
-        };
-        /** @enum {string} */
-        WorkLifecycleStatus: "PLANNED" | "ACTIVE" | "STOPPED" | "COMPLETED" | "CANCELLED";
-        /** @description 작업 확정 시점의 불변 보호구 요구조건 스냅샷 */
-        WorkPpeRequirementSnapshotsSchema: {
-            /** @description 확정 보호구 카테고리 */
-            category: string;
-            equipmentType: Record<string, never>;
-            /**
-             * Format: int64
-             * @description 확정 장비 종류 FK
-             */
-            equipmentTypeId: number;
-            /** @description 확정 성능조건 */
-            performanceCriteria?: Record<string, never> | null;
-            ppeRequirement: Record<string, never>;
-            /**
-             * Format: int64
-             * @description 원본 보호구 요구조건 FK
-             */
-            ppeRequirementId: number;
-            /**
-             * Format: date-time
-             * @description 원본 검수일시
-             */
-            reviewedAt: string;
-            reviewedBy: components["schemas"]["EmployeesSchema"];
-            /**
-             * Format: int64
-             * @description 확정 검수자 FK
-             */
-            reviewedById: number;
-            /**
-             * Format: date-time
-             * @description 스냅샷 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            snapshottedAt: string;
-            sourceDocumentVersion: Record<string, never>;
-            /**
-             * Format: int64
-             * @description 확정 근거 v2 문서 버전 FK
-             */
-            sourceDocumentVersionId: number;
-            /**
-             * Format: int32
-             * @description 확정 근거 문서 버전
-             */
-            sourceDocumentVersionNumber: number;
-            /** @description 확정 근거 원문 */
-            sourceText: string;
-            work: components["schemas"]["WorksSchema"];
-            /**
-             * Format: int64
-             * @description 작업 FK
-             */
-            workId: number;
-            /**
-             * Format: int64
-             * @description 작업 보호구 스냅샷 고유번호
-             * @default 0
-             */
-            workPpeRequirementSnapshotId: number;
-        };
-        WorkPreparationErrorResponse: {
-            code: string;
-            message: string;
-        };
-        WorkPreparationResponse: {
-            decision_input_versions: Record<string, never>;
-            document_ready: boolean;
-            education_ready: boolean;
-            /** @description 문서·지침·교육·PPE가 충족되고 열린 작업중지가 없으면 true */
-            fulfilled: boolean;
-            instruction_ready: boolean;
-            ppe_ready: boolean;
-            prepared_at?: string | null;
-            status: string;
-            /** Format: int64 */
-            work_assignment_id: number;
-            /** Format: int64 */
-            work_preparation_id: number;
-        };
-        /** @enum {string} */
-        WorkPreparationStatus: "NOT_STARTED" | "IN_PROGRESS" | "READY" | "BLOCKED";
-        /** @description 출근 전역 불리언을 대체하는 작업 배정별 준비 상태 */
-        WorkPreparationsSchema: {
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            /** @description 준비 판정 입력 버전 */
-            decisionInputVersions: Record<string, never>;
-            /**
-             * @description 관련 문서 검수 충족 여부
-             * @default false
-             */
-            documentReady: boolean;
-            /**
-             * @description 교육 이수 충족 여부
-             * @default false
-             */
-            educationReady: boolean;
-            /**
-             * @description 작업 지침 확인 여부
-             * @default false
-             */
-            instructionReady: boolean;
-            /**
-             * @description 보호구 준비 충족 여부
-             * @default false
-             */
-            ppeReady: boolean;
-            /**
-             * Format: date-time
-             * @description 준비 완료일시
-             */
-            preparedAt?: string | null;
-            /**
-             * @description 종합 준비 상태
-             * @default NOT_STARTED
-             */
-            status: components["schemas"]["WorkPreparationStatus"];
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-            workAssignment: components["schemas"]["WorkPreparationsSchema_WorkAssignment"];
-            /**
-             * Format: int64
-             * @description v2 작업 배정 FK
-             */
-            workAssignmentId: number;
-            /**
-             * Format: int64
-             * @description 작업 준비 고유번호
-             * @default 0
-             */
-            workPreparationId: number;
-        };
-        WorkPreparationsSchema_WorkAssignment: {
-            /**
-             * Format: int64
-             * @description 배치 담당자 FK
-             */
-            assignedById: number;
-            /**
-             * Format: date-time
-             * @description 배정 작업 완료일시
-             */
-            completedAt?: string | null;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             */
-            createdAt: string;
-            /**
-             * Format: int64
-             * @description 작업자 FK
-             */
-            employeeId: number;
-            /**
-             * Format: int64
-             * @description 변환된 0001 작업 배정 FK, v2 신규 배정은 null
-             */
-            legacyAssignmentId?: number | null;
-            /**
-             * Format: date-time
-             * @description 작업자가 NFC 대상 작업으로 선택한 일시
-             */
-            selectedAt?: string | null;
-            /**
-             * Format: date-time
-             * @description 배정 작업 시작일시
-             */
-            startedAt?: string | null;
-            /** @description v2 배정 수명주기 상태 */
-            status: components["schemas"]["V2WorkAssignmentStatus"];
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-            /**
-             * Format: int64
-             * @description v2 작업 배정 고유번호
-             */
-            workAssignmentId: number;
-            /**
-             * Format: int64
-             * @description v2 작업 FK
-             */
-            workId: number;
-        };
-        /** @description 투입 제한 규칙 (FR-F2, 설정 데이터 — 코드 수정 없이 교체, NFR 확장성) */
-        WorkRestrictionRulesSchema: {
-            /** @description 제한 조건 유형 */
-            conditionType: components["schemas"]["RestrictionCondition"];
-            /** @description 조건 값 (예: 알레르겐 코드 RICE, 신장 임계값) */
-            conditionValue?: string | null;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            /** @description 설명 */
-            description?: string | null;
-            /**
-             * @description 활성 여부
-             * @default true
-             */
-            isActive: boolean;
-            restricted?: Record<string, never> | null;
-            /**
-             * Format: int64
-             * @description 제한 대상 위험물 등급 FK
-             */
-            restrictedDgClassId?: number | null;
-            /** @description 제한 대상 작업유형 (등급으로 안잡히는 작업, 예: 밀폐공간) */
-            restrictedWorkType?: string | null;
-            /**
-             * Format: int64
-             * @description 규칙 고유번호
-             * @default 0
-             */
-            ruleId: number;
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-        };
-        /** @enum {string} */
-        WorkStatus: "NORMAL" | "STOPPED";
-        WorkStopErrorResponse: {
-            code: string;
-            message: string;
-        };
-        WorkStopItem: {
-            /** Format: int64 */
-            attendance_id: number;
-            /** Format: int64 */
-            employee_id: number;
-            work_date: string;
-            /** @description NORMAL | STOPPED */
-            work_status: string;
-        };
-        WorkStopListQuery: {
-            /** @description OPEN | CLOSED */
-            status?: string | null;
-            /** Format: int64 */
-            work_assignment_id?: number | null;
-            /** Format: int64 */
-            work_id?: number | null;
-        };
-        WorkStopResponse: {
-            closed_at?: string | null;
-            /** Format: int64 */
-            closed_by_id?: number | null;
-            /** @description CLOSED 이면 충족(해제됨), OPEN 이면 미충족(작업 차단) */
-            fulfilled: boolean;
-            reason: string;
-            status: string;
-            stopped_at: string;
-            /** Format: int64 */
-            stopped_by_id?: number | null;
-            /** Format: int64 */
-            work_assignment_id?: number | null;
-            /** Format: int64 */
-            work_id?: number | null;
-            /** Format: int64 */
-            work_stop_id: number;
-        };
-        /** @enum {string} */
-        WorkStopStatus: "OPEN" | "CLOSED";
-        /** @description 작업 또는 작업 배정 범위의 작업중지 기록 */
-        WorkStopsSchema: {
-            /**
-             * Format: date-time
-             * @description 작업중지 해제일시
-             */
-            closedAt?: string | null;
-            closedBy?: components["schemas"]["EmployeesSchema"];
-            /**
-             * Format: int64
-             * @description 작업중지 해제자 FK
-             */
-            closedById?: number | null;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            legacy?: components["schemas"]["WorkStopsSchema_Legacy"];
-            /**
-             * Format: int64
-             * @description PR #48 출근 작업중지 변환 출처 FK
-             */
-            legacyAttendanceId?: number | null;
-            /** @description 작업중지 사유 */
-            reason: string;
-            /**
-             * @description 작업중지 상태
-             * @default OPEN
-             */
-            status: components["schemas"]["WorkStopStatus"];
-            /**
-             * Format: date-time
-             * @description 작업중지 일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            stoppedAt: string;
-            stoppedBy?: components["schemas"]["EmployeesSchema"];
-            /**
-             * Format: int64
-             * @description 작업중지 등록자 FK, PR #48 변환행은 null
-             */
-            stoppedById?: number | null;
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-            work?: components["schemas"]["WorksSchema"];
-            workAssignment?: Record<string, never> | null;
-            /**
-             * Format: int64
-             * @description 중지 대상 v2 작업 배정 FK
-             */
-            workAssignmentId?: number | null;
-            /**
-             * Format: int64
-             * @description 중지 대상 작업 FK, 레거시 변환행은 null
-             */
-            workId?: number | null;
-            /**
-             * Format: int64
-             * @description 작업중지 고유번호
-             * @default 0
-             */
-            workStopId: number;
-        };
-        WorkStopsSchema_Legacy: {
-            /** @description 관리자 승인 상태 */
-            approvalStatus: components["schemas"]["ApprovalStatus"];
-            /**
-             * Format: int64
-             * @description 출근 고유번호
-             */
-            attendanceId: number;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             */
-            createdAt: string;
-            /**
-             * Format: int64
-             * @description 직원 FK
-             */
-            employeeId: number;
-            /** @description 필수 장비 착용 완료 (FR-D3) */
-            equipmentCheckCompleted: boolean;
-            /**
-             * Format: date-time
-             * @description 사원증 태깅 통과 시각 (FR-D5)
-             */
-            gatePassedAt?: string | null;
-            /** @description 게이트 통과 상태 */
-            gateStatus: components["schemas"]["GateStatus"];
-            /** @description 안전지침 확인 완료 (FR-C4) */
-            instructionAckCompleted: boolean;
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-            /**
-             * Format: date
-             * @description 작업 일자
-             */
-            workDate: string;
-            /** @description 작업중지 여부 (시나리오 5 — STOPPED면 게이트 차단) */
-            workStatus: components["schemas"]["WorkStatus"];
-        };
-        /** @enum {string} */
-        WorkTargetType: "CONTAINER" | "CARGO_ITEM";
-        /** @description 작업별 컨테이너 또는 개별 화물 대상 */
-        WorkTargetsSchema: {
-            cargoItem?: Record<string, never> | null;
-            /**
-             * Format: int64
-             * @description 개별 화물 대상 FK
-             */
-            cargoItemId?: number | null;
-            container?: components["schemas"]["ContainersSchema"];
-            /**
-             * Format: int64
-             * @description 컨테이너 대상 FK
-             */
-            containerId?: number | null;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            /** @description 대상 구분 */
-            targetType: components["schemas"]["WorkTargetType"];
-            work: components["schemas"]["WorksSchema"];
-            /**
-             * Format: int64
-             * @description 작업 FK
-             */
-            workId: number;
-            /**
-             * Format: int64
-             * @description 작업 대상 고유번호
-             * @default 0
-             */
-            workTargetId: number;
-        };
-        /** @description 항만 작업 유형 기준정보 */
-        WorkTypesSchema: {
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            /** @description 작업 유형 설명 */
-            description?: string | null;
-            /**
-             * @description 사용 여부
-             * @default true
-             */
-            isActive: boolean;
-            /** @description 작업 유형명 */
-            name: string;
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-            /** @description 작업 유형 코드 */
-            workTypeCode: string;
-            /**
-             * Format: int64
-             * @description 작업 유형 고유번호
-             * @default 0
-             */
-            workTypeId: number;
-        };
-        /** @description 컨테이너·화물 대상을 묶는 작업 단위 */
-        WorksSchema: {
-            /**
-             * Format: date-time
-             * @description 완료일시
-             */
-            completedAt?: string | null;
-            /**
-             * Format: date-time
-             * @description 생성일시
-             * @default 1970-01-01T00:00:00+00:00
-             */
-            createdAt: string;
-            createdBy: components["schemas"]["EmployeesSchema"];
-            /**
-             * Format: int64
-             * @description 작업 등록자 FK
-             */
-            createdById: number;
-            /**
-             * Format: date-time
-             * @description 예정 종료일시
-             */
-            scheduledEndAt?: string | null;
-            /**
-             * Format: date-time
-             * @description 예정 시작일시
-             */
-            scheduledStartAt: string;
-            /**
-             * Format: date-time
-             * @description 실제 시작일시
-             */
-            startedAt?: string | null;
-            /**
-             * @description 작업 수명주기 상태
-             * @default PLANNED
-             */
-            status: components["schemas"]["WorkLifecycleStatus"];
-            /**
-             * Format: date-time
-             * @description 수정일시
-             */
-            updatedAt?: string | null;
-            /**
-             * Format: int64
-             * @description 작업 고유번호
-             * @default 0
-             */
-            workId: number;
-            /** @description 운영 작업 참조번호 */
-            workReference: string;
-            workType: Record<string, never>;
-            /**
-             * Format: int64
-             * @description 작업 유형 FK
-             */
-            workTypeId: number;
-        };
-    };
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+  schemas: {
+    AckRequest: {
+      /** Format: int64 */
+      instruction_id: number
+      /** @description 팝업 최하단 스크롤 완료 여부 (FR-C2 — false면 확인 불가) */
+      scrolled_to_end: boolean
+    }
+    /** @enum {string} */
+    ApprovalDecision: 'APPROVED' | 'REJECTED'
+    /** @enum {string} */
+    ApprovalStatus: 'NOT_REQUIRED' | 'PENDING' | 'APPROVED' | 'REJECTED'
+    /** @description 관리자 승인/반려 기록 (FR-E1/E2) */
+    ApprovalsSchema: {
+      /**
+       * Format: int64
+       * @description 승인 고유번호
+       * @default 0
+       */
+      approvalId: number
+      approver: components['schemas']['EmployeesSchema']
+      /**
+       * Format: int64
+       * @description 승인자 FK
+       */
+      approverId: number
+      attendance: components['schemas']['AttendancesSchema']
+      /**
+       * Format: int64
+       * @description 출근 FK
+       */
+      attendanceId: number
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      /**
+       * Format: date-time
+       * @description 결정 시각
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      decidedAt: string
+      /** @description 승인/반려 */
+      decision: components['schemas']['ApprovalDecision']
+      /** @description 사유 (FR-E2) */
+      reason?: string | null
+    }
+    AssignmentErrorResponse: {
+      /** @description 기계 판독용 사유 코드 (예: MSDS_REVIEW_NOT_CONFIRMED) */
+      code: string
+      /** @description 작업자에게 표시할 한국어 사유 */
+      message: string
+    }
+    AttendanceResponse: {
+      approval_status: string
+      /** Format: int64 */
+      attendance_id: number
+      /** Format: int64 */
+      employee_id: number
+      equipment_check_completed: boolean
+      gate_passed_at?: string | null
+      gate_status: string
+      instruction_ack_completed: boolean
+      work_date: string
+      work_status: string
+    }
+    /** @description 출근/게이트 통과 상태 (FR-C4, D5 — 인지·장비·승인 집계) */
+    AttendancesSchema: {
+      /**
+       * @description 관리자 승인 상태
+       * @default NOT_REQUIRED
+       */
+      approvalStatus: components['schemas']['ApprovalStatus']
+      /**
+       * Format: int64
+       * @description 출근 고유번호
+       * @default 0
+       */
+      attendanceId: number
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      employee: components['schemas']['EmployeesSchema']
+      /**
+       * Format: int64
+       * @description 직원 FK
+       */
+      employeeId: number
+      /**
+       * @description 필수 장비 착용 완료 (FR-D3)
+       * @default false
+       */
+      equipmentCheckCompleted: boolean
+      /**
+       * Format: date-time
+       * @description 사원증 태깅 통과 시각 (FR-D5)
+       */
+      gatePassedAt?: string | null
+      /**
+       * @description 게이트 통과 상태
+       * @default BLOCKED
+       */
+      gateStatus: components['schemas']['GateStatus']
+      /**
+       * @description 안전지침 확인 완료 (FR-C4)
+       * @default false
+       */
+      instructionAckCompleted: boolean
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+      /**
+       * Format: date
+       * @description 작업 일자
+       */
+      workDate: string
+      /**
+       * @description 작업중지 여부 (시나리오 5 — STOPPED면 게이트 차단)
+       * @default NORMAL
+       */
+      workStatus: components['schemas']['WorkStatus']
+      workStops?: components['schemas']['AttendancesSchema_WorkStops']
+    }
+    AttendancesSchema_WorkStops: {
+      /**
+       * Format: date-time
+       * @description 작업중지 해제일시
+       */
+      closedAt?: string | null
+      /**
+       * Format: int64
+       * @description 작업중지 해제자 FK
+       */
+      closedById?: number | null
+      /**
+       * Format: date-time
+       * @description 생성일시
+       */
+      createdAt: string
+      /**
+       * Format: int64
+       * @description PR #48 출근 작업중지 변환 출처 FK
+       */
+      legacyAttendanceId?: number | null
+      /** @description 작업중지 사유 */
+      reason: string
+      /** @description 작업중지 상태 */
+      status: components['schemas']['WorkStopStatus']
+      /**
+       * Format: date-time
+       * @description 작업중지 일시
+       */
+      stoppedAt: string
+      /**
+       * Format: int64
+       * @description 작업중지 등록자 FK, PR #48 변환행은 null
+       */
+      stoppedById?: number | null
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+      /**
+       * Format: int64
+       * @description 중지 대상 v2 작업 배정 FK
+       */
+      workAssignmentId?: number | null
+      /**
+       * Format: int64
+       * @description 중지 대상 작업 FK, 레거시 변환행은 null
+       */
+      workId?: number | null
+      /**
+       * Format: int64
+       * @description 작업중지 고유번호
+       */
+      workStopId: number
+    }
+    /** @description 감사 로그 (FR-G1, append-only — 누가/언제/무엇을/어떤 버전, NFR 무결성) */
+    AuditLogsSchema: {
+      actor?: components['schemas']['EmployeesSchema']
+      /**
+       * Format: int64
+       * @description 행위자 FK (시스템 이벤트는 null)
+       */
+      actorEmployeeId?: number | null
+      /**
+       * Format: int64
+       * @description 감사 로그 고유번호
+       * @default 0
+       */
+      auditLogId: number
+      /**
+       * Format: date-time
+       * @description 발생 시각
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      /** @description 상세 이벤트 데이터 */
+      detail?: Record<string, never> | null
+      /** @description 이벤트 유형 (INSTRUCTION_ACK/EQUIPMENT_CHECK/APPROVAL/GATE_PASS 등) */
+      eventType: string
+      /**
+       * Format: int32
+       * @description 관련 지침 버전 (FR-G1)
+       */
+      instructionVersion?: number | null
+      /**
+       * Format: int64
+       * @description 대상 레코드 PK
+       */
+      targetId?: number | null
+      /** @description 대상 엔티티명 */
+      targetType?: string | null
+    }
+    CargoDocumentResponse: {
+      /** Format: int64 */
+      cargo_document_id: number
+      content_type?: string | null
+      created_at: string
+      document_type: string
+      file_format: string
+      file_hash?: string | null
+      /** Format: int64 */
+      file_size?: number | null
+      file_url: string
+      original_file_name?: string | null
+      /** @description PENDING | CONFIRMED */
+      review_status: string
+      /** Format: int64 */
+      uploaded_by_id: number
+    }
+    /** @enum {string} */
+    CargoDocumentRole: 'BL' | 'DGD' | 'CI' | 'MSDS'
+    /** @enum {string} */
+    CargoDocumentType: 'BL' | 'DGD'
+    /** @description 화물 문서의 v2 유형·처리·검수 버전 상태 */
+    CargoDocumentVersionsSchema: {
+      /**
+       * Format: int64
+       * @description v2 화물문서 버전 고유번호
+       * @default 0
+       */
+      cargoDocumentVersionId: number
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      /** @description v2 문서 유형 */
+      documentType: components['schemas']['V2CargoDocumentType']
+      /**
+       * Format: int32
+       * @description 동일 문서의 검수 버전
+       * @default 1
+       */
+      documentVersion: number
+      legacy?: components['schemas']['CargoDocumentVersionsSchema_Legacy']
+      /**
+       * Format: int64
+       * @description 변환된 0001-0004 화물문서 FK, v2 신규 문서는 null
+       */
+      legacyCargoDocumentId?: number | null
+      /**
+       * @description 문서 분석 처리 상태
+       * @default PENDING
+       */
+      processingStatus: components['schemas']['CargoProcessingStatus']
+      /**
+       * @description v2 관리자 검수 상태
+       * @default PENDING
+       */
+      reviewStatus: components['schemas']['CargoReviewStatus']
+      /**
+       * Format: date-time
+       * @description 검수일시
+       */
+      reviewedAt?: string | null
+      reviewedBy?: components['schemas']['EmployeesSchema']
+      /**
+       * Format: int64
+       * @description 검수자 FK
+       */
+      reviewedById?: number | null
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+    }
+    CargoDocumentVersionsSchema_Legacy: {
+      /**
+       * Format: int64
+       * @description 화물문서 고유번호
+       */
+      cargoDocumentId: number
+      /** @description 업로드 MIME 타입 */
+      contentType?: string | null
+      /**
+       * Format: date-time
+       * @description 생성일시
+       */
+      createdAt: string
+      /** @description 문서 유형 (선하증권/위험물신고서) */
+      documentType: components['schemas']['CargoDocumentType']
+      /** @description 파일 형식 */
+      fileFormat: components['schemas']['FileFormat']
+      /** @description SHA-256 파일 무결성 해시 */
+      fileHash?: string | null
+      /**
+       * Format: int64
+       * @description 파일 크기(byte)
+       */
+      fileSize?: number | null
+      /** @description 원본 파일 경로 */
+      fileUrl: string
+      /** @description 사용자가 업로드한 원본 파일명 */
+      originalFileName?: string | null
+      /** @description 검수 상태 (FR-B2 — CONFIRMED여야 작업 배정 가능) */
+      reviewStatus: components['schemas']['ReviewStatus']
+      /**
+       * Format: int64
+       * @description 업로더 FK
+       */
+      uploadedById: number
+    }
+    /** @description 화물 문서 원문 (B/L·DGD 업로드, FR-B) */
+    CargoDocumentsSchema: {
+      /**
+       * Format: int64
+       * @description 화물문서 고유번호
+       * @default 0
+       */
+      cargoDocumentId: number
+      cargoDocumentVersions?: components['schemas']['CargoDocumentsSchema_CargoDocumentVersions']
+      /** @description 업로드 MIME 타입 */
+      contentType?: string | null
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      /** @description 문서 유형 (선하증권/위험물신고서) */
+      documentType: components['schemas']['CargoDocumentType']
+      /** @description 파일 형식 */
+      fileFormat: components['schemas']['FileFormat']
+      /** @description SHA-256 파일 무결성 해시 */
+      fileHash?: string | null
+      /**
+       * Format: int64
+       * @description 파일 크기(byte)
+       */
+      fileSize?: number | null
+      /** @description 원본 파일 경로 */
+      fileUrl: string
+      /** @description 사용자가 업로드한 원본 파일명 */
+      originalFileName?: string | null
+      /**
+       * @description 검수 상태 (FR-B2 — CONFIRMED여야 작업 배정 가능)
+       * @default PENDING
+       */
+      reviewStatus: components['schemas']['ReviewStatus']
+      uploadedBy: components['schemas']['EmployeesSchema']
+      /**
+       * Format: int64
+       * @description 업로더 FK
+       */
+      uploadedById: number
+    }
+    CargoDocumentsSchema_CargoDocumentVersions: {
+      /**
+       * Format: int64
+       * @description v2 화물문서 버전 고유번호
+       */
+      cargoDocumentVersionId: number
+      /**
+       * Format: date-time
+       * @description 생성일시
+       */
+      createdAt: string
+      /** @description v2 문서 유형 */
+      documentType: components['schemas']['V2CargoDocumentType']
+      /**
+       * Format: int32
+       * @description 동일 문서의 검수 버전
+       */
+      documentVersion: number
+      /**
+       * Format: int64
+       * @description 변환된 0001-0004 화물문서 FK, v2 신규 문서는 null
+       */
+      legacyCargoDocumentId?: number | null
+      /** @description 문서 분석 처리 상태 */
+      processingStatus: components['schemas']['CargoProcessingStatus']
+      /** @description v2 관리자 검수 상태 */
+      reviewStatus: components['schemas']['CargoReviewStatus']
+      /**
+       * Format: date-time
+       * @description 검수일시
+       */
+      reviewedAt?: string | null
+      /**
+       * Format: int64
+       * @description 검수자 FK
+       */
+      reviewedById?: number | null
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+    }
+    /** @description 화물과 v2 문서 버전의 역할별 다대다 관계 */
+    CargoItemDocumentsSchema: {
+      cargoDocumentVersion: Record<string, never>
+      /**
+       * Format: int64
+       * @description v2 화물문서 버전 FK
+       */
+      cargoDocumentVersionId: number
+      cargoItem: Record<string, never>
+      /**
+       * Format: int64
+       * @description 화물 문서 관계 고유번호
+       * @default 0
+       */
+      cargoItemDocumentId: number
+      /**
+       * Format: int64
+       * @description 레거시 화물 FK
+       */
+      cargoItemId: number
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      /** @description 화물에서 문서가 담당하는 역할 */
+      documentRole: components['schemas']['CargoDocumentRole']
+      /**
+       * @description 동일 역할의 대표 문서 여부
+       * @default false
+       */
+      isPrimary: boolean
+    }
+    CargoItemResponse: {
+      arrival_date?: string | null
+      bl_number?: string | null
+      /** Format: int64 */
+      cargo_item_id: number
+      /** Format: int64 */
+      dg_class_id?: number | null
+      /** @description DGD 부재 + 위험물 의심 HS Code → 경고 (FR-B3) */
+      dgd_missing_warning: boolean
+      dgd_number?: string | null
+      hs_code?: string | null
+      is_dangerous: boolean
+      item_name?: string | null
+      un_number?: string | null
+    }
+    /** @description 입고 화물 (B/L·DGD에서 추출·확정, FR-B1~B4) */
+    CargoItemsSchema: {
+      /**
+       * Format: date
+       * @description 입고 예정일 (FR-C1 당일 매칭)
+       */
+      arrivalDate?: string | null
+      /** @description 선하증권 번호 */
+      blNumber?: string | null
+      cargoDocument?: Record<string, never> | null
+      /**
+       * Format: int64
+       * @description 출처 화물문서 FK
+       */
+      cargoDocumentId?: number | null
+      /**
+       * Format: int64
+       * @description 화물 고유번호
+       * @default 0
+       */
+      cargoItemId: number
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      /** @description 화물 상세 */
+      description?: string | null
+      dgClass?: Record<string, never> | null
+      /**
+       * Format: int64
+       * @description 확정된 위험물 등급 FK
+       */
+      dgClassId?: number | null
+      /**
+       * @description DGD 누락 경고 (FR-B3)
+       * @default false
+       */
+      dgdMissingWarning: boolean
+      /** @description 위험물신고서 번호 (부재 시 null) */
+      dgdNumber?: string | null
+      /** @description B/L HS Code */
+      hsCode?: string | null
+      /**
+       * @description 위험물 여부
+       * @default false
+       */
+      isDangerous: boolean
+      /** @description 품목명 (B/L 16번 Description) */
+      itemName?: string | null
+      /** @description 추출된 UN No. */
+      unNumber?: string | null
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+    }
+    CargoListQuery: {
+      /** @description 입고 예정일 필터 (YYYY-MM-DD) */
+      arrival_date?: string | null
+    }
+    /** @enum {string} */
+    CargoProcessingStatus: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED'
+    /** @enum {string} */
+    CargoReviewStatus: 'PENDING' | 'CONFIRMED' | 'REJECTED'
+    /** @enum {string} */
+    ChangeType: 'ADDED' | 'MODIFIED' | 'DELETED'
+    ChecklistItem: {
+      category: string
+      /** Format: int64 */
+      id: number
+      satisfied: boolean
+    }
+    /** @description 위험물 등급 ↔ 필수/권장 안전장비 매핑 (FR-B5, D1, 설정 데이터) */
+    ClassEquipmentMappingsSchema: {
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      dgClass: Record<string, never>
+      /**
+       * Format: int64
+       * @description 위험물 등급 FK
+       */
+      dgClassId: number
+      equipmentType: Record<string, never>
+      /**
+       * Format: int64
+       * @description 장비 종류 FK
+       */
+      equipmentTypeId: number
+      /** @description 적용 IMDG 차수 */
+      imdgVersion?: string | null
+      /**
+       * Format: int64
+       * @description 매핑 고유번호
+       * @default 0
+       */
+      mappingId: number
+      /**
+       * @description 필수/권장 구분
+       * @default REQUIRED
+       */
+      requirementLevel: components['schemas']['RequirementLevel']
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+    }
+    /** @description 위험물 등급 ↔ 안전지침 매핑 (FR-B4, 화물유형별 지침 자동 전송) */
+    ClassInstructionMappingsSchema: {
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      dgClass: Record<string, never>
+      /**
+       * Format: int64
+       * @description 위험물 등급 FK
+       */
+      dgClassId: number
+      instruction: Record<string, never>
+      /**
+       * Format: int64
+       * @description 안전지침 FK
+       */
+      instructionId: number
+      /**
+       * Format: int64
+       * @description 매핑 고유번호
+       * @default 0
+       */
+      mappingId: number
+    }
+    /** @description 컨테이너와 혼재 화물의 다대다 관계 */
+    ContainerCargoItemsSchema: {
+      cargoItem: Record<string, never>
+      /**
+       * Format: int64
+       * @description 화물 FK
+       */
+      cargoItemId: number
+      container: components['schemas']['ContainersSchema']
+      /**
+       * Format: int64
+       * @description 컨테이너 화물 관계 고유번호
+       * @default 0
+       */
+      containerCargoItemId: number
+      /**
+       * Format: int64
+       * @description 컨테이너 FK
+       */
+      containerId: number
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      /**
+       * Format: date-time
+       * @description 적재 확인일시
+       */
+      loadedAt?: string | null
+    }
+    /** @description 작업 대상 컨테이너 */
+    ContainersSchema: {
+      /**
+       * Format: date-time
+       * @description 터미널 도착일시
+       */
+      arrivalAt?: string | null
+      /**
+       * Format: int64
+       * @description 컨테이너 고유번호
+       * @default 0
+       */
+      containerId: number
+      /** @description ISO 6346 컨테이너 번호 */
+      containerNumber: string
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      /**
+       * Format: date-time
+       * @description 터미널 출발일시
+       */
+      departureAt?: string | null
+      /** @description 봉인 번호 */
+      sealNumber?: string | null
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+    }
+    CreateCargoItemRequest: {
+      /** @description YYYY-MM-DD */
+      arrival_date?: string | null
+      bl_number?: string | null
+      /** Format: int64 */
+      cargo_document_id?: number | null
+      description?: string | null
+      dgd_number?: string | null
+      hs_code?: string | null
+      item_name?: string | null
+      un_number?: string | null
+    }
+    CreateDepartmentRequest: {
+      department_code: string
+      description?: string | null
+      name: string
+    }
+    CreateEducationCompletionRequest: {
+      /** @description RFC3339 */
+      completed_at: string
+      /** Format: int32 */
+      course_version?: number | null
+      /** Format: int64 */
+      education_course_id: number
+      /** Format: int64 */
+      employee_id: number
+      evidence_url?: string | null
+      /** @description RFC3339, 생략 시 과정의 validity_days로 계산 */
+      expires_at?: string | null
+    }
+    CreateEducationCourseRequest: {
+      course_code: string
+      description?: string | null
+      title: string
+      /** Format: int32 */
+      validity_days?: number | null
+      /** Format: int32 */
+      version?: number | null
+    }
+    CreateEducationTargetRuleRequest: {
+      /** Format: int64 */
+      dg_class_id?: number | null
+      /** Format: int64 */
+      education_course_id: number
+      is_required?: boolean | null
+      /** Format: int64 */
+      work_type_id?: number | null
+    }
+    CreateEmployeeRequest: {
+      /** Format: int64 */
+      department_id: number
+      email: string
+      employee_number: string
+      /** @description YYYY-MM-DD */
+      hire_date: string
+      /** Format: int64 */
+      job_role_id: number
+      name: string
+      password: string
+      phone_number?: string | null
+      position?: string | null
+      preferred_language?: string | null
+      system_role?: components['schemas']['SystemRole']
+    }
+    CreateJobRoleRequest: {
+      description?: string | null
+      job_role_code: string
+      name: string
+    }
+    CreatePpeRequirementRequest: {
+      category: string
+      /** Format: int64 */
+      equipment_type_id: number
+      performance_criteria?: Record<string, never> | null
+      /** Format: int64 */
+      source_document_version_id: number
+      source_text: string
+    }
+    CreatePpeSnapshotRequest: {
+      /** Format: int64 */
+      ppe_requirement_id: number
+      /** Format: int64 */
+      work_id: number
+    }
+    CreateWorkAssignmentRequest: {
+      /**
+       * Format: int64
+       * @description 배정 대상 화물 고유번호 (없으면 null — 공용 작업)
+       */
+      cargo_item_id?: number | null
+      /**
+       * Format: int64
+       * @description 작업자 직원 고유번호
+       */
+      employee_id: number
+    }
+    CreateWorkStopRequest: {
+      reason: string
+      /** Format: int64 */
+      work_assignment_id?: number | null
+      /** Format: int64 */
+      work_id?: number | null
+    }
+    DecideApprovalRequest: {
+      /** Format: int64 */
+      attendance_id: number
+      /** @description APPROVED | REJECTED */
+      decision: components['schemas']['ApprovalDecision']
+      /** @description 결정 사유 (FR-E2 — 필수) */
+      reason: string
+    }
+    DecideApprovalResponse: {
+      /** Format: int64 */
+      approval_id: number
+      approval_status: string
+      /** Format: int64 */
+      attendance_id: number
+      decision: string
+    }
+    DepartmentResponse: {
+      department_code: string
+      /** Format: int64 */
+      department_id: number
+      description?: string | null
+      name: string
+    }
+    /** @description 부서 */
+    DepartmentsSchema: {
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      /** @description 부서 코드 */
+      departmentCode: string
+      /**
+       * Format: int64
+       * @description 부서 고유번호
+       * @default 0
+       */
+      departmentId: number
+      /** @description 설명 */
+      description?: string | null
+      /** @description 부서명 */
+      name: string
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+    }
+    /** @description 위험물 등급 (IMDG Class) 마스터 (FR-B, 설정 데이터) */
+    DgClassesSchema: {
+      /** @description Class 코드 (예: 1, 2.1, 3, 9) */
+      classCode: string
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      /** @description 설명 */
+      description?: string | null
+      /**
+       * Format: int64
+       * @description 등급 고유번호
+       * @default 0
+       */
+      dgClassId: number
+      /** @description 적용 IMDG 개정 차수 (예: 42차) */
+      imdgVersion?: string | null
+      /** @description 등급 영문명 */
+      nameEn?: string | null
+      /** @description 등급 한글명 (화약류/가스류 등) */
+      nameKo: string
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+    }
+    EducationCompletionQuery: {
+      /** Format: int64 */
+      education_course_id?: number | null
+      /** Format: int64 */
+      employee_id?: number | null
+    }
+    EducationCompletionResponse: {
+      completed_at: string
+      /** Format: int32 */
+      course_version: number
+      /** Format: int64 */
+      education_completion_id: number
+      /** Format: int64 */
+      education_course_id: number
+      /** Format: int64 */
+      employee_id: number
+      evidence_url?: string | null
+      expires_at?: string | null
+      fulfilled: boolean
+      /** Format: int64 */
+      recorded_by_id: number
+    }
+    /** @description 작업자 교육 이수 이력(재이수 허용) */
+    EducationCompletionsSchema: {
+      /**
+       * Format: date-time
+       * @description 이수일시
+       */
+      completedAt: string
+      /**
+       * Format: int32
+       * @description 이수한 교육 과정 버전
+       */
+      courseVersion: number
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      /**
+       * Format: int64
+       * @description 교육 이수 고유번호
+       * @default 0
+       */
+      educationCompletionId: number
+      educationCourse: Record<string, never>
+      /**
+       * Format: int64
+       * @description 교육 과정 FK
+       */
+      educationCourseId: number
+      employee: components['schemas']['EmployeesSchema']
+      /**
+       * Format: int64
+       * @description 이수 작업자 FK
+       */
+      employeeId: number
+      /** @description 이수 증빙 경로 */
+      evidenceUrl?: string | null
+      /**
+       * Format: date-time
+       * @description 이수 만료일시
+       */
+      expiresAt?: string | null
+      recordedBy: components['schemas']['EmployeesSchema']
+      /**
+       * Format: int64
+       * @description 이수 등록자 FK
+       */
+      recordedById: number
+    }
+    EducationCourseResponse: {
+      course_code: string
+      description?: string | null
+      /** Format: int64 */
+      education_course_id: number
+      is_active: boolean
+      title: string
+      /** Format: int32 */
+      validity_days?: number | null
+      /** Format: int32 */
+      version: number
+    }
+    /** @description 작업 투입 전 교육 과정 기준정보 */
+    EducationCoursesSchema: {
+      /** @description 교육 과정 코드 */
+      courseCode: string
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      /** @description 교육 과정 설명 */
+      description?: string | null
+      /**
+       * Format: int64
+       * @description 교육 과정 고유번호
+       * @default 0
+       */
+      educationCourseId: number
+      /**
+       * @description 사용 여부
+       * @default true
+       */
+      isActive: boolean
+      /** @description 교육 과정명 */
+      title: string
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+      /**
+       * Format: int32
+       * @description 이수 유효기간 일수, null이면 무기한
+       */
+      validityDays?: number | null
+      /**
+       * Format: int32
+       * @description 교육 과정 버전
+       * @default 1
+       */
+      version: number
+    }
+    EducationErrorResponse: {
+      code: string
+      message: string
+    }
+    EducationReadinessQuery: {
+      /** Format: int64 */
+      employee_id: number
+      /** Format: int64 */
+      work_id: number
+    }
+    EducationReadinessResponse: {
+      /** Format: int64 */
+      employee_id: number
+      fulfilled: boolean
+      requirements: components['schemas']['EducationRequirementStatus'][]
+      /** Format: int64 */
+      work_id: number
+    }
+    EducationRequirementStatus: {
+      course_code: string
+      /** Format: int64 */
+      education_completion_id?: number | null
+      /** Format: int64 */
+      education_course_id: number
+      expires_at?: string | null
+      fulfilled: boolean
+      /** @description CURRENT | EXPIRED | MISSING */
+      status: string
+      title: string
+    }
+    EducationTargetRuleResponse: {
+      /** Format: int64 */
+      dg_class_id?: number | null
+      /** Format: int64 */
+      education_course_id: number
+      /** Format: int64 */
+      education_target_rule_id: number
+      is_active: boolean
+      is_required: boolean
+      /** Format: int64 */
+      work_type_id?: number | null
+    }
+    /** @description 작업유형·위험물 등급별 필수 교육 규칙 */
+    EducationTargetRulesSchema: {
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      dgClass?: Record<string, never> | null
+      /**
+       * Format: int64
+       * @description 대상 위험물 등급 FK
+       */
+      dgClassId?: number | null
+      educationCourse: Record<string, never>
+      /**
+       * Format: int64
+       * @description 교육 과정 FK
+       */
+      educationCourseId: number
+      /**
+       * Format: int64
+       * @description 교육 대상 규칙 고유번호
+       * @default 0
+       */
+      educationTargetRuleId: number
+      /**
+       * @description 규칙 사용 여부
+       * @default true
+       */
+      isActive: boolean
+      /**
+       * @description 필수 교육 여부
+       * @default true
+       */
+      isRequired: boolean
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+      workType?: Record<string, never> | null
+      /**
+       * Format: int64
+       * @description 대상 작업 유형 FK
+       */
+      workTypeId?: number | null
+    }
+    /** @enum {string} */
+    EligibilityStatus: 'ELIGIBLE' | 'EXCLUDED'
+    /** @description 직원 건강·신체 정보 (FR-F1, 민감정보 분리 저장) */
+    EmployeeHealthProfilesSchema: {
+      /** @description 알레르기 유발물질 코드 배열 (예: ["RICE"]) */
+      allergens?: Record<string, never> | null
+      /**
+       * @description 개인정보(건강) 수집·이용 동의
+       * @default false
+       */
+      consentAgreed: boolean
+      /**
+       * Format: date-time
+       * @description 동의 시각
+       */
+      consentAt?: string | null
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      employee: components['schemas']['EmployeeHealthProfilesSchema_Employee']
+      /**
+       * Format: int64
+       * @description 직원 FK (1:1)
+       */
+      employeeId: number
+      /**
+       * @description 천식 보유 여부
+       * @default false
+       */
+      hasAsthma: boolean
+      /**
+       * @description 폐쇄공포 보유 여부
+       * @default false
+       */
+      hasClaustrophobia: boolean
+      /**
+       * Format: int64
+       * @description 건강정보 고유번호
+       * @default 0
+       */
+      healthProfileId: number
+      /**
+       * Format: int32
+       * @description 신장(cm)
+       */
+      heightCm?: number | null
+      /** @description 기타 특이사항 */
+      otherConditions?: string | null
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+      /**
+       * Format: int32
+       * @description 체중(kg)
+       */
+      weightKg?: number | null
+    }
+    EmployeeHealthProfilesSchema_Employee: {
+      /**
+       * Format: date-time
+       * @description 생성일시
+       */
+      createdAt: string
+      /**
+       * Format: int64
+       * @description 부서 FK
+       */
+      departmentId: number
+      /** @description 사내 이메일 */
+      email: string
+      /**
+       * Format: int64
+       * @description 직원 고유번호 (내부 식별자)
+       */
+      employeeId: number
+      /** @description 회사 표준 사번 */
+      employeeNumber: string
+      /**
+       * Format: date
+       * @description 입사일
+       */
+      hireDate: string
+      /**
+       * Format: int64
+       * @description 직무 FK
+       */
+      jobRoleId: number
+      /** @description 이름 */
+      name: string
+      /**
+       * Format: date-time
+       * @description 사원증 발급일
+       */
+      nfcCardIssuedAt?: string | null
+      /** @description 사원증 NFC UID (게이트 태깅 식별자) */
+      nfcCardUid?: string | null
+      /** @description bcrypt/argon2 해시 */
+      passwordHash: string
+      /** @description 전화번호 */
+      phoneNumber?: string | null
+      /** @description 직급 (사원/대리/과장 등) */
+      position?: string | null
+      /** @description 모국어 코드 (번역/TTS 기준, FR-C1) */
+      preferredLanguage: string
+      /**
+       * Format: date-time
+       * @description 퇴사일시
+       */
+      resignedAt?: string | null
+      /** @description 상태 */
+      status: components['schemas']['EmployeeStatus']
+      /** @description 시스템 권한 */
+      systemRole: components['schemas']['SystemRole']
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+    }
+    /** @description 응답 DTO — password_hash를 절대 밖으로 내보내지 않기 위해 Model과 분리 */
+    EmployeeResponse: {
+      /** Format: int64 */
+      department_id: number
+      email: string
+      /** Format: int64 */
+      employee_id: number
+      employee_number: string
+      hire_date: string
+      /** Format: int64 */
+      job_role_id: number
+      name: string
+      phone_number?: string | null
+      position?: string | null
+      preferred_language: string
+      status: string
+      system_role: string
+    }
+    /** @enum {string} */
+    EmployeeStatus: 'ACTIVE' | 'ON_LEAVE' | 'SUSPENDED' | 'RESIGNED'
+    /** @description 직원 */
+    EmployeesSchema: {
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      department: components['schemas']['DepartmentsSchema']
+      /**
+       * Format: int64
+       * @description 부서 FK
+       */
+      departmentId: number
+      /** @description 사내 이메일 */
+      email: string
+      employeeHealthProfiles?: components['schemas']['EmployeesSchema_EmployeeHealthProfiles']
+      /**
+       * Format: int64
+       * @description 직원 고유번호 (내부 식별자)
+       * @default 0
+       */
+      employeeId: number
+      /** @description 회사 표준 사번 */
+      employeeNumber: string
+      /**
+       * Format: date
+       * @description 입사일
+       */
+      hireDate: string
+      jobRole: Record<string, never>
+      /**
+       * Format: int64
+       * @description 직무 FK
+       */
+      jobRoleId: number
+      /** @description 이름 */
+      name: string
+      /**
+       * Format: date-time
+       * @description 사원증 발급일
+       */
+      nfcCardIssuedAt?: string | null
+      /** @description 사원증 NFC UID (게이트 태깅 식별자) */
+      nfcCardUid?: string | null
+      /** @description bcrypt/argon2 해시 */
+      passwordHash: string
+      /** @description 전화번호 */
+      phoneNumber?: string | null
+      /** @description 직급 (사원/대리/과장 등) */
+      position?: string | null
+      /**
+       * @description 모국어 코드 (번역/TTS 기준, FR-C1)
+       * @default ko
+       */
+      preferredLanguage: string
+      /**
+       * Format: date-time
+       * @description 퇴사일시
+       */
+      resignedAt?: string | null
+      /**
+       * @description 상태
+       * @default ACTIVE
+       */
+      status: components['schemas']['EmployeeStatus']
+      /**
+       * @description 시스템 권한
+       * @default WORKER
+       */
+      systemRole: components['schemas']['SystemRole']
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+    }
+    EmployeesSchema_EmployeeHealthProfiles: {
+      /** @description 알레르기 유발물질 코드 배열 (예: ["RICE"]) */
+      allergens?: Record<string, never> | null
+      /** @description 개인정보(건강) 수집·이용 동의 */
+      consentAgreed: boolean
+      /**
+       * Format: date-time
+       * @description 동의 시각
+       */
+      consentAt?: string | null
+      /**
+       * Format: date-time
+       * @description 생성일시
+       */
+      createdAt: string
+      /**
+       * Format: int64
+       * @description 직원 FK (1:1)
+       */
+      employeeId: number
+      /** @description 천식 보유 여부 */
+      hasAsthma: boolean
+      /** @description 폐쇄공포 보유 여부 */
+      hasClaustrophobia: boolean
+      /**
+       * Format: int64
+       * @description 건강정보 고유번호
+       */
+      healthProfileId: number
+      /**
+       * Format: int32
+       * @description 신장(cm)
+       */
+      heightCm?: number | null
+      /** @description 기타 특이사항 */
+      otherConditions?: string | null
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+      /**
+       * Format: int32
+       * @description 체중(kg)
+       */
+      weightKg?: number | null
+    }
+    /** @description v2 작업 배정 범위의 append-only 장비 태깅·멱등 응답 이벤트 */
+    EquipmentCheckEventsSchema: {
+      /** @description 장비 태깅 수락 여부 */
+      accepted: boolean
+      /**
+       * Format: date-time
+       * @description 클라이언트 스캔 감사시각
+       */
+      clientScannedAt: string
+      employee: components['schemas']['EmployeesSchema']
+      /**
+       * Format: int64
+       * @description JWT로 확인한 작업자 FK
+       */
+      employeeId: number
+      /**
+       * Format: int64
+       * @description 장비 태깅 이벤트 고유번호
+       * @default 0
+       */
+      equipmentCheckEventId: number
+      equipmentProfile?: Record<string, never> | null
+      /**
+       * Format: int64
+       * @description 토큰으로 확인한 v2 장비 프로필 FK, 미확인 토큰은 null
+       */
+      equipmentProfileId?: number | null
+      /**
+       * Format: int16
+       * @description 최초 응답 HTTP 상태
+       */
+      httpStatus: number
+      /**
+       * Format: uuid
+       * @description 작업자 범위 멱등키
+       */
+      idempotencyKey: string
+      /**
+       * Format: date-time
+       * @description 서버 이벤트 발생일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      occurredAt: string
+      /** @description 안정된 결과 코드 */
+      reasonCode: string
+      /** @description 정규화하지 않은 요청의 SHA-256 지문 */
+      requestFingerprint: string
+      /** @description 재전송할 최초 정확 응답 JSON */
+      responseJson: Record<string, never>
+      workAssignment: Record<string, never>
+      /**
+       * Format: int64
+       * @description 요청 v2 작업 배정 FK
+       */
+      workAssignmentId: number
+    }
+    /** @description 당일 장비 NFC 태깅 기록 (FR-D3/D4 — 돌려쓰기 방지) */
+    EquipmentCheckLogsSchema: {
+      attendance: components['schemas']['AttendancesSchema']
+      /**
+       * Format: int64
+       * @description 출근 FK
+       */
+      attendanceId: number
+      /**
+       * Format: int64
+       * @description 태깅 기록 고유번호
+       * @default 0
+       */
+      checkLogId: number
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      employee: components['schemas']['EmployeesSchema']
+      /**
+       * Format: int64
+       * @description 직원 FK
+       */
+      employeeId: number
+      equipment: components['schemas']['EquipmentSchema']
+      /**
+       * Format: int64
+       * @description 장비 FK
+       */
+      equipmentId: number
+      /**
+       * Format: date-time
+       * @description 태깅 시각
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      taggedAt: string
+      /**
+       * Format: date
+       * @description 작업 일자 (장비+일자 유니크로 중복사용 차단, FR-D4)
+       */
+      workDate: string
+    }
+    /** @enum {string} */
+    EquipmentLifecycleStatus:
+      | 'AVAILABLE'
+      | 'BLOCKED'
+      | 'DAMAGED'
+      | 'LOST'
+      | 'REPLACED'
+    /** @enum {string} */
+    EquipmentOwnershipType: 'PERSONAL' | 'SHARED'
+    /** @description v2 소유정책·수명주기를 갖는 보호구 프로필 */
+    EquipmentProfilesSchema: {
+      /** @description v2 자산 관리번호 */
+      assetNumber?: string | null
+      /** @description v2 점자 스티커 병기 내용 */
+      brailleLabel?: string | null
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      /**
+       * Format: int64
+       * @description v2 장비 프로필 고유번호
+       * @default 0
+       */
+      equipmentProfileId: number
+      equipmentType: Record<string, never>
+      /**
+       * Format: int64
+       * @description 장비 종류 FK
+       */
+      equipmentTypeId: number
+      legacy?: components['schemas']['EquipmentProfilesSchema_Legacy']
+      /**
+       * Format: int64
+       * @description 변환된 0001 장비 FK, v2 신규 장비는 null
+       */
+      legacyEquipmentId?: number | null
+      /**
+       * Format: date
+       * @description 해당 품목에만 적용하는 제조사 교체 권고일
+       */
+      manufacturerReplacementDueAt?: string | null
+      owner?: components['schemas']['EmployeesSchema']
+      /**
+       * Format: int64
+       * @description 개인 장비 소유자 FK, 공용은 null
+       */
+      ownerEmployeeId?: number | null
+      /**
+       * @description 개인 또는 공용 소유정책
+       * @default SHARED
+       */
+      ownershipType: components['schemas']['EquipmentOwnershipType']
+      sharedEquipmentClaims?: components['schemas']['EquipmentProfilesSchema_SharedEquipmentClaims']
+      /**
+       * @description v2 장비 수명주기 상태
+       * @default BLOCKED
+       */
+      status: components['schemas']['EquipmentLifecycleStatus']
+      /** @description 상태 변경 사유 */
+      statusReason?: string | null
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+    }
+    EquipmentProfilesSchema_Legacy: {
+      /** @description 자산 관리번호 */
+      assetNumber?: string | null
+      /** @description 점자 스티커 병기 내용 (FR-D2) */
+      brailleLabel?: string | null
+      /**
+       * Format: date-time
+       * @description 생성일시
+       */
+      createdAt: string
+      /**
+       * Format: int64
+       * @description 장비 고유번호
+       */
+      equipmentId: number
+      /**
+       * Format: int64
+       * @description 장비 종류 FK
+       */
+      equipmentTypeId: number
+      /** @description 사용 가능 여부 */
+      isActive: boolean
+      /** @description NFC 태그 UID (FR-D2) */
+      nfcTagUid: string
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+    }
+    EquipmentProfilesSchema_SharedEquipmentClaims: {
+      /**
+       * Format: date-time
+       * @description 점유 시작일시
+       */
+      claimedAt: string
+      /**
+       * Format: int64
+       * @description 점유 v2 공용 장비 프로필 FK
+       */
+      equipmentProfileId: number
+      /**
+       * Format: int64
+       * @description 공용 장비 점유 고유번호
+       */
+      sharedEquipmentClaimId: number
+      /**
+       * Format: int64
+       * @description v2 점유 작업 배정 FK
+       */
+      workAssignmentId: number
+    }
+    /** @description 개별 안전장비 (NFC 태그 단위, FR-D2) */
+    EquipmentSchema: {
+      /** @description 자산 관리번호 */
+      assetNumber?: string | null
+      /** @description 점자 스티커 병기 내용 (FR-D2) */
+      brailleLabel?: string | null
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      /**
+       * Format: int64
+       * @description 장비 고유번호
+       * @default 0
+       */
+      equipmentId: number
+      equipmentProfiles?: components['schemas']['EquipmentSchema_EquipmentProfiles']
+      equipmentType: Record<string, never>
+      /**
+       * Format: int64
+       * @description 장비 종류 FK
+       */
+      equipmentTypeId: number
+      /**
+       * @description 사용 가능 여부
+       * @default true
+       */
+      isActive: boolean
+      /** @description NFC 태그 UID (FR-D2) */
+      nfcTagUid: string
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+    }
+    EquipmentSchema_EquipmentProfiles: {
+      /** @description v2 자산 관리번호 */
+      assetNumber?: string | null
+      /** @description v2 점자 스티커 병기 내용 */
+      brailleLabel?: string | null
+      /**
+       * Format: date-time
+       * @description 생성일시
+       */
+      createdAt: string
+      /**
+       * Format: int64
+       * @description v2 장비 프로필 고유번호
+       */
+      equipmentProfileId: number
+      /**
+       * Format: int64
+       * @description 장비 종류 FK
+       */
+      equipmentTypeId: number
+      /**
+       * Format: int64
+       * @description 변환된 0001 장비 FK, v2 신규 장비는 null
+       */
+      legacyEquipmentId?: number | null
+      /**
+       * Format: date
+       * @description 해당 품목에만 적용하는 제조사 교체 권고일
+       */
+      manufacturerReplacementDueAt?: string | null
+      /**
+       * Format: int64
+       * @description 개인 장비 소유자 FK, 공용은 null
+       */
+      ownerEmployeeId?: number | null
+      /** @description 개인 또는 공용 소유정책 */
+      ownershipType: components['schemas']['EquipmentOwnershipType']
+      /** @description v2 장비 수명주기 상태 */
+      status: components['schemas']['EquipmentLifecycleStatus']
+      /** @description 상태 변경 사유 */
+      statusReason?: string | null
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+    }
+    EquipmentSummary: {
+      asset_number?: string | null
+      /** Format: int64 */
+      id: number
+      ownership: string
+      status: string
+      type: components['schemas']['EquipmentTypeSummary']
+    }
+    /** @description v2 장비 프로필 NFC 불투명 토큰 해시와 발급 수명주기 */
+    EquipmentTagTokensSchema: {
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      /**
+       * Format: date-time
+       * @description 토큰 비활성화일시
+       */
+      deactivatedAt?: string | null
+      deactivatedBy?: components['schemas']['EmployeesSchema']
+      /**
+       * Format: int64
+       * @description 토큰 비활성화 관리자 FK
+       */
+      deactivatedById?: number | null
+      equipmentProfile: Record<string, never>
+      /**
+       * Format: int64
+       * @description v2 장비 프로필 FK
+       */
+      equipmentProfileId: number
+      /**
+       * Format: int64
+       * @description 장비 태그 토큰 고유번호
+       * @default 0
+       */
+      equipmentTagTokenId: number
+      /**
+       * @description 활성 토큰 여부
+       * @default true
+       */
+      isActive: boolean
+      /**
+       * Format: date-time
+       * @description 토큰 발급일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      issuedAt: string
+      issuedBy: components['schemas']['EmployeesSchema']
+      /**
+       * Format: int64
+       * @description 토큰 발급 관리자 FK
+       */
+      issuedById: number
+      /** @description 서버 발급 불투명 토큰 SHA-256 해시 */
+      tagTokenHash: string
+    }
+    EquipmentTypeSummary: {
+      /** Format: int64 */
+      id: number
+      name: string
+    }
+    /** @description 안전장비 종류 마스터 (FR-D1) */
+    EquipmentTypesSchema: {
+      /** @description 분류 (안전화/장갑/호흡보호구 등) */
+      category?: string | null
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      /** @description 설명 */
+      description?: string | null
+      /**
+       * Format: int64
+       * @description 장비 종류 고유번호
+       * @default 0
+       */
+      equipmentTypeId: number
+      /** @description 장비명 (방폭형 안전화/내화학 장갑 등) */
+      name: string
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+    }
+    /** @enum {string} */
+    FileFormat: 'HWP' | 'PDF' | 'XLSX' | 'DOCX' | 'IMAGE'
+    /** @enum {string} */
+    GateDecision: 'PASS' | 'BLOCK'
+    /** @description 작업 배정 준비도를 기록하는 append-only 게이트 PASS/BLOCK 이벤트 */
+    GateEventsSchema: {
+      /** @description 통과 또는 차단 판정 */
+      decision: components['schemas']['GateDecision']
+      /** @description 판정에 사용한 문서·교육·보호구·중지 버전 */
+      decisionInputVersions: Record<string, never>
+      employee: components['schemas']['EmployeesSchema']
+      /**
+       * Format: int64
+       * @description 판정 작업자 FK
+       */
+      employeeId: number
+      /**
+       * Format: int64
+       * @description 게이트 이벤트 고유번호
+       * @default 0
+       */
+      gateEventId: number
+      /** @description 판정 시점 게이트 식별자 */
+      gateId: string
+      /**
+       * Format: int16
+       * @description 최초 응답 HTTP 상태
+       */
+      httpStatus: number
+      /**
+       * Format: uuid
+       * @description 단말 범위 멱등키, 레거시 변환행은 null
+       */
+      idempotencyKey?: string | null
+      legacy?: components['schemas']['GateEventsSchema_Legacy']
+      legacy1?: components['schemas']['AttendancesSchema']
+      /**
+       * Format: int64
+       * @description PR #48 출근 참조 FK
+       */
+      legacyAttendanceId?: number | null
+      /**
+       * Format: int64
+       * @description PR #48 게이트 검증 기록 변환 출처 FK
+       */
+      legacyVerifyLogId?: number | null
+      /**
+       * Format: date
+       * @description PR #48 작업일 감사값
+       */
+      legacyWorkDate?: string | null
+      /**
+       * Format: date-time
+       * @description 서버 판정 발생일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      occurredAt: string
+      /** @description 우선순위가 가장 높은 안정된 판정 코드 */
+      reasonCode: string
+      /** @description 우선순위대로 정렬된 전체 판정 코드 */
+      reasonCodes: Record<string, never>
+      /** @description 요청 SHA-256 지문, 레거시 변환행은 null */
+      requestFingerprint?: string | null
+      /** @description 멱등 재전송할 최초 정확 응답 JSON */
+      responseJson: Record<string, never>
+      terminal?: Record<string, never> | null
+      /**
+       * Format: int64
+       * @description 검증 단말 FK
+       */
+      terminalId?: number | null
+      workAssignment?: Record<string, never> | null
+      /**
+       * Format: int64
+       * @description 판정 v2 작업 배정 FK, 변환 불가 레거시는 null
+       */
+      workAssignmentId?: number | null
+    }
+    GateEventsSchema_Legacy: {
+      /** @description 통과 허용 여부 */
+      allowed: boolean
+      /**
+       * Format: int64
+       * @description 출근 FK (출근 절차 시작 전 스캔은 NULL)
+       */
+      attendanceId?: number | null
+      /**
+       * Format: date-time
+       * @description 기록 시각
+       */
+      createdAt: string
+      /**
+       * Format: int64
+       * @description 직원 FK
+       */
+      employeeId: number
+      /** @description 통과 이벤트 멱등 플래그 — PASSED 건만 true로 기록해 유니크 제약 대상이 된다 */
+      isPassEvent: boolean
+      /** @description 판정 사유 (한국어 안내 문구) */
+      reason: string
+      /**
+       * Format: int64
+       * @description 검증 단말 FK (게이트 단말 자격증명)
+       */
+      terminalId?: number | null
+      /**
+       * Format: int64
+       * @description 게이트 검증 기록 고유번호
+       */
+      verifyLogId: number
+      /**
+       * Format: date
+       * @description 작업 일자 (출근일 기준 통과 이벤트 멱등키 구성 요소)
+       */
+      workDate: string
+    }
+    /** @enum {string} */
+    GateStatus: 'BLOCKED' | 'READY' | 'PASSED'
+    /** @description 게이트 단말 자격증명(PR #48 보존) */
+    GateTerminalsSchema: {
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      /** @description 게이트 식별자 (예: 북문, 남문) */
+      gateId: string
+      /**
+       * @description 활성 여부 (폐기 시 false — 소프트 삭제)
+       * @default true
+       */
+      isActive: boolean
+      /**
+       * Format: int64
+       * @description 단말 고유번호
+       * @default 0
+       */
+      terminalId: number
+      /** @description 단말 토큰 SHA-256 해시 (평문 저장 금지) */
+      tokenHash: string
+    }
+    /** @description 게이트 검증 기록 (FR-D5, AC-5 — 이벤트 멱등 보장) */
+    GateVerifyLogsSchema: {
+      /**
+       * @description 통과 허용 여부
+       * @default false
+       */
+      allowed: boolean
+      attendance?: components['schemas']['AttendancesSchema']
+      /**
+       * Format: int64
+       * @description 출근 FK (출근 절차 시작 전 스캔은 NULL)
+       */
+      attendanceId?: number | null
+      /**
+       * Format: date-time
+       * @description 기록 시각
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      employee: components['schemas']['EmployeesSchema']
+      /**
+       * Format: int64
+       * @description 직원 FK
+       */
+      employeeId: number
+      gateEvents?: components['schemas']['GateVerifyLogsSchema_GateEvents']
+      /**
+       * @description 통과 이벤트 멱등 플래그 — PASSED 건만 true로 기록해 유니크 제약 대상이 된다
+       * @default false
+       */
+      isPassEvent: boolean
+      /** @description 판정 사유 (한국어 안내 문구) */
+      reason: string
+      terminal?: Record<string, never> | null
+      /**
+       * Format: int64
+       * @description 검증 단말 FK (게이트 단말 자격증명)
+       */
+      terminalId?: number | null
+      /**
+       * Format: int64
+       * @description 게이트 검증 기록 고유번호
+       * @default 0
+       */
+      verifyLogId: number
+      /**
+       * Format: date
+       * @description 작업 일자 (출근일 기준 통과 이벤트 멱등키 구성 요소)
+       */
+      workDate: string
+    }
+    GateVerifyLogsSchema_GateEvents: {
+      /** @description 통과 또는 차단 판정 */
+      decision: components['schemas']['GateDecision']
+      /** @description 판정에 사용한 문서·교육·보호구·중지 버전 */
+      decisionInputVersions: Record<string, never>
+      /**
+       * Format: int64
+       * @description 판정 작업자 FK
+       */
+      employeeId: number
+      /**
+       * Format: int64
+       * @description 게이트 이벤트 고유번호
+       */
+      gateEventId: number
+      /** @description 판정 시점 게이트 식별자 */
+      gateId: string
+      /**
+       * Format: int16
+       * @description 최초 응답 HTTP 상태
+       */
+      httpStatus: number
+      /**
+       * Format: uuid
+       * @description 단말 범위 멱등키, 레거시 변환행은 null
+       */
+      idempotencyKey?: string | null
+      /**
+       * Format: int64
+       * @description PR #48 출근 참조 FK
+       */
+      legacyAttendanceId?: number | null
+      /**
+       * Format: int64
+       * @description PR #48 게이트 검증 기록 변환 출처 FK
+       */
+      legacyVerifyLogId?: number | null
+      /**
+       * Format: date
+       * @description PR #48 작업일 감사값
+       */
+      legacyWorkDate?: string | null
+      /**
+       * Format: date-time
+       * @description 서버 판정 발생일시
+       */
+      occurredAt: string
+      /** @description 우선순위가 가장 높은 안정된 판정 코드 */
+      reasonCode: string
+      /** @description 우선순위대로 정렬된 전체 판정 코드 */
+      reasonCodes: Record<string, never>
+      /** @description 요청 SHA-256 지문, 레거시 변환행은 null */
+      requestFingerprint?: string | null
+      /** @description 멱등 재전송할 최초 정확 응답 JSON */
+      responseJson: Record<string, never>
+      /**
+       * Format: int64
+       * @description 검증 단말 FK
+       */
+      terminalId?: number | null
+      /**
+       * Format: int64
+       * @description 판정 v2 작업 배정 FK, 변환 불가 레거시는 null
+       */
+      workAssignmentId?: number | null
+    }
+    GateVerifyRequest: {
+      /** @description 사원증 NFC UID (FR-D5) */
+      nfc_card_uid: string
+      /**
+       * Format: int64
+       * @description v2 작업 배정 준비도를 함께 검증할 때 사용하는 선택 식별자
+       */
+      v2_work_assignment_id?: number | null
+    }
+    GateVerifyResponse: {
+      allowed: boolean
+      employee_name: string
+      reason: string
+    }
+    /** @description HS Code 마스터 (FR-B2/B3, 위험물 의심 판정) */
+    HsCodesSchema: {
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      default?: Record<string, never> | null
+      /**
+       * Format: int64
+       * @description 기본 매핑 등급 FK
+       */
+      defaultDgClassId?: number | null
+      /** @description 품목 설명 */
+      description?: string | null
+      /** @description HS Code */
+      hsCode: string
+      /**
+       * Format: int64
+       * @description HS Code 고유번호
+       * @default 0
+       */
+      hsCodeId: number
+      /**
+       * @description 위험물 의심 여부 (DGD 누락 검증용, FR-B3)
+       * @default false
+       */
+      isDangerousSuspect: boolean
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+    }
+    /** @description 항만안전점검관 개선명령 워크플로 (FR-E3, 3단계) */
+    ImprovementOrdersSchema: {
+      /** @description 조치 사진 경로 (FR-E3) */
+      actionPhotoUrl?: string | null
+      /**
+       * Format: date-time
+       * @description 조치 시각
+       */
+      actionTakenAt?: string | null
+      attendance?: components['schemas']['AttendancesSchema']
+      /**
+       * Format: int64
+       * @description 관련 출근 FK
+       */
+      attendanceId?: number | null
+      /**
+       * Format: date-time
+       * @description 완료 보고 시각
+       */
+      completedAt?: string | null
+      /** @description 개선명령 내용 */
+      content: string
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      issuedBy: components['schemas']['EmployeesSchema']
+      /**
+       * Format: int64
+       * @description 명령 등록자 FK (관리자/점검관)
+       */
+      issuedById: number
+      /**
+       * Format: int64
+       * @description 개선명령 고유번호
+       * @default 0
+       */
+      orderId: number
+      /**
+       * @description 진행 상태 (등록→조치→완료)
+       * @default ISSUED
+       */
+      status: components['schemas']['ImprovementStatus']
+      target?: components['schemas']['EmployeesSchema']
+      /**
+       * Format: int64
+       * @description 대상 작업자 FK
+       */
+      targetEmployeeId?: number | null
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+    }
+    /** @enum {string} */
+    ImprovementStatus: 'ISSUED' | 'ACTION_TAKEN' | 'COMPLETED'
+    /** @description 안전수칙 인지 로그 (FR-C2/C3, append-only — 수정 불가, NFR 무결성) */
+    InstructionAcknowledgementsSchema: {
+      /**
+       * Format: date-time
+       * @description 확인 시각 (FR-C3)
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      acknowledgedAt: string
+      /**
+       * Format: int64
+       * @description 인지 로그 고유번호
+       * @default 0
+       */
+      acknowledgementId: number
+      attendance: components['schemas']['AttendancesSchema']
+      /**
+       * Format: int64
+       * @description 출근 FK
+       */
+      attendanceId: number
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      employee: components['schemas']['EmployeesSchema']
+      /**
+       * Format: int64
+       * @description 직원 FK
+       */
+      employeeId: number
+      instruction: Record<string, never>
+      /**
+       * Format: int64
+       * @description 안전지침 FK
+       */
+      instructionId: number
+      /**
+       * Format: int32
+       * @description 확인 당시 지침 버전 (FR-G1)
+       */
+      instructionVersion: number
+      /** @description 표시된 언어 */
+      languageCode: string
+      /**
+       * @description 최하단 스크롤 완료 여부 (FR-C2)
+       * @default false
+       */
+      scrolledToEnd: boolean
+    }
+    IssueEquipmentTagTokenRequest: {
+      /** Format: int64 */
+      equipment_profile_id: number
+    }
+    IssueEquipmentTagTokenResponse: {
+      /** Format: int64 */
+      equipment_profile_id: number
+      /** Format: int64 */
+      equipment_tag_token_id: number
+      ndef_mime_type: string
+      /** @description 평문은 발급/회전 응답으로만 한 번 반환한다. */
+      token: string
+      token_uri: string
+    }
+    IssueTerminalRequest: {
+      /** @description 게이트 식별자 (예: 북문, 남문) */
+      gate_id: string
+    }
+    IssueTerminalResponse: {
+      gate_id: string
+      /**
+       * Format: int64
+       * @description 단말 고유번호
+       */
+      terminal_id: number
+      /** @description 단말 토큰 평문 — 발급 시 단 한 번만 반환되며 다시 조회할 수 없다 */
+      token: string
+    }
+    JobRoleResponse: {
+      description?: string | null
+      job_role_code: string
+      /** Format: int64 */
+      job_role_id: number
+      name: string
+    }
+    /** @description 직무 */
+    JobRolesSchema: {
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      /** @description 설명 */
+      description?: string | null
+      /** @description 직무 코드 */
+      jobRoleCode: string
+      /**
+       * Format: int64
+       * @description 직무 고유번호
+       * @default 0
+       */
+      jobRoleId: number
+      /** @description 직무명 (하역/검수/컨테이너점검 등) */
+      name: string
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+    }
+    PendingApprovalItem: {
+      /** Format: int64 */
+      attendance_id: number
+      /** Format: int64 */
+      employee_id: number
+      employee_name: string
+      equipment_check_completed: boolean
+      /** @description 미비 항목 파악용 */
+      instruction_ack_completed: boolean
+      work_date: string
+    }
+    PpeErrorResponse: {
+      code: string
+      message: string
+    }
+    PpeRequirementResponse: {
+      category: string
+      /** Format: int64 */
+      equipment_type_id: number
+      is_active: boolean
+      performance_criteria?: Record<string, never> | null
+      /** Format: int64 */
+      ppe_requirement_id: number
+      review_status: string
+      reviewed_at?: string | null
+      /** Format: int64 */
+      reviewed_by_id?: number | null
+      /** Format: int64 */
+      source_document_version_id: number
+      /** Format: int32 */
+      source_document_version_number: number
+      source_text: string
+    }
+    /** @description 검수된 문서 원문 기반 보호구 요구조건 */
+    PpeRequirementsSchema: {
+      /** @description 보호구 카테고리 */
+      category: string
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      equipmentType: Record<string, never>
+      /**
+       * Format: int64
+       * @description 요구 장비 종류 FK
+       */
+      equipmentTypeId: number
+      /**
+       * @description 사용 여부
+       * @default true
+       */
+      isActive: boolean
+      /** @description 성능조건 구조화 값 */
+      performanceCriteria?: Record<string, never> | null
+      /**
+       * Format: int64
+       * @description 보호구 요구조건 고유번호
+       * @default 0
+       */
+      ppeRequirementId: number
+      /**
+       * @description 요구조건 검수 상태
+       * @default PENDING
+       */
+      reviewStatus: components['schemas']['PpeReviewStatus']
+      /**
+       * Format: date-time
+       * @description 검수일시
+       */
+      reviewedAt?: string | null
+      reviewedBy?: components['schemas']['EmployeesSchema']
+      /**
+       * Format: int64
+       * @description 검수자 FK
+       */
+      reviewedById?: number | null
+      sourceDocumentVersion: Record<string, never>
+      /**
+       * Format: int64
+       * @description 근거 v2 화물문서 버전 FK
+       */
+      sourceDocumentVersionId: number
+      /**
+       * Format: int32
+       * @description 근거 문서 버전
+       */
+      sourceDocumentVersionNumber: number
+      /** @description 근거 문서 원문 */
+      sourceText: string
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+    }
+    /** @enum {string} */
+    PpeReviewStatus: 'PENDING' | 'CONFIRMED' | 'REJECTED'
+    PpeSnapshotListQuery: {
+      /** Format: int64 */
+      work_id?: number | null
+    }
+    PpeSnapshotResponse: {
+      category: string
+      /** Format: int64 */
+      equipment_type_id: number
+      performance_criteria?: Record<string, never> | null
+      /** Format: int64 */
+      ppe_requirement_id: number
+      reviewed_at: string
+      /** Format: int64 */
+      reviewed_by_id: number
+      snapshotted_at: string
+      /** Format: int64 */
+      source_document_version_id: number
+      /** Format: int32 */
+      source_document_version_number: number
+      source_text: string
+      /** Format: int64 */
+      work_id: number
+      /** Format: int64 */
+      work_ppe_requirement_snapshot_id: number
+    }
+    /** @enum {string} */
+    ProcessingStatus: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED'
+    /** @description 법령·공문 원문 업로드 (FR-A1) */
+    RegulationDocumentsSchema: {
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      /**
+       * Format: int64
+       * @description 문서 고유번호
+       * @default 0
+       */
+      documentId: number
+      /**
+       * Format: date
+       * @description 시행일
+       */
+      effectiveDate?: string | null
+      /** @description 파일 형식 */
+      fileFormat: components['schemas']['FileFormat']
+      /** @description 파일 해시 (무결성) */
+      fileHash?: string | null
+      /** @description 원본 파일 경로 */
+      fileUrl: string
+      /**
+       * @description 일부개정 공문 여부 (FR-A3)
+       * @default false
+       */
+      isAmendment: boolean
+      /** @description 배포 기관 (관세청/해수부 등) */
+      issuingAuthority?: string | null
+      /**
+       * @description 분석 처리 상태
+       * @default PENDING
+       */
+      processingStatus: components['schemas']['ProcessingStatus']
+      /** @description 근거 법령 (산안법/항만안전특별법/KOSHA/IMDG) */
+      sourceLaw: components['schemas']['SourceLaw']
+      /** @description 문서 제목 */
+      title: string
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+      uploadedBy: components['schemas']['EmployeesSchema']
+      /**
+       * Format: int64
+       * @description 업로더 FK
+       */
+      uploadedById: number
+    }
+    /** @description 신구조문대비표 개정 내역 (FR-A3, diff) */
+    RegulationRevisionsSchema: {
+      /** @description 변경 유형 */
+      changeType: components['schemas']['ChangeType']
+      /** @description 조문 번호 */
+      clauseNo?: string | null
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      document: Record<string, never>
+      /**
+       * Format: int64
+       * @description 출처 문서 FK
+       */
+      documentId: number
+      /** @description 신조문 */
+      newText?: string | null
+      /** @description 구조문 */
+      oldText?: string | null
+      /**
+       * Format: int64
+       * @description 개정내역 고유번호
+       * @default 0
+       */
+      revisionId: number
+    }
+    RequiredEquipmentItem: {
+      /** Format: int64 */
+      equipment_type_id: number
+      name: string
+      /** @description REQUIRED | RECOMMENDED */
+      requirement_level: string
+      /** @description 이 출근 건에서 해당 종류 장비를 태깅 완료했는지 */
+      satisfied: boolean
+    }
+    /** @enum {string} */
+    RequirementLevel: 'REQUIRED' | 'RECOMMENDED'
+    RequirementProgress: {
+      complete: boolean
+      /** Format: uint64 */
+      required: number
+      /** Format: uint64 */
+      satisfied: number
+    }
+    RequirementSummary: {
+      category: string
+      /** Format: int64 */
+      id: number
+      satisfied: boolean
+    }
+    /** @enum {string} */
+    RestrictionCondition:
+      | 'ASTHMA'
+      | 'ALLERGY'
+      | 'CLAUSTROPHOBIA'
+      | 'HEIGHT_LIMIT'
+      | 'WEIGHT_LIMIT'
+      | 'OTHER'
+    /** @enum {string} */
+    ReviewStatus: 'PENDING' | 'CONFIRMED'
+    RevokeEquipmentTagTokenResponse: {
+      /** Format: int64 */
+      equipment_profile_id: number
+      /** Format: int64 */
+      equipment_tag_token_id: number
+      is_active: boolean
+    }
+    RevokeTerminalResponse: {
+      gate_id: string
+      is_active: boolean
+      /** Format: int64 */
+      terminal_id: number
+    }
+    /** @description 안전지침 다국어/TTS/점자 변환 (FR-A4, C1, NFR 접근성) */
+    SafetyInstructionTranslationsSchema: {
+      /** @description 점자 변환 데이터 경로 */
+      brailleDataUrl?: string | null
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      instruction: Record<string, never>
+      /**
+       * Format: int64
+       * @description 안전지침 FK
+       */
+      instructionId: number
+      /** @description 언어 코드 (ko/en/vi/zh 등) */
+      languageCode: string
+      /** @description 번역 본문 */
+      translatedBody: string
+      /** @description 번역 제목 */
+      translatedTitle: string
+      /**
+       * Format: int64
+       * @description 번역 고유번호
+       * @default 0
+       */
+      translationId: number
+      /** @description TTS 음성 파일 경로 */
+      ttsAudioUrl?: string | null
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+    }
+    /** @description 안전지침 (문서에서 추출·요약, FR-A2/A4) */
+    SafetyInstructionsSchema: {
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      document?: Record<string, never> | null
+      /**
+       * Format: int64
+       * @description 출처 문서 FK (화물기반 지침은 null 가능)
+       */
+      documentId?: number | null
+      /**
+       * Format: date
+       * @description 시행일
+       */
+      effectiveDate?: string | null
+      /**
+       * Format: int64
+       * @description 안전지침 고유번호
+       * @default 0
+       */
+      instructionId: number
+      /**
+       * @description 현행 여부
+       * @default true
+       */
+      isActive: boolean
+      /** @description 위반 시 과태료 조항 (FR-A2) */
+      penaltyClause?: string | null
+      /** @description 근거 법령 */
+      sourceLaw: components['schemas']['SourceLaw']
+      /** @description 요약 구조화 텍스트 */
+      summary: string
+      /** @description 지침 제목 */
+      title: string
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+      /**
+       * Format: int32
+       * @description 지침 버전 (인지 로그에 기록, FR-G1)
+       * @default 1
+       */
+      version: number
+    }
+    SetWorkStopResponse: {
+      /** Format: int64 */
+      attendance_id: number
+      /** @description NORMAL | STOPPED */
+      work_status: string
+    }
+    /** @description v2 공용 장비 프로필의 활성 작업 배타적 점유 */
+    SharedEquipmentClaimsSchema: {
+      /**
+       * Format: date-time
+       * @description 점유 시작일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      claimedAt: string
+      equipmentProfile: components['schemas']['SharedEquipmentClaimsSchema_EquipmentProfile']
+      /**
+       * Format: int64
+       * @description 점유 v2 공용 장비 프로필 FK
+       */
+      equipmentProfileId: number
+      /**
+       * Format: int64
+       * @description 공용 장비 점유 고유번호
+       * @default 0
+       */
+      sharedEquipmentClaimId: number
+      workAssignment: Record<string, never>
+      /**
+       * Format: int64
+       * @description v2 점유 작업 배정 FK
+       */
+      workAssignmentId: number
+    }
+    SharedEquipmentClaimsSchema_EquipmentProfile: {
+      /** @description v2 자산 관리번호 */
+      assetNumber?: string | null
+      /** @description v2 점자 스티커 병기 내용 */
+      brailleLabel?: string | null
+      /**
+       * Format: date-time
+       * @description 생성일시
+       */
+      createdAt: string
+      /**
+       * Format: int64
+       * @description v2 장비 프로필 고유번호
+       */
+      equipmentProfileId: number
+      /**
+       * Format: int64
+       * @description 장비 종류 FK
+       */
+      equipmentTypeId: number
+      /**
+       * Format: int64
+       * @description 변환된 0001 장비 FK, v2 신규 장비는 null
+       */
+      legacyEquipmentId?: number | null
+      /**
+       * Format: date
+       * @description 해당 품목에만 적용하는 제조사 교체 권고일
+       */
+      manufacturerReplacementDueAt?: string | null
+      /**
+       * Format: int64
+       * @description 개인 장비 소유자 FK, 공용은 null
+       */
+      ownerEmployeeId?: number | null
+      /** @description 개인 또는 공용 소유정책 */
+      ownershipType: components['schemas']['EquipmentOwnershipType']
+      /** @description v2 장비 수명주기 상태 */
+      status: components['schemas']['EquipmentLifecycleStatus']
+      /** @description 상태 변경 사유 */
+      statusReason?: string | null
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+    }
+    SignInRequest: {
+      email: string
+      password: string
+    }
+    SignInResponse: {
+      /** Format: int64 */
+      employee_id: number
+      name: string
+      system_role: string
+      token: string
+    }
+    /** @enum {string} */
+    SourceLaw: 'OSH_ACT' | 'PORT_SAFETY_ACT' | 'KOSHA_GUIDE' | 'IMDG' | 'OTHER'
+    /** @enum {string} */
+    SystemRole: 'ADMIN' | 'SAFETY_MANAGER' | 'SUPERVISOR' | 'WORKER'
+    /**
+     * @description v2 장비 태깅 요청. 작업자·장비·종류는 요청에서 받지 않고 JWT, 배정, 토큰에서
+     *     각각 확인한다.
+     */
+    TagRequest: {
+      /** @description RFC3339 클라이언트 감사 시각. 작업 선택이나 서버 시각 대체에 사용하지 않는다. */
+      client_scanned_at: string
+      idempotency_key: string
+      /** @description 서버가 발급한 대소문자 구분 불투명 토큰. 공백 제거·정규화를 하지 않는다. */
+      tag_token: string
+      /** Format: int64 */
+      work_assignment_id: number
+    }
+    TagResponse: {
+      accepted: boolean
+      checklist: components['schemas']['ChecklistItem'][]
+      equipment?: components['schemas']['EquipmentSummary']
+      message?: string | null
+      progress: components['schemas']['RequirementProgress']
+      reason_code: string
+      requirement?: components['schemas']['RequirementSummary']
+    }
+    TodayInstructionItem: {
+      acknowledged: boolean
+      body: string
+      /** Format: int64 */
+      instruction_id: number
+      language_code: string
+      title: string
+      /** Format: int32 */
+      version: number
+    }
+    TokenAdminError: {
+      reason_code: string
+    }
+    /** @description UN 번호 마스터 (FR-B1, UN No → Class 확정) */
+    UnNumbersSchema: {
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      dgClass: Record<string, never>
+      /**
+       * Format: int64
+       * @description 위험물 등급 FK
+       */
+      dgClassId: number
+      /** @description 포장등급 (I/II/III) */
+      packingGroup?: string | null
+      /** @description 정식 운송품명 */
+      properShippingName?: string | null
+      /** @description UN No. (4자리) */
+      unNumber: string
+      /**
+       * Format: int64
+       * @description UN번호 고유번호
+       * @default 0
+       */
+      unNumberId: number
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+    }
+    UpdateDepartmentRequest: {
+      description?: string | null
+      name?: string | null
+    }
+    UpdateJobRoleRequest: {
+      description?: string | null
+      name?: string | null
+    }
+    UpdateWorkAssignmentRequest: {
+      /**
+       * Format: int64
+       * @description 변경할 배정 대상 화물 고유번호 (생략 시 기존 값 유지)
+       */
+      cargo_item_id?: number | null
+      /** @description ELIGIBLE | EXCLUDED (생략 시 기존 값 유지) */
+      eligibility_status?: components['schemas']['EligibilityStatus']
+    }
+    UploadCargoDocumentRequest: {
+      /** @description BL | DGD */
+      document_type: string
+      /** Format: binary */
+      file: string
+    }
+    UpsertWorkPreparationRequest: {
+      document_ready?: boolean | null
+      instruction_ready?: boolean | null
+      /** Format: int64 */
+      work_assignment_id: number
+    }
+    /** @enum {string} */
+    V2CargoDocumentType: 'BL' | 'DGD' | 'CI' | 'MSDS'
+    /** @enum {string} */
+    V2WorkAssignmentStatus:
+      | 'ASSIGNED'
+      | 'SELECTED'
+      | 'ACTIVE'
+      | 'COMPLETED'
+      | 'CANCELLED'
+    /** @description v2 작업과 작업자를 연결하는 authoritative 작업 배정 */
+    V2WorkAssignmentsSchema: {
+      assignedBy: components['schemas']['EmployeesSchema']
+      /**
+       * Format: int64
+       * @description 배치 담당자 FK
+       */
+      assignedById: number
+      /**
+       * Format: date-time
+       * @description 배정 작업 완료일시
+       */
+      completedAt?: string | null
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      employee: components['schemas']['EmployeesSchema']
+      /**
+       * Format: int64
+       * @description 작업자 FK
+       */
+      employeeId: number
+      legacy?: components['schemas']['V2WorkAssignmentsSchema_Legacy']
+      /**
+       * Format: int64
+       * @description 변환된 0001 작업 배정 FK, v2 신규 배정은 null
+       */
+      legacyAssignmentId?: number | null
+      /**
+       * Format: date-time
+       * @description 작업자가 NFC 대상 작업으로 선택한 일시
+       */
+      selectedAt?: string | null
+      /**
+       * Format: date-time
+       * @description 배정 작업 시작일시
+       */
+      startedAt?: string | null
+      /**
+       * @description v2 배정 수명주기 상태
+       * @default ASSIGNED
+       */
+      status: components['schemas']['V2WorkAssignmentStatus']
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+      work: components['schemas']['WorksSchema']
+      /**
+       * Format: int64
+       * @description v2 작업 배정 고유번호
+       * @default 0
+       */
+      workAssignmentId: number
+      /**
+       * Format: int64
+       * @description v2 작업 FK
+       */
+      workId: number
+      workPreparations?: components['schemas']['V2WorkAssignmentsSchema_WorkPreparations']
+    }
+    V2WorkAssignmentsSchema_Legacy: {
+      /**
+       * Format: int64
+       * @description 배치 담당자 FK
+       */
+      assignedById: number
+      /**
+       * Format: int64
+       * @description 배치 고유번호
+       */
+      assignmentId: number
+      /**
+       * Format: int64
+       * @description 대상 화물 FK
+       */
+      cargoItemId?: number | null
+      /**
+       * Format: date-time
+       * @description 생성일시
+       */
+      createdAt: string
+      /** @description 투입 가능 여부 (제한규칙 대조 결과) */
+      eligibilityStatus: components['schemas']['EligibilityStatus']
+      /**
+       * Format: int64
+       * @description 작업자 FK
+       */
+      employeeId: number
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+      /**
+       * Format: date
+       * @description 작업 일자
+       */
+      workDate: string
+    }
+    V2WorkAssignmentsSchema_WorkPreparations: {
+      /**
+       * Format: date-time
+       * @description 생성일시
+       */
+      createdAt: string
+      /** @description 준비 판정 입력 버전 */
+      decisionInputVersions: Record<string, never>
+      /** @description 관련 문서 검수 충족 여부 */
+      documentReady: boolean
+      /** @description 교육 이수 충족 여부 */
+      educationReady: boolean
+      /** @description 작업 지침 확인 여부 */
+      instructionReady: boolean
+      /** @description 보호구 준비 충족 여부 */
+      ppeReady: boolean
+      /**
+       * Format: date-time
+       * @description 준비 완료일시
+       */
+      preparedAt?: string | null
+      /** @description 종합 준비 상태 */
+      status: components['schemas']['WorkPreparationStatus']
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+      /**
+       * Format: int64
+       * @description v2 작업 배정 FK
+       */
+      workAssignmentId: number
+      /**
+       * Format: int64
+       * @description 작업 준비 고유번호
+       */
+      workPreparationId: number
+    }
+    /** @description v2 작업 배정에 수락된 보호구 할당 이력 */
+    WorkAssignmentEquipmentSchema: {
+      /**
+       * Format: date-time
+       * @description 수락일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      acceptedAt: string
+      equipmentProfile: Record<string, never>
+      /**
+       * Format: int64
+       * @description 수락 v2 장비 프로필 FK
+       */
+      equipmentProfileId: number
+      requirementSnapshot: Record<string, never>
+      /**
+       * Format: int64
+       * @description 충족한 보호구 스냅샷 FK
+       */
+      requirementSnapshotId: number
+      workAssignment: Record<string, never>
+      /**
+       * Format: int64
+       * @description 작업 장비 할당 고유번호
+       * @default 0
+       */
+      workAssignmentEquipmentId: number
+      /**
+       * Format: int64
+       * @description v2 작업 배정 FK
+       */
+      workAssignmentId: number
+    }
+    WorkAssignmentResponse: {
+      /** Format: int64 */
+      assigned_by_id: number
+      /** Format: int64 */
+      assignment_id: number
+      /** Format: int64 */
+      cargo_item_id?: number | null
+      created_at: string
+      /** @description ELIGIBLE | EXCLUDED */
+      eligibility_status: string
+      /** Format: int64 */
+      employee_id: number
+      work_date: string
+    }
+    /** @description 작업 배치 (FR-F3 — 투입 가능/제외 필터 결과) */
+    WorkAssignmentsSchema: {
+      assignedBy: components['schemas']['EmployeesSchema']
+      /**
+       * Format: int64
+       * @description 배치 담당자 FK
+       */
+      assignedById: number
+      /**
+       * Format: int64
+       * @description 배치 고유번호
+       * @default 0
+       */
+      assignmentId: number
+      cargoItem?: Record<string, never> | null
+      /**
+       * Format: int64
+       * @description 대상 화물 FK
+       */
+      cargoItemId?: number | null
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      /**
+       * @description 투입 가능 여부 (제한규칙 대조 결과)
+       * @default ELIGIBLE
+       */
+      eligibilityStatus: components['schemas']['EligibilityStatus']
+      employee: components['schemas']['EmployeesSchema']
+      /**
+       * Format: int64
+       * @description 작업자 FK
+       */
+      employeeId: number
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+      v2WorkAssignments?: components['schemas']['WorkAssignmentsSchema_V2WorkAssignments']
+      /**
+       * Format: date
+       * @description 작업 일자
+       */
+      workDate: string
+    }
+    WorkAssignmentsSchema_V2WorkAssignments: {
+      /**
+       * Format: int64
+       * @description 배치 담당자 FK
+       */
+      assignedById: number
+      /**
+       * Format: date-time
+       * @description 배정 작업 완료일시
+       */
+      completedAt?: string | null
+      /**
+       * Format: date-time
+       * @description 생성일시
+       */
+      createdAt: string
+      /**
+       * Format: int64
+       * @description 작업자 FK
+       */
+      employeeId: number
+      /**
+       * Format: int64
+       * @description 변환된 0001 작업 배정 FK, v2 신규 배정은 null
+       */
+      legacyAssignmentId?: number | null
+      /**
+       * Format: date-time
+       * @description 작업자가 NFC 대상 작업으로 선택한 일시
+       */
+      selectedAt?: string | null
+      /**
+       * Format: date-time
+       * @description 배정 작업 시작일시
+       */
+      startedAt?: string | null
+      /** @description v2 배정 수명주기 상태 */
+      status: components['schemas']['V2WorkAssignmentStatus']
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+      /**
+       * Format: int64
+       * @description v2 작업 배정 고유번호
+       */
+      workAssignmentId: number
+      /**
+       * Format: int64
+       * @description v2 작업 FK
+       */
+      workId: number
+    }
+    /** @enum {string} */
+    WorkLifecycleStatus:
+      | 'PLANNED'
+      | 'ACTIVE'
+      | 'STOPPED'
+      | 'COMPLETED'
+      | 'CANCELLED'
+    /** @description 작업 확정 시점의 불변 보호구 요구조건 스냅샷 */
+    WorkPpeRequirementSnapshotsSchema: {
+      /** @description 확정 보호구 카테고리 */
+      category: string
+      equipmentType: Record<string, never>
+      /**
+       * Format: int64
+       * @description 확정 장비 종류 FK
+       */
+      equipmentTypeId: number
+      /** @description 확정 성능조건 */
+      performanceCriteria?: Record<string, never> | null
+      ppeRequirement: Record<string, never>
+      /**
+       * Format: int64
+       * @description 원본 보호구 요구조건 FK
+       */
+      ppeRequirementId: number
+      /**
+       * Format: date-time
+       * @description 원본 검수일시
+       */
+      reviewedAt: string
+      reviewedBy: components['schemas']['EmployeesSchema']
+      /**
+       * Format: int64
+       * @description 확정 검수자 FK
+       */
+      reviewedById: number
+      /**
+       * Format: date-time
+       * @description 스냅샷 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      snapshottedAt: string
+      sourceDocumentVersion: Record<string, never>
+      /**
+       * Format: int64
+       * @description 확정 근거 v2 문서 버전 FK
+       */
+      sourceDocumentVersionId: number
+      /**
+       * Format: int32
+       * @description 확정 근거 문서 버전
+       */
+      sourceDocumentVersionNumber: number
+      /** @description 확정 근거 원문 */
+      sourceText: string
+      work: components['schemas']['WorksSchema']
+      /**
+       * Format: int64
+       * @description 작업 FK
+       */
+      workId: number
+      /**
+       * Format: int64
+       * @description 작업 보호구 스냅샷 고유번호
+       * @default 0
+       */
+      workPpeRequirementSnapshotId: number
+    }
+    WorkPreparationErrorResponse: {
+      code: string
+      message: string
+    }
+    WorkPreparationResponse: {
+      decision_input_versions: Record<string, never>
+      document_ready: boolean
+      education_ready: boolean
+      /** @description 문서·지침·교육·PPE가 충족되고 열린 작업중지가 없으면 true */
+      fulfilled: boolean
+      instruction_ready: boolean
+      ppe_ready: boolean
+      prepared_at?: string | null
+      status: string
+      /** Format: int64 */
+      work_assignment_id: number
+      /** Format: int64 */
+      work_preparation_id: number
+    }
+    /** @enum {string} */
+    WorkPreparationStatus: 'NOT_STARTED' | 'IN_PROGRESS' | 'READY' | 'BLOCKED'
+    /** @description 출근 전역 불리언을 대체하는 작업 배정별 준비 상태 */
+    WorkPreparationsSchema: {
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      /** @description 준비 판정 입력 버전 */
+      decisionInputVersions: Record<string, never>
+      /**
+       * @description 관련 문서 검수 충족 여부
+       * @default false
+       */
+      documentReady: boolean
+      /**
+       * @description 교육 이수 충족 여부
+       * @default false
+       */
+      educationReady: boolean
+      /**
+       * @description 작업 지침 확인 여부
+       * @default false
+       */
+      instructionReady: boolean
+      /**
+       * @description 보호구 준비 충족 여부
+       * @default false
+       */
+      ppeReady: boolean
+      /**
+       * Format: date-time
+       * @description 준비 완료일시
+       */
+      preparedAt?: string | null
+      /**
+       * @description 종합 준비 상태
+       * @default NOT_STARTED
+       */
+      status: components['schemas']['WorkPreparationStatus']
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+      workAssignment: components['schemas']['WorkPreparationsSchema_WorkAssignment']
+      /**
+       * Format: int64
+       * @description v2 작업 배정 FK
+       */
+      workAssignmentId: number
+      /**
+       * Format: int64
+       * @description 작업 준비 고유번호
+       * @default 0
+       */
+      workPreparationId: number
+    }
+    WorkPreparationsSchema_WorkAssignment: {
+      /**
+       * Format: int64
+       * @description 배치 담당자 FK
+       */
+      assignedById: number
+      /**
+       * Format: date-time
+       * @description 배정 작업 완료일시
+       */
+      completedAt?: string | null
+      /**
+       * Format: date-time
+       * @description 생성일시
+       */
+      createdAt: string
+      /**
+       * Format: int64
+       * @description 작업자 FK
+       */
+      employeeId: number
+      /**
+       * Format: int64
+       * @description 변환된 0001 작업 배정 FK, v2 신규 배정은 null
+       */
+      legacyAssignmentId?: number | null
+      /**
+       * Format: date-time
+       * @description 작업자가 NFC 대상 작업으로 선택한 일시
+       */
+      selectedAt?: string | null
+      /**
+       * Format: date-time
+       * @description 배정 작업 시작일시
+       */
+      startedAt?: string | null
+      /** @description v2 배정 수명주기 상태 */
+      status: components['schemas']['V2WorkAssignmentStatus']
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+      /**
+       * Format: int64
+       * @description v2 작업 배정 고유번호
+       */
+      workAssignmentId: number
+      /**
+       * Format: int64
+       * @description v2 작업 FK
+       */
+      workId: number
+    }
+    /** @description 투입 제한 규칙 (FR-F2, 설정 데이터 — 코드 수정 없이 교체, NFR 확장성) */
+    WorkRestrictionRulesSchema: {
+      /** @description 제한 조건 유형 */
+      conditionType: components['schemas']['RestrictionCondition']
+      /** @description 조건 값 (예: 알레르겐 코드 RICE, 신장 임계값) */
+      conditionValue?: string | null
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      /** @description 설명 */
+      description?: string | null
+      /**
+       * @description 활성 여부
+       * @default true
+       */
+      isActive: boolean
+      restricted?: Record<string, never> | null
+      /**
+       * Format: int64
+       * @description 제한 대상 위험물 등급 FK
+       */
+      restrictedDgClassId?: number | null
+      /** @description 제한 대상 작업유형 (등급으로 안잡히는 작업, 예: 밀폐공간) */
+      restrictedWorkType?: string | null
+      /**
+       * Format: int64
+       * @description 규칙 고유번호
+       * @default 0
+       */
+      ruleId: number
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+    }
+    /** @enum {string} */
+    WorkStatus: 'NORMAL' | 'STOPPED'
+    WorkStopErrorResponse: {
+      code: string
+      message: string
+    }
+    WorkStopItem: {
+      /** Format: int64 */
+      attendance_id: number
+      /** Format: int64 */
+      employee_id: number
+      work_date: string
+      /** @description NORMAL | STOPPED */
+      work_status: string
+    }
+    WorkStopListQuery: {
+      /** @description OPEN | CLOSED */
+      status?: string | null
+      /** Format: int64 */
+      work_assignment_id?: number | null
+      /** Format: int64 */
+      work_id?: number | null
+    }
+    WorkStopResponse: {
+      closed_at?: string | null
+      /** Format: int64 */
+      closed_by_id?: number | null
+      /** @description CLOSED 이면 충족(해제됨), OPEN 이면 미충족(작업 차단) */
+      fulfilled: boolean
+      reason: string
+      status: string
+      stopped_at: string
+      /** Format: int64 */
+      stopped_by_id?: number | null
+      /** Format: int64 */
+      work_assignment_id?: number | null
+      /** Format: int64 */
+      work_id?: number | null
+      /** Format: int64 */
+      work_stop_id: number
+    }
+    /** @enum {string} */
+    WorkStopStatus: 'OPEN' | 'CLOSED'
+    /** @description 작업 또는 작업 배정 범위의 작업중지 기록 */
+    WorkStopsSchema: {
+      /**
+       * Format: date-time
+       * @description 작업중지 해제일시
+       */
+      closedAt?: string | null
+      closedBy?: components['schemas']['EmployeesSchema']
+      /**
+       * Format: int64
+       * @description 작업중지 해제자 FK
+       */
+      closedById?: number | null
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      legacy?: components['schemas']['WorkStopsSchema_Legacy']
+      /**
+       * Format: int64
+       * @description PR #48 출근 작업중지 변환 출처 FK
+       */
+      legacyAttendanceId?: number | null
+      /** @description 작업중지 사유 */
+      reason: string
+      /**
+       * @description 작업중지 상태
+       * @default OPEN
+       */
+      status: components['schemas']['WorkStopStatus']
+      /**
+       * Format: date-time
+       * @description 작업중지 일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      stoppedAt: string
+      stoppedBy?: components['schemas']['EmployeesSchema']
+      /**
+       * Format: int64
+       * @description 작업중지 등록자 FK, PR #48 변환행은 null
+       */
+      stoppedById?: number | null
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+      work?: components['schemas']['WorksSchema']
+      workAssignment?: Record<string, never> | null
+      /**
+       * Format: int64
+       * @description 중지 대상 v2 작업 배정 FK
+       */
+      workAssignmentId?: number | null
+      /**
+       * Format: int64
+       * @description 중지 대상 작업 FK, 레거시 변환행은 null
+       */
+      workId?: number | null
+      /**
+       * Format: int64
+       * @description 작업중지 고유번호
+       * @default 0
+       */
+      workStopId: number
+    }
+    WorkStopsSchema_Legacy: {
+      /** @description 관리자 승인 상태 */
+      approvalStatus: components['schemas']['ApprovalStatus']
+      /**
+       * Format: int64
+       * @description 출근 고유번호
+       */
+      attendanceId: number
+      /**
+       * Format: date-time
+       * @description 생성일시
+       */
+      createdAt: string
+      /**
+       * Format: int64
+       * @description 직원 FK
+       */
+      employeeId: number
+      /** @description 필수 장비 착용 완료 (FR-D3) */
+      equipmentCheckCompleted: boolean
+      /**
+       * Format: date-time
+       * @description 사원증 태깅 통과 시각 (FR-D5)
+       */
+      gatePassedAt?: string | null
+      /** @description 게이트 통과 상태 */
+      gateStatus: components['schemas']['GateStatus']
+      /** @description 안전지침 확인 완료 (FR-C4) */
+      instructionAckCompleted: boolean
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+      /**
+       * Format: date
+       * @description 작업 일자
+       */
+      workDate: string
+      /** @description 작업중지 여부 (시나리오 5 — STOPPED면 게이트 차단) */
+      workStatus: components['schemas']['WorkStatus']
+    }
+    /** @enum {string} */
+    WorkTargetType: 'CONTAINER' | 'CARGO_ITEM'
+    /** @description 작업별 컨테이너 또는 개별 화물 대상 */
+    WorkTargetsSchema: {
+      cargoItem?: Record<string, never> | null
+      /**
+       * Format: int64
+       * @description 개별 화물 대상 FK
+       */
+      cargoItemId?: number | null
+      container?: components['schemas']['ContainersSchema']
+      /**
+       * Format: int64
+       * @description 컨테이너 대상 FK
+       */
+      containerId?: number | null
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      /** @description 대상 구분 */
+      targetType: components['schemas']['WorkTargetType']
+      work: components['schemas']['WorksSchema']
+      /**
+       * Format: int64
+       * @description 작업 FK
+       */
+      workId: number
+      /**
+       * Format: int64
+       * @description 작업 대상 고유번호
+       * @default 0
+       */
+      workTargetId: number
+    }
+    /** @description 항만 작업 유형 기준정보 */
+    WorkTypesSchema: {
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      /** @description 작업 유형 설명 */
+      description?: string | null
+      /**
+       * @description 사용 여부
+       * @default true
+       */
+      isActive: boolean
+      /** @description 작업 유형명 */
+      name: string
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+      /** @description 작업 유형 코드 */
+      workTypeCode: string
+      /**
+       * Format: int64
+       * @description 작업 유형 고유번호
+       * @default 0
+       */
+      workTypeId: number
+    }
+    /** @description 컨테이너·화물 대상을 묶는 작업 단위 */
+    WorksSchema: {
+      /**
+       * Format: date-time
+       * @description 완료일시
+       */
+      completedAt?: string | null
+      /**
+       * Format: date-time
+       * @description 생성일시
+       * @default 1970-01-01T00:00:00+00:00
+       */
+      createdAt: string
+      createdBy: components['schemas']['EmployeesSchema']
+      /**
+       * Format: int64
+       * @description 작업 등록자 FK
+       */
+      createdById: number
+      /**
+       * Format: date-time
+       * @description 예정 종료일시
+       */
+      scheduledEndAt?: string | null
+      /**
+       * Format: date-time
+       * @description 예정 시작일시
+       */
+      scheduledStartAt: string
+      /**
+       * Format: date-time
+       * @description 실제 시작일시
+       */
+      startedAt?: string | null
+      /**
+       * @description 작업 수명주기 상태
+       * @default PLANNED
+       */
+      status: components['schemas']['WorkLifecycleStatus']
+      /**
+       * Format: date-time
+       * @description 수정일시
+       */
+      updatedAt?: string | null
+      /**
+       * Format: int64
+       * @description 작업 고유번호
+       * @default 0
+       */
+      workId: number
+      /** @description 운영 작업 참조번호 */
+      workReference: string
+      workType: Record<string, never>
+      /**
+       * Format: int64
+       * @description 작업 유형 FK
+       */
+      workTypeId: number
+    }
+  }
+  responses: never
+  parameters: never
+  requestBodies: never
+  headers: never
+  pathItems: never
 }
-export type $defs = Record<string, never>;
+export type $defs = Record<string, never>
 export interface operations {
-    list_pending_approvals: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PendingApprovalItem"][];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    decide_approval: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["DecideApprovalRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DecideApprovalResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    start_attendance: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AttendanceResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    acknowledge_instruction: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AckRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AttendanceResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    complete_equipment_check: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AttendanceResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    request_approval: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AttendanceResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    get_required_equipment: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RequiredEquipmentItem"][];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    get_today_attendance: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AttendanceResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    get_today_instructions: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TodayInstructionItem"][];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    list_work_stops: {
-        parameters: {
-            query?: {
-                work_id?: number | null;
-                work_assignment_id?: number | null;
-                status?: string | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WorkStopResponse"][];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WorkStopErrorResponse"];
-                };
-            };
-        };
-    };
-    set_work_stop: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SetWorkStopResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    unset_work_stop: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SetWorkStopResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    signin: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SignInRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SignInResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    list_cargo_documents: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CargoDocumentResponse"][];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    upload_cargo_document: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "multipart/form-data": components["schemas"]["UploadCargoDocumentRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CargoDocumentResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    get_cargo_document: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CargoDocumentResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    confirm_cargo_document_review: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CargoDocumentResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    list_cargo_items: {
-        parameters: {
-            query?: {
-                arrival_date?: string | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CargoItemResponse"][];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    create_cargo_item: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateCargoItemRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CargoItemResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    get_cargo_item: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CargoItemResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    list_departments: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DepartmentResponse"][];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    create_department: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateDepartmentRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DepartmentResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    update_department: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateDepartmentRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DepartmentResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    list_education_completions: {
-        parameters: {
-            query?: {
-                employee_id?: number | null;
-                education_course_id?: number | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EducationCompletionResponse"][];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    create_education_completion: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateEducationCompletionRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EducationCompletionResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EducationErrorResponse"];
-                };
-            };
-        };
-    };
-    list_education_courses: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EducationCourseResponse"][];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    create_education_course: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateEducationCourseRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EducationCourseResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    get_education_readiness: {
-        parameters: {
-            query: {
-                employee_id: number;
-                work_id: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EducationReadinessResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EducationErrorResponse"];
-                };
-            };
-        };
-    };
-    list_education_target_rules: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EducationTargetRuleResponse"][];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    create_education_target_rule: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateEducationTargetRuleRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EducationTargetRuleResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EducationErrorResponse"];
-                };
-            };
-        };
-    };
-    list_employees: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EmployeeResponse"][];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    create_employee: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateEmployeeRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EmployeeResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    get_employee: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EmployeeResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    tag_equipment: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["TagRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TagResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TagResponse"];
-                };
-            };
-        };
-    };
-    issue_equipment_tag_token: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["IssueEquipmentTagTokenRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["IssueEquipmentTagTokenResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TokenAdminError"];
-                };
-            };
-        };
-    };
-    rotate_equipment_tag_token: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                "equipment-profile-id": number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["IssueEquipmentTagTokenResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TokenAdminError"];
-                };
-            };
-        };
-    };
-    revoke_equipment_tag_token: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                tokenid: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RevokeEquipmentTagTokenResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TokenAdminError"];
-                };
-            };
-        };
-    };
-    issue_equipment_tag_token_for_profile: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                "equipment-profile-id": number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["IssueEquipmentTagTokenResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TokenAdminError"];
-                };
-            };
-        };
-    };
-    revoke_equipment_tag_token_for_profile: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                "equipment-profile-id": number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RevokeEquipmentTagTokenResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TokenAdminError"];
-                };
-            };
-        };
-    };
-    issue_gate_terminal: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["IssueTerminalRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["IssueTerminalResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    revoke_gate_terminal: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                terminalid: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RevokeTerminalResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    verify_gate: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["GateVerifyRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GateVerifyResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    health: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: string;
-                    };
-                };
-            };
-        };
-    };
-    list_job_roles: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["JobRoleResponse"][];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    create_job_role: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateJobRoleRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["JobRoleResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    update_job_role: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateJobRoleRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["JobRoleResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    list_ppe_requirements: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PpeRequirementResponse"][];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    create_ppe_requirement: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreatePpeRequirementRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PpeRequirementResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PpeErrorResponse"];
-                };
-            };
-        };
-    };
-    confirm_ppe_requirement: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PpeRequirementResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PpeErrorResponse"];
-                };
-            };
-        };
-    };
-    list_ppe_snapshots: {
-        parameters: {
-            query?: {
-                work_id?: number | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PpeSnapshotResponse"][];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": number;
-                };
-            };
-        };
-    };
-    create_ppe_snapshot: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreatePpeSnapshotRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PpeSnapshotResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PpeErrorResponse"];
-                };
-            };
-        };
-    };
-    create_work_assignment: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateWorkAssignmentRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WorkAssignmentResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AssignmentErrorResponse"];
-                };
-            };
-        };
-    };
-    update_work_assignment: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateWorkAssignmentRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WorkAssignmentResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AssignmentErrorResponse"];
-                };
-            };
-        };
-    };
-    upsert_work_preparation: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpsertWorkPreparationRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WorkPreparationResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WorkPreparationErrorResponse"];
-                };
-            };
-        };
-    };
-    get_work_preparation: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WorkPreparationResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WorkPreparationErrorResponse"];
-                };
-            };
-        };
-    };
-    list_work_stops_2: {
-        parameters: {
-            query?: {
-                work_id?: number | null;
-                work_assignment_id?: number | null;
-                status?: string | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WorkStopResponse"][];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WorkStopErrorResponse"];
-                };
-            };
-        };
-    };
-    create_work_stop: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateWorkStopRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WorkStopResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WorkStopErrorResponse"];
-                };
-            };
-        };
-    };
-    close_work_stop: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WorkStopResponse"];
-                };
-            };
-            /** @description Error response */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WorkStopErrorResponse"];
-                };
-            };
-        };
-    };
+  list_pending_approvals: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['PendingApprovalItem'][]
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  decide_approval: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DecideApprovalRequest']
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['DecideApprovalResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  start_attendance: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['AttendanceResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  acknowledge_instruction: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AckRequest']
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['AttendanceResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  complete_equipment_check: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['AttendanceResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  request_approval: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['AttendanceResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  get_required_equipment: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['RequiredEquipmentItem'][]
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  get_today_attendance: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['AttendanceResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  get_today_instructions: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['TodayInstructionItem'][]
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  list_work_stops: {
+    parameters: {
+      query?: {
+        work_id?: number | null
+        work_assignment_id?: number | null
+        status?: string | null
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['WorkStopResponse'][]
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['WorkStopErrorResponse']
+        }
+      }
+    }
+  }
+  set_work_stop: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['SetWorkStopResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  unset_work_stop: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['SetWorkStopResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  signin: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SignInRequest']
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['SignInResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  list_cargo_documents: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['CargoDocumentResponse'][]
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  upload_cargo_document: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'multipart/form-data': components['schemas']['UploadCargoDocumentRequest']
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['CargoDocumentResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  get_cargo_document: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['CargoDocumentResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  confirm_cargo_document_review: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['CargoDocumentResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  list_cargo_items: {
+    parameters: {
+      query?: {
+        arrival_date?: string | null
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['CargoItemResponse'][]
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  create_cargo_item: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateCargoItemRequest']
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['CargoItemResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  get_cargo_item: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['CargoItemResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  list_departments: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['DepartmentResponse'][]
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  create_department: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateDepartmentRequest']
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['DepartmentResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  update_department: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: number
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateDepartmentRequest']
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['DepartmentResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  list_education_completions: {
+    parameters: {
+      query?: {
+        employee_id?: number | null
+        education_course_id?: number | null
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['EducationCompletionResponse'][]
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  create_education_completion: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateEducationCompletionRequest']
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['EducationCompletionResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['EducationErrorResponse']
+        }
+      }
+    }
+  }
+  list_education_courses: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['EducationCourseResponse'][]
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  create_education_course: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateEducationCourseRequest']
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['EducationCourseResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  get_education_readiness: {
+    parameters: {
+      query: {
+        employee_id: number
+        work_id: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['EducationReadinessResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['EducationErrorResponse']
+        }
+      }
+    }
+  }
+  list_education_target_rules: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['EducationTargetRuleResponse'][]
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  create_education_target_rule: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateEducationTargetRuleRequest']
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['EducationTargetRuleResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['EducationErrorResponse']
+        }
+      }
+    }
+  }
+  list_employees: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['EmployeeResponse'][]
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  create_employee: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateEmployeeRequest']
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['EmployeeResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  get_employee: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['EmployeeResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  tag_equipment: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['TagRequest']
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['TagResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['TagResponse']
+        }
+      }
+    }
+  }
+  issue_equipment_tag_token: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['IssueEquipmentTagTokenRequest']
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['IssueEquipmentTagTokenResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['TokenAdminError']
+        }
+      }
+    }
+  }
+  rotate_equipment_tag_token: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        'equipment-profile-id': number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['IssueEquipmentTagTokenResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['TokenAdminError']
+        }
+      }
+    }
+  }
+  revoke_equipment_tag_token: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        tokenid: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['RevokeEquipmentTagTokenResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['TokenAdminError']
+        }
+      }
+    }
+  }
+  issue_equipment_tag_token_for_profile: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        'equipment-profile-id': number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['IssueEquipmentTagTokenResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['TokenAdminError']
+        }
+      }
+    }
+  }
+  revoke_equipment_tag_token_for_profile: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        'equipment-profile-id': number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['RevokeEquipmentTagTokenResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['TokenAdminError']
+        }
+      }
+    }
+  }
+  issue_gate_terminal: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['IssueTerminalRequest']
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['IssueTerminalResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  revoke_gate_terminal: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        terminalid: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['RevokeTerminalResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  verify_gate: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['GateVerifyRequest']
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['GateVerifyResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  health: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            [key: string]: string
+          }
+        }
+      }
+    }
+  }
+  list_job_roles: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['JobRoleResponse'][]
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  create_job_role: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateJobRoleRequest']
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['JobRoleResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  update_job_role: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: number
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateJobRoleRequest']
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['JobRoleResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  list_ppe_requirements: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['PpeRequirementResponse'][]
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  create_ppe_requirement: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreatePpeRequirementRequest']
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['PpeRequirementResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['PpeErrorResponse']
+        }
+      }
+    }
+  }
+  confirm_ppe_requirement: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['PpeRequirementResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['PpeErrorResponse']
+        }
+      }
+    }
+  }
+  list_ppe_snapshots: {
+    parameters: {
+      query?: {
+        work_id?: number | null
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['PpeSnapshotResponse'][]
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': number
+        }
+      }
+    }
+  }
+  create_ppe_snapshot: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreatePpeSnapshotRequest']
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['PpeSnapshotResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['PpeErrorResponse']
+        }
+      }
+    }
+  }
+  create_work_assignment: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateWorkAssignmentRequest']
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['WorkAssignmentResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['AssignmentErrorResponse']
+        }
+      }
+    }
+  }
+  update_work_assignment: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: number
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateWorkAssignmentRequest']
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['WorkAssignmentResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['AssignmentErrorResponse']
+        }
+      }
+    }
+  }
+  upsert_work_preparation: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpsertWorkPreparationRequest']
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['WorkPreparationResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['WorkPreparationErrorResponse']
+        }
+      }
+    }
+  }
+  get_work_preparation: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['WorkPreparationResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['WorkPreparationErrorResponse']
+        }
+      }
+    }
+  }
+  list_work_stops_2: {
+    parameters: {
+      query?: {
+        work_id?: number | null
+        work_assignment_id?: number | null
+        status?: string | null
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['WorkStopResponse'][]
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['WorkStopErrorResponse']
+        }
+      }
+    }
+  }
+  create_work_stop: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateWorkStopRequest']
+      }
+    }
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['WorkStopResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['WorkStopErrorResponse']
+        }
+      }
+    }
+  }
+  close_work_stop: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['WorkStopResponse']
+        }
+      }
+      /** @description Error response */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['WorkStopErrorResponse']
+        }
+      }
+    }
+  }
 }
