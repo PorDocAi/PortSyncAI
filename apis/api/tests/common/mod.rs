@@ -674,12 +674,12 @@ impl TestApp {
         if let Some(token) = authorization {
             request = request.header("Authorization", token);
         }
-        self.send_request(
-            request
-                .body(serde_json::json!({ "nfc_card_uid": nfc_card_uid }).to_string())
-                .unwrap(),
-        )
-        .await
+        let body = if nfc_card_uid.trim_start().starts_with('{') {
+            nfc_card_uid.to_string()
+        } else {
+            serde_json::json!({ "nfc_card_uid": nfc_card_uid }).to_string()
+        };
+        self.send_request(request.body(body).unwrap()).await
     }
 
     pub async fn revoke_terminal_with(
