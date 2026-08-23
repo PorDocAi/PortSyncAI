@@ -316,6 +316,122 @@
         }
       }
     },
+    "/attendances/work-stops": {
+      "get": {
+        "operationId": "list_work_stops",
+        "tags": [
+          "attendances"
+        ],
+        "description": "작업중지 대상(또는 오늘 전체) 출근 목록 조회 (관리 권한, 시나리오 5)",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WorkStopItem"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/attendances/{id}/work-stop": {
+      "post": {
+        "operationId": "set_work_stop",
+        "tags": [
+          "attendances"
+        ],
+        "description": "작업중지 설정 (FR-E3, 시나리오 5 — 관리 권한)\nSTOPPED로 바꾸면 이후 게이트 태깅이 \\\"작업중지\\\" 사유로 차단된다.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetWorkStopResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "unset_work_stop",
+        "tags": [
+          "attendances"
+        ],
+        "description": "작업중지 해제 (관리 권한) — NORMAL로 되돌린다. 이미 NORMAL이어도 멱등하게 200을 반환한다.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetWorkStopResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/auth/signin": {
       "post": {
         "operationId": "signin",
@@ -437,6 +553,48 @@
           "cargo_documents"
         ],
         "description": "업로드된 화물 문서 메타데이터 단건 조회",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CargoDocumentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cargo-documents/{id}/confirm-review": {
+      "post": {
+        "operationId": "confirm_cargo_document_review",
+        "tags": [
+          "cargo_documents"
+        ],
+        "description": "화물 문서 검수 확정 (FR-B2, 데모 시나리오 6)\nMSDS 원문을 관리자가 확인한 뒤 CONFIRMED로 확정한다.\n이미 CONFIRMED인 문서도 멱등하게 200을 반환한다.",
         "parameters": [
           {
             "name": "id",
@@ -879,13 +1037,96 @@
         }
       }
     },
+    "/gate/terminals": {
+      "post": {
+        "operationId": "issue_gate_terminal",
+        "tags": [
+          "gate"
+        ],
+        "description": "게이트 단말 자격증명 발급 (관리 권한)\n무작위 토큰을 생성하고 SHA-256 해시만 저장한다. 평문은 이 응답으로만 전달된다.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IssueTerminalRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IssueTerminalResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/gate/terminals/{terminalid}": {
+      "delete": {
+        "operationId": "revoke_gate_terminal",
+        "tags": [
+          "gate"
+        ],
+        "description": "게이트 단말 폐기 (관리 권한) — 행을 지우지 않고 is_active만 false로 바꾼다 (소프트 삭제)\n이미 폐기된 단말도 멱등하게 200을 반환한다.",
+        "parameters": [
+          {
+            "name": "terminalid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevokeTerminalResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/gate/verify": {
       "post": {
         "operationId": "verify_gate",
         "tags": [
           "gate"
         ],
-        "description": "게이트 사원증 태깅 검증 (FR-D5, 데모 시나리오 1)\n(지침 확인 + 장비 완료 + 승인) 충족 시 통과 처리, 아니면 사유와 함께 차단\n현재 게이트 단말 전용 자격증명은 분리하지 않았으며 로그인 JWT로 접근을 보호한다.",
+        "description": "게이트 사원증 태깅 검증 (FR-D5, 데모 시나리오 1)\n게이트 단말 자격증명(Bearer 토큰)으로만 호출 가능하다.\n(지침 확인 + 장비 완료 + 승인) 충족 시 통과 처리, 아니면 사유와 함께 차단.\n통과 판정은 (출근 건, 작업일) 유니크 제약으로 멱등 기록된다(AC-5).",
         "requestBody": {
           "required": true,
           "content": {
@@ -1066,6 +1307,99 @@
           }
         }
       }
+    },
+    "/work-assignments": {
+      "post": {
+        "operationId": "create_work_assignment",
+        "tags": [
+          "work_assignments"
+        ],
+        "description": "작업 배정 생성 (FR-F3, 데모 시나리오 6 — 관리 권한)\n배정일은 요청 당일로 기록하고, 배정 담당자는 호출한 관리자 계정으로 남긴다.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWorkAssignmentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkAssignmentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/work-assignments/{id}": {
+      "patch": {
+        "operationId": "update_work_assignment",
+        "tags": [
+          "work_assignments"
+        ],
+        "description": "작업 배정 수정 (관리 권한)\n배정 대상 화물을 변경하는 경우에도 검수 확정 여부를 동일하게 강제한다 (시나리오 6).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWorkAssignmentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkAssignmentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1166,6 +1500,23 @@
           "approver"
         ]
       },
+      "AssignmentErrorResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "기계 판독용 사유 코드 (예: MSDS_REVIEW_NOT_CONFIRMED)"
+          },
+          "message": {
+            "type": "string",
+            "description": "작업자에게 표시할 한국어 사유"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ]
+      },
       "AttendanceResponse": {
         "type": "object",
         "properties": {
@@ -1195,6 +1546,9 @@
           },
           "work_date": {
             "type": "string"
+          },
+          "work_status": {
+            "type": "string"
           }
         },
         "required": [
@@ -1204,7 +1558,8 @@
           "instruction_ack_completed",
           "equipment_check_completed",
           "approval_status",
-          "gate_status"
+          "gate_status",
+          "work_status"
         ]
       },
       "AttendancesSchema": {
@@ -1275,6 +1630,15 @@
             "type": "string",
             "format": "date",
             "description": "작업 일자"
+          },
+          "workStatus": {
+            "description": "작업중지 여부 (시나리오 5 — STOPPED면 게이트 차단)",
+            "default": "NORMAL",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WorkStatus"
+              }
+            ]
           }
         },
         "required": [
@@ -1285,6 +1649,7 @@
           "equipmentCheckCompleted",
           "approvalStatus",
           "gateStatus",
+          "workStatus",
           "createdAt",
           "employee"
         ]
@@ -1384,6 +1749,10 @@
             "type": "string",
             "nullable": true
           },
+          "review_status": {
+            "type": "string",
+            "description": "PENDING | CONFIRMED"
+          },
           "uploaded_by_id": {
             "type": "integer",
             "format": "int64"
@@ -1394,6 +1763,7 @@
           "document_type",
           "file_format",
           "file_url",
+          "review_status",
           "uploaded_by_id",
           "created_at"
         ]
@@ -1462,6 +1832,15 @@
             "description": "사용자가 업로드한 원본 파일명",
             "nullable": true
           },
+          "reviewStatus": {
+            "description": "검수 상태 (FR-B2 — CONFIRMED여야 작업 배정 가능)",
+            "default": "PENDING",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ReviewStatus"
+              }
+            ]
+          },
           "uploadedBy": {
             "$ref": "#/components/schemas/EmployeesSchema"
           },
@@ -1476,6 +1855,7 @@
           "documentType",
           "fileFormat",
           "fileUrl",
+          "reviewStatus",
           "uploadedById",
           "createdAt",
           "uploadedBy"
@@ -1879,6 +2259,25 @@
         "required": [
           "job_role_code",
           "name"
+        ]
+      },
+      "CreateWorkAssignmentRequest": {
+        "type": "object",
+        "properties": {
+          "cargo_item_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "배정 대상 화물 고유번호 (없으면 null — 공용 작업)",
+            "nullable": true
+          },
+          "employee_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "작업자 직원 고유번호"
+          }
+        },
+        "required": [
+          "employee_id"
         ]
       },
       "DecideApprovalRequest": {
@@ -2714,6 +3113,114 @@
           "PASSED"
         ]
       },
+      "GateTerminalsSchema": {
+        "type": "object",
+        "description": "게이트 단말 자격증명 (FR-D5 — 게이트 리더기 전용 인증)\n발급 시 평문 토큰은 응답으로 한 번만 반환하고 SHA-256 해시만 저장한다.",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "gateId": {
+            "type": "string",
+            "description": "게이트 식별자 (예: 북문, 남문)"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "활성 여부 (폐기 시 false — 소프트 삭제)",
+            "default": true
+          },
+          "terminalId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "단말 고유번호",
+            "default": 0
+          },
+          "tokenHash": {
+            "type": "string",
+            "description": "단말 토큰 SHA-256 해시 (평문 저장 금지)"
+          }
+        },
+        "required": [
+          "terminalId",
+          "gateId",
+          "tokenHash",
+          "isActive",
+          "createdAt"
+        ]
+      },
+      "GateVerifyLogsSchema": {
+        "type": "object",
+        "properties": {
+          "allowed": {
+            "type": "boolean",
+            "description": "통과 허용 여부",
+            "default": false
+          },
+          "attendance": {
+            "$ref": "#/components/schemas/AttendancesSchema",
+            "nullable": true
+          },
+          "attendanceId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "출근 FK (출근 절차 시작 전 스캔은 NULL)",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "기록 시각",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "employee": {
+            "$ref": "#/components/schemas/EmployeesSchema"
+          },
+          "employeeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "직원 FK"
+          },
+          "isPassEvent": {
+            "type": "boolean",
+            "description": "통과 이벤트 멱등 플래그 — PASSED 건만 true로 기록해 유니크 제약 대상이 된다",
+            "default": false
+          },
+          "reason": {
+            "type": "string",
+            "description": "판정 사유 (한국어 안내 문구)"
+          },
+          "terminalId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "검증 단말 FK (게이트 단말 자격증명)",
+            "nullable": true
+          },
+          "verifyLogId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "게이트 검증 기록 고유번호",
+            "default": 0
+          },
+          "workDate": {
+            "type": "string",
+            "format": "date",
+            "description": "작업 일자 (출근일 기준 통과 이벤트 멱등키 구성 요소)"
+          }
+        },
+        "required": [
+          "verifyLogId",
+          "employeeId",
+          "allowed",
+          "reason",
+          "workDate",
+          "isPassEvent",
+          "createdAt",
+          "employee"
+        ]
+      },
       "GateVerifyRequest": {
         "type": "object",
         "properties": {
@@ -2971,6 +3478,40 @@
           "attendance",
           "employee",
           "instruction"
+        ]
+      },
+      "IssueTerminalRequest": {
+        "type": "object",
+        "properties": {
+          "gate_id": {
+            "type": "string",
+            "description": "게이트 식별자 (예: 북문, 남문)"
+          }
+        },
+        "required": [
+          "gate_id"
+        ]
+      },
+      "IssueTerminalResponse": {
+        "type": "object",
+        "properties": {
+          "gate_id": {
+            "type": "string"
+          },
+          "terminal_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "단말 고유번호"
+          },
+          "token": {
+            "type": "string",
+            "description": "단말 토큰 평문 — 발급 시 단 한 번만 반환되며 다시 조회할 수 없다"
+          }
+        },
+        "required": [
+          "terminal_id",
+          "gate_id",
+          "token"
         ]
       },
       "JobRoleResponse": {
@@ -3281,6 +3822,33 @@
           "OTHER"
         ]
       },
+      "ReviewStatus": {
+        "type": "string",
+        "enum": [
+          "PENDING",
+          "CONFIRMED"
+        ]
+      },
+      "RevokeTerminalResponse": {
+        "type": "object",
+        "properties": {
+          "gate_id": {
+            "type": "string"
+          },
+          "is_active": {
+            "type": "boolean"
+          },
+          "terminal_id": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "terminal_id",
+          "gate_id",
+          "is_active"
+        ]
+      },
       "SafetyInstructionTranslationsSchema": {
         "type": "object",
         "description": "안전지침 다국어/TTS/점자 변환 (FR-A4, C1, NFR 접근성)",
@@ -3423,6 +3991,23 @@
           "version",
           "isActive",
           "createdAt"
+        ]
+      },
+      "SetWorkStopResponse": {
+        "type": "object",
+        "properties": {
+          "attendance_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "work_status": {
+            "type": "string",
+            "description": "NORMAL | STOPPED"
+          }
+        },
+        "required": [
+          "attendance_id",
+          "work_status"
         ]
       },
       "SignInRequest": {
@@ -3629,6 +4214,22 @@
           }
         }
       },
+      "UpdateWorkAssignmentRequest": {
+        "type": "object",
+        "properties": {
+          "cargo_item_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "변경할 배정 대상 화물 고유번호 (생략 시 기존 값 유지)",
+            "nullable": true
+          },
+          "eligibility_status": {
+            "$ref": "#/components/schemas/EligibilityStatus",
+            "description": "ELIGIBLE | EXCLUDED (생략 시 기존 값 유지)",
+            "nullable": true
+          }
+        }
+      },
       "UploadCargoDocumentRequest": {
         "type": "object",
         "properties": {
@@ -3644,6 +4245,46 @@
         "required": [
           "document_type",
           "file"
+        ]
+      },
+      "WorkAssignmentResponse": {
+        "type": "object",
+        "properties": {
+          "assigned_by_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "assignment_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "cargo_item_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "eligibility_status": {
+            "type": "string",
+            "description": "ELIGIBLE | EXCLUDED"
+          },
+          "employee_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "work_date": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "assignment_id",
+          "employee_id",
+          "work_date",
+          "assigned_by_id",
+          "eligibility_status",
+          "created_at"
         ]
       },
       "WorkAssignmentsSchema": {
@@ -3787,6 +4428,39 @@
           "isActive",
           "createdAt"
         ]
+      },
+      "WorkStatus": {
+        "type": "string",
+        "enum": [
+          "NORMAL",
+          "STOPPED"
+        ]
+      },
+      "WorkStopItem": {
+        "type": "object",
+        "properties": {
+          "attendance_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "employee_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "work_date": {
+            "type": "string"
+          },
+          "work_status": {
+            "type": "string",
+            "description": "NORMAL | STOPPED"
+          }
+        },
+        "required": [
+          "attendance_id",
+          "employee_id",
+          "work_date",
+          "work_status"
+        ]
       }
     }
   },
@@ -3820,6 +4494,9 @@
     },
     {
       "name": "job_roles"
+    },
+    {
+      "name": "work_assignments"
     }
   ]
 }

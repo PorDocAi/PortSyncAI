@@ -13,7 +13,7 @@ use vespera::axum::{
 use vespera::multipart::{FieldData, TypedMultipart};
 
 use crate::models::cargo_documents::{
-    self, CargoDocumentType, Entity as CargoDocuments, FileFormat,
+    self, CargoDocumentType, Entity as CargoDocuments, FileFormat, ReviewStatus,
 };
 use crate::utils::{
     AppState,
@@ -40,6 +40,8 @@ pub struct CargoDocumentResponse {
     pub content_type: Option<String>,
     pub file_size: Option<i64>,
     pub file_hash: Option<String>,
+    /// PENDING | CONFIRMED
+    pub review_status: String,
     pub uploaded_by_id: i64,
     pub created_at: String,
 }
@@ -61,6 +63,13 @@ fn file_format_as_str(value: &FileFormat) -> &'static str {
     }
 }
 
+fn review_status_as_str(value: &ReviewStatus) -> &'static str {
+    match value {
+        ReviewStatus::Pending => "PENDING",
+        ReviewStatus::Confirmed => "CONFIRMED",
+    }
+}
+
 impl From<cargo_documents::Model> for CargoDocumentResponse {
     fn from(model: cargo_documents::Model) -> Self {
         Self {
@@ -72,6 +81,7 @@ impl From<cargo_documents::Model> for CargoDocumentResponse {
             content_type: model.content_type,
             file_size: model.file_size,
             file_hash: model.file_hash,
+            review_status: review_status_as_str(&model.review_status).to_string(),
             uploaded_by_id: model.uploaded_by_id,
             created_at: model.created_at.to_rfc3339(),
         }
@@ -227,4 +237,32 @@ pub async fn get_cargo_document(
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
         .ok_or(StatusCode::NOT_FOUND)?;
     Ok(Json(CargoDocumentResponse::from(row)))
+}
+
+/// 화물 문서 검수 확정 (FR-B2, 데모 시나리오 6)
+/// MSDS 원문을 관리자가 확인한 뒤 CONFIRMED로 확정한다.
+/// 이미 CONFIRMED인 문서도 멱등하게 200을 반환한다.
+#[vespera::route(post, path = "/{id}/confirm-review", tags = ["cargo_documents"])]
+pub async fn confirm_cargo_document_review(
+    _admin: AdminUser,
+    State(state): State<AppState>,
+    Path(id): Path<i64>,
+) -> Result<Json<CargoDocumentResponse>, StatusCode> {
+    let document = CargoDocuments::find_by_id(id)
+        .one(&state.db)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+        .ok_or(StatusCode::NOT_FOUND)?;
+    if document.review_status == ReviewStatus::Confirmed {
+        return Ok(Json(CargoDocumentResponse::from(document)));
+    }
+
+    let mut active: cargo_documents::ActiveModel = document.clone().into();
+    active.review_status = Set(ReviewStatus::Confirmed);
+    let saved = active
+        .update(&state.db)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    Ok(Json(CargoDocumentResponse::from(saved)))
 }

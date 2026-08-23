@@ -1,8 +1,11 @@
+use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
+use sha2::{Digest, Sha256};
 use vespera::axum::{
     extract::FromRequestParts,
     http::{StatusCode, header, request::Parts},
 };
 
+use crate::models::gate_terminals::{self, Entity as GateTerminals};
 use crate::utils::{
     AppState,
     jwt::{self, Claims},
@@ -52,5 +55,43 @@ impl FromRequestParts<AppState> for AdminUser {
         } else {
             Err(StatusCode::FORBIDDEN)
         }
+    }
+}
+
+/// 단말 토큰 SHA-256 해시 (16진수 64자). 평문은 어디에도 저장하지 않는다.
+pub fn hash_token(token: &str) -> String {
+    format!("{:x}", Sha256::digest(token.as_bytes()))
+}
+
+/// 게이트 단말 자격증명으로 통과 (FR-D5)
+/// Authorization: Bearer <단말 토큰> — 해시로 조회하며 비활성·미등록 토큰은 401
+pub struct GateTerminal(#[allow(dead_code)] pub gate_terminals::Model);
+
+impl FromRequestParts<AppState> for GateTerminal {
+    type Rejection = StatusCode;
+
+    async fn from_request_parts(
+        parts: &mut Parts,
+        state: &AppState,
+    ) -> Result<Self, Self::Rejection> {
+        let header_value = parts
+            .headers
+            .get(header::AUTHORIZATION)
+            .and_then(|v| v.to_str().ok())
+            .ok_or(StatusCode::UNAUTHORIZED)?;
+        let token = header_value
+            .strip_prefix("Bearer ")
+            .ok_or(StatusCode::UNAUTHORIZED)?;
+
+        let terminal = GateTerminals::find()
+            .filter(gate_terminals::Column::TokenHash.eq(hash_token(token)))
+            .one(&state.db)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+            .ok_or(StatusCode::UNAUTHORIZED)?;
+        if !terminal.is_active {
+            return Err(StatusCode::UNAUTHORIZED);
+        }
+        Ok(GateTerminal(terminal))
     }
 }

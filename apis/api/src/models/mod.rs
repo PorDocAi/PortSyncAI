@@ -12,6 +12,8 @@ pub mod employees;
 pub mod equipment;
 pub mod equipment_check_logs;
 pub mod equipment_types;
+pub mod gate_terminals;
+pub mod gate_verify_logs;
 pub mod hs_codes;
 pub mod improvement_orders;
 pub mod instruction_acknowledgements;

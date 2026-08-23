@@ -11,6 +11,7 @@
     { "name": "content_type", "type": { "kind": "varchar", "length": 100 }, "nullable": true, "comment": "업로드 MIME 타입" },
     { "name": "file_size", "type": "big_int", "nullable": true, "comment": "파일 크기(byte)" },
     { "name": "file_hash", "type": { "kind": "char", "length": 64 }, "nullable": true, "comment": "SHA-256 파일 무결성 해시" },
+    { "name": "review_status", "type": { "kind": "enum", "name": "review_status", "values": ["PENDING", "CONFIRMED"] }, "nullable": false, "default": "'PENDING'", "comment": "검수 상태 (FR-B2 — CONFIRMED여야 작업 배정 가능)" },
     { "name": "uploaded_by_id", "type": "big_int", "nullable": false, "foreign_key": "employees.employee_id", "comment": "업로더 FK" },
     { "name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시" }
   ]

@@ -39,6 +39,18 @@ pub enum GateStatus {
     Passed,
 }
 
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema,
+)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "work_status")]
+pub enum WorkStatus {
+    #[sea_orm(string_value = "NORMAL")]
+    Normal,
+    #[sea_orm(string_value = "STOPPED")]
+    Stopped,
+}
+
 /// 출근/게이트 통과 상태 (FR-C4, D5 — 인지·장비·승인 집계)
 #[sea_orm::model]
 #[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel)]
@@ -64,6 +76,9 @@ pub struct Model {
     /// 게이트 통과 상태
     #[sea_orm(default_value = "BLOCKED")]
     pub gate_status: GateStatus,
+    /// 작업중지 여부 (시나리오 5 — STOPPED면 게이트 차단)
+    #[sea_orm(default_value = "NORMAL")]
+    pub work_status: WorkStatus,
     /// 사원증 태깅 통과 시각 (FR-D5)
     pub gate_passed_at: Option<DateTimeWithTimeZone>,
     /// 생성일시

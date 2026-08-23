@@ -8,6 +8,7 @@ pub mod employees;
 pub mod equipment_checks;
 pub mod gate;
 pub mod job_roles;
+pub mod work_assignments;
 
 use std::collections::HashMap;
 
