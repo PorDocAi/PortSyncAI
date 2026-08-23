@@ -1,0 +1,16 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "equipment_tag_tokens",
+  "description": "v2 장비 프로필 NFC 불투명 토큰 해시와 발급 수명주기",
+  "columns": [
+    {"name": "equipment_tag_token_id", "type": "big_int", "nullable": false, "primary_key": {"auto_increment": true}, "comment": "장비 태그 토큰 고유번호"},
+    {"name": "equipment_profile_id", "type": "big_int", "nullable": false, "foreign_key": {"references": "equipment_profiles.equipment_profile_id", "on_delete": "cascade"}, "index": true, "comment": "v2 장비 프로필 FK"},
+    {"name": "tag_token_hash", "type": {"kind": "char", "length": 64}, "nullable": false, "unique": true, "comment": "서버 발급 불투명 토큰 SHA-256 해시"},
+    {"name": "is_active", "type": "boolean", "nullable": false, "default": true, "index": true, "comment": "활성 토큰 여부"},
+    {"name": "issued_by_id", "type": "big_int", "nullable": false, "foreign_key": "employees.employee_id", "comment": "토큰 발급 관리자 FK"},
+    {"name": "issued_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "토큰 발급일시"},
+    {"name": "deactivated_by_id", "type": "big_int", "nullable": true, "foreign_key": {"references": "employees.employee_id", "on_delete": "set_null"}, "comment": "토큰 비활성화 관리자 FK"},
+    {"name": "deactivated_at", "type": "timestamptz", "nullable": true, "comment": "토큰 비활성화일시"},
+    {"name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시"}
+  ]
+}

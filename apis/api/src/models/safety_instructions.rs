@@ -59,9 +59,9 @@ pub struct Model {
     #[sea_orm(has_many)]
     pub class_instruction_mappings: HasMany<super::class_instruction_mappings::Entity>,
     #[sea_orm(has_many)]
-    pub instruction_acknowledgements: HasMany<super::instruction_acknowledgements::Entity>,
-    #[sea_orm(has_many)]
     pub safety_instruction_translations: HasMany<super::safety_instruction_translations::Entity>,
+    #[sea_orm(has_many)]
+    pub instruction_acknowledgements: HasMany<super::instruction_acknowledgements::Entity>,
 }
 
 vespera::schema_type!(Schema from Model, name = "SafetyInstructionsSchema");

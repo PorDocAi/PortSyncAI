@@ -1,0 +1,13 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "work_targets",
+  "description": "작업별 컨테이너 또는 개별 화물 대상",
+  "columns": [
+    {"name": "work_target_id", "type": "big_int", "nullable": false, "primary_key": {"auto_increment": true}, "comment": "작업 대상 고유번호"},
+    {"name": "work_id", "type": "big_int", "nullable": false, "foreign_key": {"references": "works.work_id", "on_delete": "cascade"}, "unique": ["uq_work_target_container", "uq_work_target_cargo_item"], "comment": "작업 FK"},
+    {"name": "target_type", "type": {"kind": "enum", "name": "work_target_type", "values": ["CONTAINER", "CARGO_ITEM"]}, "nullable": false, "comment": "대상 구분"},
+    {"name": "container_id", "type": "big_int", "nullable": true, "foreign_key": {"references": "containers.container_id", "on_delete": "cascade"}, "unique": "uq_work_target_container", "comment": "컨테이너 대상 FK"},
+    {"name": "cargo_item_id", "type": "big_int", "nullable": true, "foreign_key": {"references": "cargo_items.cargo_item_id", "on_delete": "cascade"}, "unique": "uq_work_target_cargo_item", "comment": "개별 화물 대상 FK"},
+    {"name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시"}
+  ]
+}

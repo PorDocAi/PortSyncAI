@@ -59,6 +59,8 @@ pub struct Model {
         to = "employee_id"
     )]
     pub assigned_by: HasOne<super::employees::Entity>,
+    #[sea_orm(has_one)]
+    pub v2_work_assignments: HasOne<super::v2_work_assignments::Entity>,
 }
 
 // Index definitions (SeaORM uses Statement builders externally)

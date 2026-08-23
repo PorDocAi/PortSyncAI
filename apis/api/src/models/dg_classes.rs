@@ -25,17 +25,19 @@ pub struct Model {
     /// 수정일시
     pub updated_at: Option<DateTimeWithTimeZone>,
     #[sea_orm(has_many)]
-    pub cargo_items: HasMany<super::cargo_items::Entity>,
-    #[sea_orm(has_many)]
     pub class_equipment_mappings: HasMany<super::class_equipment_mappings::Entity>,
     #[sea_orm(has_many)]
     pub class_instruction_mappings: HasMany<super::class_instruction_mappings::Entity>,
+    #[sea_orm(has_many)]
+    pub cargo_items: HasMany<super::cargo_items::Entity>,
+    #[sea_orm(has_many)]
+    pub work_restriction_rules: HasMany<super::work_restriction_rules::Entity>,
     #[sea_orm(has_many)]
     pub hs_codes: HasMany<super::hs_codes::Entity>,
     #[sea_orm(has_many)]
     pub un_numbers: HasMany<super::un_numbers::Entity>,
     #[sea_orm(has_many)]
-    pub work_restriction_rules: HasMany<super::work_restriction_rules::Entity>,
+    pub education_target_rules: HasMany<super::education_target_rules::Entity>,
 }
 
 vespera::schema_type!(Schema from Model, name = "DgClassesSchema");

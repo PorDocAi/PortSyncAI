@@ -1,0 +1,13 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "cargo_item_documents",
+  "description": "화물과 v2 문서 버전의 역할별 다대다 관계",
+  "columns": [
+    {"name": "cargo_item_document_id", "type": "big_int", "nullable": false, "primary_key": {"auto_increment": true}, "comment": "화물 문서 관계 고유번호"},
+    {"name": "cargo_item_id", "type": "big_int", "nullable": false, "foreign_key": {"references": "cargo_items.cargo_item_id", "on_delete": "cascade"}, "unique": "uq_cargo_item_document_role", "comment": "레거시 화물 FK"},
+    {"name": "cargo_document_version_id", "type": "big_int", "nullable": false, "foreign_key": {"references": "cargo_document_versions.cargo_document_version_id", "on_delete": "cascade"}, "unique": "uq_cargo_item_document_role", "comment": "v2 화물문서 버전 FK"},
+    {"name": "document_role", "type": {"kind": "enum", "name": "cargo_document_role", "values": ["BL", "DGD", "CI", "MSDS"]}, "nullable": false, "unique": "uq_cargo_item_document_role", "comment": "화물에서 문서가 담당하는 역할"},
+    {"name": "is_primary", "type": "boolean", "nullable": false, "default": false, "comment": "동일 역할의 대표 문서 여부"},
+    {"name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시"}
+  ]
+}

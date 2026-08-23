@@ -1,0 +1,15 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "education_target_rules",
+  "description": "작업유형·위험물 등급별 필수 교육 규칙",
+  "columns": [
+    {"name": "education_target_rule_id", "type": "big_int", "nullable": false, "primary_key": {"auto_increment": true}, "comment": "교육 대상 규칙 고유번호"},
+    {"name": "education_course_id", "type": "big_int", "nullable": false, "foreign_key": {"references": "education_courses.education_course_id", "on_delete": "cascade"}, "index": true, "comment": "교육 과정 FK"},
+    {"name": "work_type_id", "type": "big_int", "nullable": true, "foreign_key": {"references": "work_types.work_type_id", "on_delete": "cascade"}, "comment": "대상 작업 유형 FK"},
+    {"name": "dg_class_id", "type": "big_int", "nullable": true, "foreign_key": {"references": "dg_classes.dg_class_id", "on_delete": "cascade"}, "comment": "대상 위험물 등급 FK"},
+    {"name": "is_required", "type": "boolean", "nullable": false, "default": true, "comment": "필수 교육 여부"},
+    {"name": "is_active", "type": "boolean", "nullable": false, "default": true, "comment": "규칙 사용 여부"},
+    {"name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시"},
+    {"name": "updated_at", "type": "timestamptz", "nullable": true, "comment": "수정일시"}
+  ]
+}
