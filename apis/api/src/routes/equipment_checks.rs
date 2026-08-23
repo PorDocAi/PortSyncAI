@@ -44,16 +44,36 @@ pub async fn tag_equipment(
         return Err(StatusCode::UNPROCESSABLE_ENTITY);
     }
 
-    // 돌려쓰기 차단: (장비, 작업일) 기준으로 이미 태깅됐으면 거부 (FR-D4)
+    // 돌려쓰기 차단: (장비, 작업일) 기준으로 다른 작업자가 이미 태깅했으면 거부한다.
+    // 모바일 NFC 콜백이나 네트워크 재시도로 같은 요청이 반복될 수 있으므로,
+    // 동일 작업자의 동일 출근 건 재태깅은 성공 응답을 반환한다.
     let already_used = EquipmentCheckLogs::find()
         .filter(equipment_check_logs::Column::EquipmentId.eq(device.equipment_id))
         .filter(equipment_check_logs::Column::WorkDate.eq(today()))
         .one(&state.db)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    // 본인이 같은 장비를 다시 태깅한 경우도 중복이므로 409
-    if already_used.is_some() {
-        return Err(StatusCode::CONFLICT);
+    if let Some(existing) = already_used {
+        if existing.employee_id != claims.sub || existing.attendance_id != attendance.attendance_id
+        {
+            return Err(StatusCode::CONFLICT);
+        }
+
+        let tagged_count_today = EquipmentCheckLogs::find()
+            .filter(equipment_check_logs::Column::AttendanceId.eq(attendance.attendance_id))
+            .all(&state.db)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+            .len() as u64;
+
+        return Ok((
+            StatusCode::OK,
+            Json(TagResponse {
+                equipment_id: device.equipment_id,
+                asset_number: device.asset_number,
+                tagged_count_today,
+            }),
+        ));
     }
 
     let new_log = equipment_check_logs::ActiveModel {
