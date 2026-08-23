@@ -14,6 +14,8 @@ type Work = {
   education: '충족' | '확인 필요'
 }
 
+type WorkerView = 'today' | 'preparation' | 'history' | 'profile'
+
 const WORKS: Work[] = [
   {
     id: 'wb-03',
@@ -40,6 +42,7 @@ const WORKS: Work[] = [
 export function WorkerWorkspace() {
   const [selectedId, setSelectedId] = useState(WORKS[0].id)
   const [detailsOpen, setDetailsOpen] = useState(false)
+  const [activeView, setActiveView] = useState<WorkerView>('today')
   const selected = useMemo(
     () => WORKS.find((work) => work.id === selectedId) ?? WORKS[0],
     [selectedId],
@@ -59,7 +62,7 @@ export function WorkerWorkspace() {
           </div>
         </header>
 
-        <main>
+        <main className={activeView === 'today' ? '' : 'is-hidden'}>
           <section className="worker-title">
             <p className="overline">2026.08.23 · 주간조</p>
             <h1>오늘의 작업</h1>
@@ -133,19 +136,189 @@ export function WorkerWorkspace() {
 
           <section className="start-section">
             <p>교육 적격성을 다시 확인한 뒤 준비 절차가 열립니다.</p>
-            <button disabled={selected.education !== '충족'} type="button">
+            <button
+              disabled={selected.education !== '충족'}
+              onClick={() => setActiveView('preparation')}
+              type="button"
+            >
               {selected.education === '충족' ? '이 작업 준비 시작' : '교육 확인 후 시작 가능'}
             </button>
           </section>
         </main>
 
+        {activeView === 'preparation' && <PreparationScreen work={selected} />}
+        {activeView === 'history' && <HistoryScreen />}
+        {activeView === 'profile' && <ProfileScreen />}
+
         <nav className="worker-nav" aria-label="작업자 메뉴">
-          <button className="is-current" type="button"><span>오늘 작업</span></button>
-          <button type="button"><span>준비 절차</span></button>
-          <button type="button"><span>통과 기록</span></button>
-          <button type="button"><span>내 정보</span></button>
+          <button className={activeView === 'today' ? 'is-current' : ''} onClick={() => setActiveView('today')} type="button"><span>오늘 작업</span></button>
+          <button className={activeView === 'preparation' ? 'is-current' : ''} onClick={() => setActiveView('preparation')} type="button"><span>준비 절차</span></button>
+          <button className={activeView === 'history' ? 'is-current' : ''} onClick={() => setActiveView('history')} type="button"><span>통과 기록</span></button>
+          <button className={activeView === 'profile' ? 'is-current' : ''} onClick={() => setActiveView('profile')} type="button"><span>내 정보</span></button>
         </nav>
       </div>
     </div>
+  )
+}
+
+type PreparationStep = 'education' | 'instruction' | 'ppe' | 'gate'
+
+const PREPARATION_STEPS: { id: PreparationStep; label: string; state: string }[] = [
+  { id: 'education', label: '안전교육 적격성', state: '충족' },
+  { id: 'instruction', label: '당일 안전지침', state: '확인 전' },
+  { id: 'ppe', label: '필수 보호구', state: '1 / 3 확인' },
+  { id: 'gate', label: '게이트 준비', state: '대기' },
+]
+
+function PreparationScreen({ work }: { work: Work }) {
+  const [step, setStep] = useState<PreparationStep>('education')
+  const [instructionRead, setInstructionRead] = useState(false)
+  const [scanned, setScanned] = useState<string[]>(['방폭형 안전화'])
+
+  const scan = (item: string) => {
+    setScanned((items) => items.includes(item) ? items : [...items, item])
+  }
+
+  return (
+    <main className="preparation-screen">
+      <header className="flow-header">
+        <p className="overline">{work.code}</p>
+        <h1>작업 전 준비</h1>
+        <p>{work.place} · {work.title}</p>
+      </header>
+
+      <ol className="flow-index" aria-label="준비 단계">
+        {PREPARATION_STEPS.map((item, index) => (
+          <li className={step === item.id ? 'is-current' : ''} key={item.id}>
+            <button onClick={() => setStep(item.id)} type="button">
+              <span>{String(index + 1).padStart(2, '0')}</span>
+              <strong>{item.label}</strong>
+              <small>
+                {item.id === 'instruction' && instructionRead ? '확인 완료' : item.id === 'ppe' ? `${scanned.length} / 3 확인` : item.state}
+              </small>
+            </button>
+          </li>
+        ))}
+      </ol>
+
+      <section className="step-panel">
+        {step === 'education' && (
+          <>
+            <StepHeading number="01" title="안전교육 적격성" description="법정교육을 충족한 작업자만 다음 준비 단계로 이동할 수 있습니다." />
+            <div className="eligibility-result">
+              <p>판정</p>
+              <strong>이 작업에 투입 가능</strong>
+              <span>2026.08.23 06:12 자동 판정</span>
+            </div>
+            <div className="plain-table">
+              <div><span>위험물 취급 특별교육</span><strong>16시간 충족</strong></div>
+              <div><span>MSDS 교육 · 대상물질</span><strong>PAINT / SOLVENT</strong></div>
+              <div><span>기초 안전보건교육</span><strong>정기교육 충족</strong></div>
+            </div>
+            <button className="panel-action" onClick={() => setStep('instruction')} type="button">다음 · 안전지침 확인</button>
+          </>
+        )}
+
+        {step === 'instruction' && (
+          <>
+            <StepHeading number="02" title="당일 안전지침" description="현재 작업과 화물에 적용되는 최신 지침입니다." />
+            <div className="document-meta">
+              <span>SI-260823-CFS-03 · VERSION 4</span>
+              <time>08.23 05:40 확정</time>
+            </div>
+            <article className="instruction-copy">
+              <h2>혼재 인화성 액체 취급 지침</h2>
+              <h3>작업 전</h3>
+              <p>용기 밀폐 상태와 누출 흔적을 확인하고, 점화원이 있는 장비는 작업구역 밖으로 이동합니다.</p>
+              <h3>작업 중</h3>
+              <p>환기 상태를 유지하고 정전기 발생 가능성이 있는 도구를 사용하지 않습니다. 이상 냄새나 누출을 발견하면 즉시 작업을 중지합니다.</p>
+              <h3>기상 주의</h3>
+              <p>14시 이후 강풍이 예상됩니다. 적치물과 이동식 장비의 고정 상태를 재확인합니다.</p>
+            </article>
+            <label className="acknowledge-row">
+              <input checked={instructionRead} onChange={(event) => setInstructionRead(event.target.checked)} type="checkbox" />
+              <span>지침 전체 내용을 읽고 작업 시 준수하겠습니다.</span>
+            </label>
+            <button className="panel-action" disabled={!instructionRead} onClick={() => setStep('ppe')} type="button">확인 기록 후 보호구 준비</button>
+          </>
+        )}
+
+        {step === 'ppe' && (
+          <>
+            <StepHeading number="03" title="필수 보호구" description="MSDS 8항과 작업유형을 기준으로 확정된 목록입니다." />
+            <div className="ppe-list">
+              {['방폭형 안전화', '내화학 장갑', '보안경'].map((item, index) => {
+                const complete = scanned.includes(item)
+                return (
+                  <div className="ppe-row" key={item}>
+                    <span>{String(index + 1).padStart(2, '0')}</span>
+                    <div><strong>{item}</strong><small>{index === 1 ? 'HAND · 화학물질 투과 저항' : index === 2 ? 'EYE · 측면 보호' : 'FOOT · 정전기 방지'}</small></div>
+                    <button disabled={complete} onClick={() => scan(item)} type="button">{complete ? '확인됨' : 'NFC 읽기'}</button>
+                  </div>
+                )
+              })}
+            </div>
+            <div className="nfc-note"><strong>NFC 입력 규칙</strong><p>태그 토큰만 전송하며 장비 종류·소유자·사용중지 여부는 서버에서 판정합니다.</p></div>
+            <button className="panel-action" disabled={scanned.length < 3} onClick={() => setStep('gate')} type="button">게이트 준비상태 확인</button>
+          </>
+        )}
+
+        {step === 'gate' && (
+          <>
+            <StepHeading number="04" title="게이트 준비" description="사원증 태깅 시 아래 조건을 서버에서 다시 검증합니다." />
+            <div className="gate-checks">
+              <div><span>작업 배정</span><strong>유효</strong></div>
+              <div><span>안전교육</span><strong>충족</strong></div>
+              <div><span>안전지침</span><strong>{instructionRead ? '확인 완료' : '확인 필요'}</strong></div>
+              <div><span>필수 보호구</span><strong>{scanned.length === 3 ? '3종 완료' : `${3 - scanned.length}종 미확인`}</strong></div>
+              <div><span>작업중지</span><strong>없음</strong></div>
+            </div>
+            <div className="gate-direction">
+              <span>GATE</span>
+              <strong>1부두 정문</strong>
+              <p>게이트 리더에 사원증을 태그해 주세요.</p>
+            </div>
+            <button className="panel-action" disabled={!instructionRead || scanned.length < 3} type="button">게이트 통과 준비 완료</button>
+          </>
+        )}
+      </section>
+    </main>
+  )
+}
+
+function StepHeading({ number, title, description }: { number: string; title: string; description: string }) {
+  return (
+    <header className="step-heading">
+      <span>{number}</span>
+      <div><h2>{title}</h2><p>{description}</p></div>
+    </header>
+  )
+}
+
+function HistoryScreen() {
+  return (
+    <main className="simple-screen">
+      <header><p className="overline">LAST 90 DAYS</p><h1>게이트 통과 기록</h1><p>통과와 차단 결과, 판정 사유를 확인합니다.</p></header>
+      <div className="history-list">
+        <div><time>08.23<br />07:42</time><p><strong>1부두 정문 · 통과</strong><span>WB-260823-03 · 정기 출입</span></p><small>PASS</small></div>
+        <div><time>08.22<br />08:05</time><p><strong>1부두 정문 · 통과</strong><span>WB-260822-03 · 정기 출입</span></p><small>PASS</small></div>
+        <div><time>08.21<br />07:51</time><p><strong>1부두 정문 · 차단</strong><span>필수 보호구 1종 미확인</span></p><small>BLOCK</small></div>
+      </div>
+    </main>
+  )
+}
+
+function ProfileScreen() {
+  return (
+    <main className="simple-screen">
+      <header><p className="overline">EMP-240031</p><h1>윤서진</h1><p>CFS운영팀 · 화물 분류 작업자</p></header>
+      <dl className="profile-list">
+        <div><dt>계정 상태</dt><dd>재직 · 사용 가능</dd></div>
+        <div><dt>소속 팀</dt><dd>CFS 2조</dd></div>
+        <div><dt>등록 사원증</dt><dd>•••• 8A21</dd></div>
+        <div><dt>선호 언어</dt><dd>한국어</dd></div>
+      </dl>
+      <button className="secondary-action" type="button">비밀번호 변경</button>
+    </main>
   )
 }
