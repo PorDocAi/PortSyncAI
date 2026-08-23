@@ -179,9 +179,6 @@ REQUIRED_ENUM_VALUES = {
 }
 
 REQUIRED_UNIQUES = {
-    "work_assignments": [
-        ("uq_work_assignment_work_employee", {"v2_work_id", "employee_id"}),
-    ],
     "gate_verify_logs": [
         ("uq_attendance_workdate_passed", {"work_date", "is_pass_event"}),
     ],
@@ -318,6 +315,10 @@ def validate() -> list[str]:
         if "work_id" in assignment_columns:
             errors.append(
                 "work_assignments: required work_id replacement must not exist; use nullable v2_work_id"
+            )
+        if "uq_work_assignment_work_employee" in unique_groups(assignments):
+            errors.append(
+                "work_assignments: nullable v2_work_id uniqueness must be deferred to future application-level transactional validation after non-null assignment activation"
             )
         v2_work = assignment_columns.get("v2_work_id")
         if v2_work is not None:

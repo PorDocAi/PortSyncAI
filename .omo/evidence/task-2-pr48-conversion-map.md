@@ -52,7 +52,7 @@ The **Dropped legacy field** column names whether an old active contract disappe
 
 ## New v2-only identities and constraints
 
-- `work_assignments`: retained `assignment_id` remains the primary key. Additive nullable `v2_work_id` plus `UNIQUE(v2_work_id,employee_id)` allows one worker on many v2 works while leaving unconverted legacy rows with `v2_work_id=NULL`.
+- `work_assignments`: retained `assignment_id` remains the primary key. Additive nullable `v2_work_id` remains indexed but has no schema-level composite unique during migration; uniqueness is deferred to future application-level transactional validation after non-null assignment activation, while unconverted legacy rows remain `v2_work_id=NULL`.
 - `equipment_check_events`: `UNIQUE(employee_id,idempotency_key)` stores request fingerprint, HTTP status, stable reason code, and exact response JSON for deterministic replay.
 - `work_assignment_equipment`: `UNIQUE(work_assignment_id,equipment_id)` preserves accepted allocation history.
 - `shared_equipment_claims`: `UNIQUE(equipment_id)` is the portable active-claim lock; a claim row exists only while the assignment is non-terminal. `STOPPED` retains it, while `COMPLETED` or `CANCELLED` releases it.
