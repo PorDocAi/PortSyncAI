@@ -6,3 +6,7 @@
 - Tests added for mapped unconfirmed (422, MSDS_REVIEW_NOT_CONFIRMED) and confirmed (201).
 - Verification: cargo test -p api --test work_assignment attempted; blocked by pre-existing duplicate source_document_version model errors in ppe_requirements.rs and work_ppe_requirement_snapshots.rs.
 - cargo fmt --all -- --check reports pre-existing formatting drift across generated/model files.
+
+## Verification
+- `cargo test -p api --test work_assignment` (6 passed)
+- Assignment gate manually exercised by integration harness: confirmed legacy and confirmed v2 return 201; pending legacy/v2 return 422 `MSDS_REVIEW_NOT_CONFIRMED`.
