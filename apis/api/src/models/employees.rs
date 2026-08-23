@@ -97,29 +97,65 @@ pub struct Model {
     #[sea_orm(belongs_to, from = "job_role_id", to = "job_role_id")]
     pub job_role: HasOne<super::job_roles::Entity>,
     #[sea_orm(has_many)]
-    pub approvals: HasMany<super::approvals::Entity>,
+    pub ppe_requirements: HasMany<super::ppe_requirements::Entity>,
     #[sea_orm(has_many)]
-    pub attendances: HasMany<super::attendances::Entity>,
+    pub work_ppe_requirement_snapshots: HasMany<super::work_ppe_requirement_snapshots::Entity>,
+    #[sea_orm(has_many, relation_enum = "EquipmentTagTokens", via_rel = "IssuedBy")]
+    pub issued_by_equipment_tag_tokens: HasMany<super::equipment_tag_tokens::Entity>,
+    #[sea_orm(has_many, relation_enum = "DeactivatedBy", via_rel = "DeactivatedBy")]
+    pub deactivated_by_equipment_tag_tokens: HasMany<super::equipment_tag_tokens::Entity>,
     #[sea_orm(has_many)]
-    pub audit_logs: HasMany<super::audit_logs::Entity>,
+    pub equipment_check_logs: HasMany<super::equipment_check_logs::Entity>,
     #[sea_orm(has_many)]
-    pub cargo_documents: HasMany<super::cargo_documents::Entity>,
+    pub gate_verify_logs: HasMany<super::gate_verify_logs::Entity>,
+    #[sea_orm(has_many)]
+    pub works: HasMany<super::works::Entity>,
     #[sea_orm(has_one)]
     pub employee_health_profiles: HasOne<super::employee_health_profiles::Entity>,
     #[sea_orm(has_many)]
-    pub equipment_check_logs: HasMany<super::equipment_check_logs::Entity>,
-    #[sea_orm(has_many, relation_enum = "ImprovementOrders", via_rel = "IssuedBy")]
-    pub issued_by_improvement_orders: HasMany<super::improvement_orders::Entity>,
-    #[sea_orm(has_many, relation_enum = "TargetEmployee", via_rel = "TargetEmployee")]
-    pub target_employee_improvement_orders: HasMany<super::improvement_orders::Entity>,
+    pub gate_events: HasMany<super::gate_events::Entity>,
     #[sea_orm(has_many)]
-    pub instruction_acknowledgements: HasMany<super::instruction_acknowledgements::Entity>,
-    #[sea_orm(has_many)]
-    pub regulation_documents: HasMany<super::regulation_documents::Entity>,
+    pub equipment_profiles: HasMany<super::equipment_profiles::Entity>,
     #[sea_orm(has_many, relation_enum = "WorkAssignments", via_rel = "Employee")]
     pub employee_work_assignments: HasMany<super::work_assignments::Entity>,
     #[sea_orm(has_many, relation_enum = "AssignedBy", via_rel = "AssignedBy")]
     pub assigned_by_work_assignments: HasMany<super::work_assignments::Entity>,
+    #[sea_orm(has_many, relation_enum = "V2WorkAssignments", via_rel = "Employee")]
+    pub employee_v2_work_assignments: HasMany<super::v2_work_assignments::Entity>,
+    #[sea_orm(
+        has_many,
+        relation_enum = "V2WorkAssignmentsAssignedBy",
+        via_rel = "AssignedBy"
+    )]
+    pub assigned_by_v2_work_assignments: HasMany<super::v2_work_assignments::Entity>,
+    #[sea_orm(has_many)]
+    pub equipment_check_events: HasMany<super::equipment_check_events::Entity>,
+    #[sea_orm(has_many)]
+    pub attendances: HasMany<super::attendances::Entity>,
+    #[sea_orm(has_many, relation_enum = "WorkStops", via_rel = "StoppedBy")]
+    pub stopped_by_work_stops: HasMany<super::work_stops::Entity>,
+    #[sea_orm(has_many, relation_enum = "ClosedBy", via_rel = "ClosedBy")]
+    pub closed_by_work_stops: HasMany<super::work_stops::Entity>,
+    #[sea_orm(has_many)]
+    pub cargo_document_versions: HasMany<super::cargo_document_versions::Entity>,
+    #[sea_orm(has_many)]
+    pub regulation_documents: HasMany<super::regulation_documents::Entity>,
+    #[sea_orm(has_many)]
+    pub cargo_documents: HasMany<super::cargo_documents::Entity>,
+    #[sea_orm(has_many, relation_enum = "EducationCompletions", via_rel = "Employee")]
+    pub employee_education_completions: HasMany<super::education_completions::Entity>,
+    #[sea_orm(has_many, relation_enum = "RecordedBy", via_rel = "RecordedBy")]
+    pub recorded_by_education_completions: HasMany<super::education_completions::Entity>,
+    #[sea_orm(has_many)]
+    pub approvals: HasMany<super::approvals::Entity>,
+    #[sea_orm(has_many)]
+    pub instruction_acknowledgements: HasMany<super::instruction_acknowledgements::Entity>,
+    #[sea_orm(has_many)]
+    pub audit_logs: HasMany<super::audit_logs::Entity>,
+    #[sea_orm(has_many, relation_enum = "ImprovementOrders", via_rel = "IssuedBy")]
+    pub issued_by_improvement_orders: HasMany<super::improvement_orders::Entity>,
+    #[sea_orm(has_many, relation_enum = "TargetEmployee", via_rel = "TargetEmployee")]
+    pub target_employee_improvement_orders: HasMany<super::improvement_orders::Entity>,
 }
 
 // Index definitions (SeaORM uses Statement builders externally)

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "cargo_document_versions",
+  "description": "화물 문서의 v2 유형·처리·검수 버전 상태",
+  "columns": [
+    {"name": "cargo_document_version_id", "type": "big_int", "nullable": false, "primary_key": {"auto_increment": true}, "comment": "v2 화물문서 버전 고유번호"},
+    {"name": "legacy_cargo_document_id", "type": "big_int", "nullable": true, "foreign_key": {"references": "cargo_documents.cargo_document_id", "on_delete": "set_null"}, "unique": true, "comment": "변환된 0001-0004 화물문서 FK, v2 신규 문서는 null"},
+    {"name": "document_type", "type": {"kind": "enum", "name": "v2_cargo_document_type", "values": ["BL", "DGD", "CI", "MSDS"]}, "nullable": false, "comment": "v2 문서 유형"},
+    {"name": "document_version", "type": "integer", "nullable": false, "default": 1, "comment": "동일 문서의 검수 버전"},
+    {"name": "processing_status", "type": {"kind": "enum", "name": "cargo_processing_status", "values": ["PENDING", "PROCESSING", "COMPLETED", "FAILED"]}, "nullable": false, "default": "'PENDING'", "index": true, "comment": "문서 분석 처리 상태"},
+    {"name": "review_status", "type": {"kind": "enum", "name": "cargo_review_status", "values": ["PENDING", "CONFIRMED", "REJECTED"]}, "nullable": false, "default": "'PENDING'", "index": true, "comment": "v2 관리자 검수 상태"},
+    {"name": "reviewed_by_id", "type": "big_int", "nullable": true, "foreign_key": {"references": "employees.employee_id", "on_delete": "set_null"}, "comment": "검수자 FK"},
+    {"name": "reviewed_at", "type": "timestamptz", "nullable": true, "comment": "검수일시"},
+    {"name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시"},
+    {"name": "updated_at", "type": "timestamptz", "nullable": true, "comment": "수정일시"}
+  ]
+}

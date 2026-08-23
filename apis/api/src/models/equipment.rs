@@ -31,6 +31,8 @@ pub struct Model {
     pub equipment_type: HasOne<super::equipment_types::Entity>,
     #[sea_orm(has_many)]
     pub equipment_check_logs: HasMany<super::equipment_check_logs::Entity>,
+    #[sea_orm(has_one)]
+    pub equipment_profiles: HasOne<super::equipment_profiles::Entity>,
 }
 
 // Index definitions (SeaORM uses Statement builders externally)

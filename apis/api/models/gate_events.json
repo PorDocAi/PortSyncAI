@@ -1,0 +1,24 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "gate_events",
+  "description": "작업 배정 준비도를 기록하는 append-only 게이트 PASS/BLOCK 이벤트",
+  "columns": [
+    {"name": "gate_event_id", "type": "big_int", "nullable": false, "primary_key": {"auto_increment": true}, "comment": "게이트 이벤트 고유번호"},
+    {"name": "terminal_id", "type": "big_int", "nullable": true, "foreign_key": {"references": "gate_terminals.terminal_id", "on_delete": "set_null"}, "unique": "uq_gate_event_terminal_idempotency", "index": true, "comment": "검증 단말 FK"},
+    {"name": "gate_id", "type": {"kind": "varchar", "length": 100}, "nullable": false, "comment": "판정 시점 게이트 식별자"},
+    {"name": "work_assignment_id", "type": "big_int", "nullable": true, "foreign_key": {"references": "v2_work_assignments.work_assignment_id", "on_delete": "set_null"}, "index": true, "comment": "판정 v2 작업 배정 FK, 변환 불가 레거시는 null"},
+    {"name": "employee_id", "type": "big_int", "nullable": false, "foreign_key": "employees.employee_id", "index": true, "comment": "판정 작업자 FK"},
+    {"name": "idempotency_key", "type": "uuid", "nullable": true, "unique": "uq_gate_event_terminal_idempotency", "comment": "단말 범위 멱등키, 레거시 변환행은 null"},
+    {"name": "request_fingerprint", "type": {"kind": "char", "length": 64}, "nullable": true, "comment": "요청 SHA-256 지문, 레거시 변환행은 null"},
+    {"name": "decision", "type": {"kind": "enum", "name": "gate_decision", "values": ["PASS", "BLOCK"]}, "nullable": false, "index": true, "comment": "통과 또는 차단 판정"},
+    {"name": "reason_code", "type": {"kind": "varchar", "length": 64}, "nullable": false, "comment": "우선순위가 가장 높은 안정된 판정 코드"},
+    {"name": "reason_codes", "type": "json", "nullable": false, "comment": "우선순위대로 정렬된 전체 판정 코드"},
+    {"name": "decision_input_versions", "type": "json", "nullable": false, "comment": "판정에 사용한 문서·교육·보호구·중지 버전"},
+    {"name": "http_status", "type": "small_int", "nullable": false, "comment": "최초 응답 HTTP 상태"},
+    {"name": "response_json", "type": "json", "nullable": false, "comment": "멱등 재전송할 최초 정확 응답 JSON"},
+    {"name": "occurred_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "서버 판정 발생일시"},
+    {"name": "legacy_verify_log_id", "type": "big_int", "nullable": true, "foreign_key": {"references": "gate_verify_logs.verify_log_id", "on_delete": "set_null"}, "unique": true, "comment": "PR #48 게이트 검증 기록 변환 출처 FK"},
+    {"name": "legacy_attendance_id", "type": "big_int", "nullable": true, "foreign_key": {"references": "attendances.attendance_id", "on_delete": "set_null"}, "comment": "PR #48 출근 참조 FK"},
+    {"name": "legacy_work_date", "type": "date", "nullable": true, "comment": "PR #48 작업일 감사값"}
+  ]
+}

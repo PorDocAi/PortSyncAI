@@ -43,7 +43,11 @@ pub enum FileFormat {
     Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema,
 )]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "review_status")]
+#[sea_orm(
+    rs_type = "String",
+    db_type = "Enum",
+    enum_name = "cargo_documents_review_status"
+)]
 pub enum ReviewStatus {
     #[sea_orm(string_value = "PENDING")]
     Pending,
@@ -85,6 +89,8 @@ pub struct Model {
     pub uploaded_by: HasOne<super::employees::Entity>,
     #[sea_orm(has_many)]
     pub cargo_items: HasMany<super::cargo_items::Entity>,
+    #[sea_orm(has_one)]
+    pub cargo_document_versions: HasOne<super::cargo_document_versions::Entity>,
 }
 
 vespera::schema_type!(Schema from Model, name = "CargoDocumentsSchema");

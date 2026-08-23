@@ -1,0 +1,14 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "containers",
+  "description": "작업 대상 컨테이너",
+  "columns": [
+    {"name": "container_id", "type": "big_int", "nullable": false, "primary_key": {"auto_increment": true}, "comment": "컨테이너 고유번호"},
+    {"name": "container_number", "type": {"kind": "varchar", "length": 20}, "nullable": false, "unique": true, "comment": "ISO 6346 컨테이너 번호"},
+    {"name": "seal_number", "type": {"kind": "varchar", "length": 50}, "nullable": true, "comment": "봉인 번호"},
+    {"name": "arrival_at", "type": "timestamptz", "nullable": true, "comment": "터미널 도착일시"},
+    {"name": "departure_at", "type": "timestamptz", "nullable": true, "comment": "터미널 출발일시"},
+    {"name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시"},
+    {"name": "updated_at", "type": "timestamptz", "nullable": true, "comment": "수정일시"}
+  ]
+}

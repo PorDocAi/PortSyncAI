@@ -1,0 +1,14 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "work_types",
+  "description": "항만 작업 유형 기준정보",
+  "columns": [
+    {"name": "work_type_id", "type": "big_int", "nullable": false, "primary_key": {"auto_increment": true}, "comment": "작업 유형 고유번호"},
+    {"name": "work_type_code", "type": {"kind": "varchar", "length": 30}, "nullable": false, "unique": true, "comment": "작업 유형 코드"},
+    {"name": "name", "type": {"kind": "varchar", "length": 100}, "nullable": false, "comment": "작업 유형명"},
+    {"name": "description", "type": "text", "nullable": true, "comment": "작업 유형 설명"},
+    {"name": "is_active", "type": "boolean", "nullable": false, "default": true, "comment": "사용 여부"},
+    {"name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시"},
+    {"name": "updated_at", "type": "timestamptz", "nullable": true, "comment": "수정일시"}
+  ]
+}

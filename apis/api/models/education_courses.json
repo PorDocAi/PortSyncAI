@@ -1,0 +1,16 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "education_courses",
+  "description": "작업 투입 전 교육 과정 기준정보",
+  "columns": [
+    {"name": "education_course_id", "type": "big_int", "nullable": false, "primary_key": {"auto_increment": true}, "comment": "교육 과정 고유번호"},
+    {"name": "course_code", "type": {"kind": "varchar", "length": 30}, "nullable": false, "unique": true, "comment": "교육 과정 코드"},
+    {"name": "title", "type": {"kind": "varchar", "length": 255}, "nullable": false, "comment": "교육 과정명"},
+    {"name": "description", "type": "text", "nullable": true, "comment": "교육 과정 설명"},
+    {"name": "version", "type": "integer", "nullable": false, "default": 1, "comment": "교육 과정 버전"},
+    {"name": "validity_days", "type": "integer", "nullable": true, "comment": "이수 유효기간 일수, null이면 무기한"},
+    {"name": "is_active", "type": "boolean", "nullable": false, "default": true, "comment": "사용 여부"},
+    {"name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시"},
+    {"name": "updated_at", "type": "timestamptz", "nullable": true, "comment": "수정일시"}
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "education_completions",
+  "description": "작업자 교육 이수 이력(재이수 허용)",
+  "columns": [
+    {"name": "education_completion_id", "type": "big_int", "nullable": false, "primary_key": {"auto_increment": true}, "comment": "교육 이수 고유번호"},
+    {"name": "education_course_id", "type": "big_int", "nullable": false, "foreign_key": "education_courses.education_course_id", "index": true, "comment": "교육 과정 FK"},
+    {"name": "employee_id", "type": "big_int", "nullable": false, "foreign_key": {"references": "employees.employee_id", "on_delete": "cascade"}, "index": true, "comment": "이수 작업자 FK"},
+    {"name": "course_version", "type": "integer", "nullable": false, "comment": "이수한 교육 과정 버전"},
+    {"name": "completed_at", "type": "timestamptz", "nullable": false, "comment": "이수일시"},
+    {"name": "expires_at", "type": "timestamptz", "nullable": true, "index": true, "comment": "이수 만료일시"},
+    {"name": "evidence_url", "type": {"kind": "varchar", "length": 500}, "nullable": true, "comment": "이수 증빙 경로"},
+    {"name": "recorded_by_id", "type": "big_int", "nullable": false, "foreign_key": "employees.employee_id", "comment": "이수 등록자 FK"},
+    {"name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시"}
+  ]
+}

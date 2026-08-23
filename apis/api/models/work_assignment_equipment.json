@@ -1,0 +1,12 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "work_assignment_equipment",
+  "description": "v2 작업 배정에 수락된 보호구 할당 이력",
+  "columns": [
+    {"name": "work_assignment_equipment_id", "type": "big_int", "nullable": false, "primary_key": {"auto_increment": true}, "comment": "작업 장비 할당 고유번호"},
+    {"name": "work_assignment_id", "type": "big_int", "nullable": false, "foreign_key": {"references": "v2_work_assignments.work_assignment_id", "on_delete": "cascade"}, "unique": "uq_assignment_equipment", "comment": "v2 작업 배정 FK"},
+    {"name": "equipment_profile_id", "type": "big_int", "nullable": false, "foreign_key": "equipment_profiles.equipment_profile_id", "unique": "uq_assignment_equipment", "comment": "수락 v2 장비 프로필 FK"},
+    {"name": "requirement_snapshot_id", "type": "big_int", "nullable": false, "foreign_key": "work_ppe_requirement_snapshots.work_ppe_requirement_snapshot_id", "comment": "충족한 보호구 스냅샷 FK"},
+    {"name": "accepted_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "수락일시"}
+  ]
+}

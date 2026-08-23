@@ -1,0 +1,18 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "v2_work_assignments",
+  "description": "v2 작업과 작업자를 연결하는 authoritative 작업 배정",
+  "columns": [
+    {"name": "work_assignment_id", "type": "big_int", "nullable": false, "primary_key": {"auto_increment": true}, "comment": "v2 작업 배정 고유번호"},
+    {"name": "legacy_assignment_id", "type": "big_int", "nullable": true, "foreign_key": {"references": "work_assignments.assignment_id", "on_delete": "set_null"}, "unique": true, "comment": "변환된 0001 작업 배정 FK, v2 신규 배정은 null"},
+    {"name": "work_id", "type": "big_int", "nullable": false, "foreign_key": {"references": "works.work_id", "on_delete": "cascade"}, "unique": "uq_v2_work_assignment_work_employee", "comment": "v2 작업 FK"},
+    {"name": "employee_id", "type": "big_int", "nullable": false, "foreign_key": "employees.employee_id", "unique": "uq_v2_work_assignment_work_employee", "index": true, "comment": "작업자 FK"},
+    {"name": "assigned_by_id", "type": "big_int", "nullable": false, "foreign_key": "employees.employee_id", "comment": "배치 담당자 FK"},
+    {"name": "status", "type": {"kind": "enum", "name": "v2_work_assignment_status", "values": ["ASSIGNED", "SELECTED", "ACTIVE", "COMPLETED", "CANCELLED"]}, "nullable": false, "default": "'ASSIGNED'", "index": true, "comment": "v2 배정 수명주기 상태"},
+    {"name": "selected_at", "type": "timestamptz", "nullable": true, "comment": "작업자가 NFC 대상 작업으로 선택한 일시"},
+    {"name": "started_at", "type": "timestamptz", "nullable": true, "comment": "배정 작업 시작일시"},
+    {"name": "completed_at", "type": "timestamptz", "nullable": true, "comment": "배정 작업 완료일시"},
+    {"name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "생성일시"},
+    {"name": "updated_at", "type": "timestamptz", "nullable": true, "comment": "수정일시"}
+  ]
+}

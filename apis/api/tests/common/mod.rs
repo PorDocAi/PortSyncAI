@@ -9,15 +9,27 @@
 // 공용 픽스처가 dead-code로 보인다 — 공용 하네스스 특성상 모듈 단위로 허용한다.
 #![allow(dead_code)]
 
-use sea_orm::{ActiveModelTrait, ActiveValue::NotSet, DatabaseConnection, EntityTrait, Set};
+use chrono::Utc;
+use sea_orm::{
+    ActiveModelTrait, ActiveValue::NotSet, ConnectionTrait, DatabaseConnection, DbBackend,
+    EntityTrait, QueryResult, Set, Statement, Value,
+};
 use vespera::axum::{Router, http::StatusCode};
 
 use api::config::Config;
 use api::models::{
     attendances::{self, ApprovalStatus},
+    cargo_document_versions::{
+        self, CargoProcessingStatus, CargoReviewStatus, V2CargoDocumentType,
+    },
     departments,
     employees::{self, SystemRole},
-    equipment, equipment_types, job_roles,
+    equipment,
+    equipment_profiles::{self, EquipmentLifecycleStatus, EquipmentOwnershipType},
+    equipment_tag_tokens, equipment_types, job_roles,
+    v2_work_assignments::{self, V2WorkAssignmentStatus},
+    work_types,
+    works::{self, WorkLifecycleStatus},
 };
 use api::routes::{gate, work_assignments};
 use api::utils::AppState;
@@ -94,6 +106,27 @@ pub async fn spawn_app_with(
             vespera::axum::routing::post(gate::issue_gate_terminal),
         )
         .route(
+            "/equipment-checks/tag-tokens",
+            vespera::axum::routing::post(api::routes::equipment_checks::issue_equipment_tag_token),
+        )
+        .route(
+            "/equipment-checks/tag-tokens/{tokenid}",
+            vespera::axum::routing::delete(
+                api::routes::equipment_checks::revoke_equipment_tag_token,
+            ),
+        )
+        .route(
+            "/equipment-checks/{equipment_profile_id}/tag-token",
+            vespera::axum::routing::post(
+                api::routes::equipment_checks::issue_equipment_tag_token_for_profile,
+            )
+            .delete(api::routes::equipment_checks::revoke_equipment_tag_token_for_profile),
+        )
+        .route(
+            "/equipment-checks/tag-tokens/{equipment_profile_id}/rotate",
+            vespera::axum::routing::post(api::routes::equipment_checks::rotate_equipment_tag_token),
+        )
+        .route(
             "/gate/terminals/{terminalid}",
             vespera::axum::routing::delete(gate::revoke_gate_terminal),
         );
@@ -109,6 +142,10 @@ pub async fn spawn_app_with(
         .route(
             "/work-assignments",
             vespera::axum::routing::post(work_assignments::create_work_assignment),
+        )
+        .route(
+            "/work-assignments/{id}",
+            vespera::axum::routing::patch(work_assignments::update_work_assignment),
         )
         .with_state(state);
 
@@ -242,8 +279,233 @@ pub async fn terminal_token_hash(db: &DatabaseConnection, terminal_id: i64) -> S
         .token_hash
 }
 
-/// AC-6 픽스처: 활성 NFC 장비 1개 (고유 UID로 충돌 없음).
-/// 장비 종류 마스터가 없으면 만들어 넣는다 — 이 픽스처만으로 자기충족적이다.
+/// v2 장비 프로필 픽스처. legacy equipment 행은 v2 경로에서 참조하지 않는다.
+pub async fn seed_v2_equipment(
+    db: &DatabaseConnection,
+    owner_employee_id: Option<i64>,
+    ownership_type: EquipmentOwnershipType,
+    status: EquipmentLifecycleStatus,
+) -> equipment_profiles::Model {
+    let type_id = match equipment_types::Entity::find()
+        .one(db)
+        .await
+        .expect("장비 종류 조회 실패")
+    {
+        Some(existing) => existing.equipment_type_id,
+        None => {
+            equipment_types::ActiveModel {
+                equipment_type_id: NotSet,
+                name: Set("안전화".to_string()),
+                category: Set(None),
+                description: Set(None),
+                created_at: NotSet,
+                updated_at: Set(None),
+            }
+            .insert(db)
+            .await
+            .expect("장비 종류 픽스처 삽입 실패")
+            .equipment_type_id
+        }
+    };
+    equipment_profiles::ActiveModel {
+        equipment_profile_id: NotSet,
+        legacy_equipment_id: Set(None),
+        equipment_type_id: Set(type_id),
+        asset_number: Set(Some(format!("V2-AST-{}", uuid::Uuid::new_v4().simple()))),
+        ownership_type: Set(ownership_type),
+        owner_employee_id: Set(owner_employee_id),
+        status: Set(status),
+        status_reason: Set(None),
+        braille_label: Set(None),
+        manufacturer_replacement_due_at: Set(None),
+        created_at: NotSet,
+        updated_at: Set(None),
+    }
+    .insert(db)
+    .await
+    .expect("v2 장비 프로필 픽스처 삽입 실패")
+}
+
+pub async fn seed_v2_token(
+    db: &DatabaseConnection,
+    equipment_profile_id: i64,
+    issued_by_id: i64,
+) -> (equipment_tag_tokens::Model, String) {
+    let token = format!("eqt_test_{}", uuid::Uuid::new_v4().simple());
+    let saved = equipment_tag_tokens::ActiveModel {
+        equipment_tag_token_id: NotSet,
+        equipment_profile_id: Set(equipment_profile_id),
+        tag_token_hash: Set(api::utils::auth::hash_token(&token)),
+        is_active: Set(true),
+        issued_by_id: Set(issued_by_id),
+        issued_at: NotSet,
+        deactivated_by_id: Set(None),
+        deactivated_at: Set(None),
+        created_at: NotSet,
+    }
+    .insert(db)
+    .await
+    .expect("v2 장비 토큰 픽스처 삽입 실패");
+    (saved, token)
+}
+
+async fn insert_v2_ppe_requirement(
+    db: &DatabaseConnection,
+    equipment_type_id: i64,
+    source_document_version_id: i64,
+) -> i64 {
+    let backend = db.get_database_backend();
+    let placeholders = if backend == DbBackend::Postgres {
+        "$1, $2, $3, $4, $5, $6, $7, $8, $9, $10"
+    } else {
+        "?, ?, ?, ?, ?, ?, ?, ?, ?, ?"
+    };
+    let sql = format!(
+        "INSERT INTO ppe_requirements (equipment_type_id, category, performance_criteria, source_text, source_document_version_id, source_document_version, review_status, reviewed_by_id, reviewed_at, is_active) VALUES ({placeholders}) RETURNING ppe_requirement_id"
+    );
+    let row: QueryResult = db
+        .query_one_raw(Statement::from_sql_and_values(
+            backend,
+            sql,
+            vec![
+                Value::BigInt(Some(equipment_type_id)),
+                Value::String(Some("FOOT".to_string())),
+                Value::Json(None),
+                Value::String(Some("테스트 PPE 요구조건".to_string())),
+                Value::BigInt(Some(source_document_version_id)),
+                Value::Int(Some(1)),
+                Value::String(Some("CONFIRMED".to_string())),
+                Value::BigInt(Some(1)),
+                Value::ChronoDateTimeWithTimeZone(Some(Utc::now().fixed_offset())),
+                Value::Bool(Some(true)),
+            ],
+        ))
+        .await
+        .expect("PPE 요구조건 삽입 실패")
+        .expect("PPE 요구조건 반환 실패");
+    row.try_get("", "ppe_requirement_id")
+        .expect("PPE 요구조건 ID 반환 실패")
+}
+
+async fn insert_v2_ppe_snapshot(
+    db: &DatabaseConnection,
+    work_id: i64,
+    ppe_requirement_id: i64,
+    equipment_type_id: i64,
+    source_document_version_id: i64,
+) -> i64 {
+    let backend = db.get_database_backend();
+    let placeholders = if backend == DbBackend::Postgres {
+        "$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11"
+    } else {
+        "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?"
+    };
+    let sql = format!(
+        "INSERT INTO work_ppe_requirement_snapshots (work_id, ppe_requirement_id, equipment_type_id, category, performance_criteria, source_text, source_document_version_id, source_document_version, reviewed_by_id, reviewed_at, snapshotted_at) VALUES ({placeholders}) RETURNING work_ppe_requirement_snapshot_id"
+    );
+    let row: QueryResult = db
+        .query_one_raw(Statement::from_sql_and_values(
+            backend,
+            sql,
+            vec![
+                Value::BigInt(Some(work_id)),
+                Value::BigInt(Some(ppe_requirement_id)),
+                Value::BigInt(Some(equipment_type_id)),
+                Value::String(Some("FOOT".to_string())),
+                Value::Json(None),
+                Value::String(Some("테스트 PPE 스냅샷".to_string())),
+                Value::BigInt(Some(source_document_version_id)),
+                Value::Int(Some(1)),
+                Value::BigInt(Some(1)),
+                Value::ChronoDateTimeWithTimeZone(Some(Utc::now().fixed_offset())),
+                Value::ChronoDateTimeWithTimeZone(Some(Utc::now().fixed_offset())),
+            ],
+        ))
+        .await
+        .expect("PPE 스냅샷 삽입 실패")
+        .expect("PPE 스냅샷 반환 실패");
+    row.try_get("", "work_ppe_requirement_snapshot_id")
+        .expect("PPE 스냅샷 ID 반환 실패")
+}
+
+/// v2 작업·선택된 배정·확정 PPE 스냅샷 픽스처.
+pub async fn seed_v2_assignment(
+    db: &DatabaseConnection,
+    employee_id: i64,
+    equipment_type_id: i64,
+) -> v2_work_assignments::Model {
+    let work_type = work_types::ActiveModel {
+        work_type_id: NotSet,
+        work_type_code: Set(format!("V2-WORK-{}", uuid::Uuid::new_v4().simple())),
+        name: Set("테스트 작업".to_string()),
+        description: Set(None),
+        is_active: Set(true),
+        created_at: NotSet,
+        updated_at: Set(None),
+    }
+    .insert(db)
+    .await
+    .expect("작업 유형 픽스처 삽입 실패");
+    let work = works::ActiveModel {
+        work_id: NotSet,
+        work_type_id: Set(work_type.work_type_id),
+        work_reference: Set(format!("V2-REF-{}", uuid::Uuid::new_v4().simple())),
+        status: Set(WorkLifecycleStatus::Active),
+        scheduled_start_at: Set(Utc::now().fixed_offset()),
+        scheduled_end_at: Set(None),
+        started_at: Set(Some(Utc::now().fixed_offset())),
+        completed_at: Set(None),
+        created_by_id: Set(1),
+        created_at: NotSet,
+        updated_at: Set(None),
+    }
+    .insert(db)
+    .await
+    .expect("v2 작업 픽스처 삽입 실패");
+    let document = cargo_document_versions::ActiveModel {
+        cargo_document_version_id: NotSet,
+        legacy_cargo_document_id: Set(None),
+        document_type: Set(V2CargoDocumentType::Msds),
+        document_version: Set(1),
+        processing_status: Set(CargoProcessingStatus::Completed),
+        review_status: Set(CargoReviewStatus::Confirmed),
+        reviewed_by_id: Set(Some(1)),
+        reviewed_at: Set(Some(Utc::now().fixed_offset())),
+        created_at: NotSet,
+        updated_at: Set(None),
+    }
+    .insert(db)
+    .await
+    .expect("v2 문서 픽스처 삽입 실패");
+    let ppe =
+        insert_v2_ppe_requirement(db, equipment_type_id, document.cargo_document_version_id).await;
+    insert_v2_ppe_snapshot(
+        db,
+        work.work_id,
+        ppe,
+        equipment_type_id,
+        document.cargo_document_version_id,
+    )
+    .await;
+    v2_work_assignments::ActiveModel {
+        work_assignment_id: NotSet,
+        legacy_assignment_id: Set(None),
+        work_id: Set(work.work_id),
+        employee_id: Set(employee_id),
+        assigned_by_id: Set(1),
+        status: Set(V2WorkAssignmentStatus::Active),
+        selected_at: Set(Some(Utc::now().fixed_offset())),
+        started_at: Set(Some(Utc::now().fixed_offset())),
+        completed_at: Set(None),
+        created_at: NotSet,
+        updated_at: Set(None),
+    }
+    .insert(db)
+    .await
+    .expect("v2 배정 픽스처 삽입 실패")
+}
+
+/// AC-6 legacy 픽스처는 다른 테스트(현행 legacy API)에서만 사용한다.
 pub async fn seed_active_equipment(db: &DatabaseConnection) -> equipment::Model {
     let type_id = match equipment_types::Entity::find()
         .one(db)
@@ -301,13 +563,62 @@ impl TestApp {
         }
     }
 
-    pub async fn tag_equipment_with(&self, authorization: &str, nfc_tag_uid: &str) -> MockResponse {
+    pub async fn tag_equipment_with(
+        &self,
+        authorization: &str,
+        work_assignment_id: i64,
+        tag_token: &str,
+        idempotency_key: &str,
+    ) -> MockResponse {
         self.send_request(
             req(vespera::axum::http::Method::POST, "/equipment-checks")
                 .header("Authorization", authorization)
                 .header("Content-Type", "application/json")
-                .body(serde_json::json!({ "nfc_tag_uid": nfc_tag_uid }).to_string())
+                .body(
+                    serde_json::json!({
+                        "work_assignment_id": work_assignment_id,
+                        "tag_token": tag_token,
+                        "client_scanned_at": "2026-08-23T09:00:00+09:00",
+                        "idempotency_key": idempotency_key,
+                    })
+                    .to_string(),
+                )
                 .unwrap(),
+        )
+        .await
+    }
+
+    pub async fn issue_equipment_tag_token_with(
+        &self,
+        authorization: &str,
+        equipment_profile_id: i64,
+    ) -> MockResponse {
+        self.send_request(
+            req(
+                vespera::axum::http::Method::POST,
+                "/equipment-checks/tag-tokens",
+            )
+            .header("Authorization", authorization)
+            .header("Content-Type", "application/json")
+            .body(serde_json::json!({ "equipment_profile_id": equipment_profile_id }).to_string())
+            .unwrap(),
+        )
+        .await
+    }
+
+    pub async fn revoke_equipment_tag_token_with(
+        &self,
+        authorization: &str,
+        token_id: i64,
+    ) -> MockResponse {
+        self.send_request(
+            req(
+                vespera::axum::http::Method::DELETE,
+                &format!("/equipment-checks/tag-tokens/{token_id}"),
+            )
+            .header("Authorization", authorization)
+            .body(String::new())
+            .unwrap(),
         )
         .await
     }
@@ -334,6 +645,25 @@ impl TestApp {
         .await
     }
 
+    pub async fn update_assignment_with(
+        &self,
+        authorization: &str,
+        assignment_id: i64,
+        cargo_item_id: Option<i64>,
+    ) -> MockResponse {
+        self.send_request(
+            req(
+                vespera::axum::http::Method::PATCH,
+                &format!("/work-assignments/{assignment_id}"),
+            )
+            .header("Authorization", authorization)
+            .header("Content-Type", "application/json")
+            .body(serde_json::json!({ "cargo_item_id": cargo_item_id }).to_string())
+            .unwrap(),
+        )
+        .await
+    }
+
     pub async fn verify_gate_with(
         &self,
         authorization: Option<&str>,
@@ -344,12 +674,12 @@ impl TestApp {
         if let Some(token) = authorization {
             request = request.header("Authorization", token);
         }
-        self.send_request(
-            request
-                .body(serde_json::json!({ "nfc_card_uid": nfc_card_uid }).to_string())
-                .unwrap(),
-        )
-        .await
+        let body = if nfc_card_uid.trim_start().starts_with('{') {
+            nfc_card_uid.to_string()
+        } else {
+            serde_json::json!({ "nfc_card_uid": nfc_card_uid }).to_string()
+        };
+        self.send_request(request.body(body).unwrap()).await
     }
 
     pub async fn revoke_terminal_with(
@@ -384,6 +714,10 @@ pub struct MockResponse {
 impl MockResponse {
     pub fn status(&self) -> StatusCode {
         self.status
+    }
+
+    pub fn body(&self) -> &[u8] {
+        &self.body
     }
 
     pub fn json(&self) -> serde_json::Value {

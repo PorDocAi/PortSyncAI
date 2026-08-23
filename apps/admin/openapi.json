@@ -323,6 +323,37 @@
           "attendances"
         ],
         "description": "작업중지 대상(또는 오늘 전체) 출근 목록 조회 (관리 권한, 시나리오 5)",
+        "parameters": [
+          {
+            "name": "work_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "nullable": true
+            }
+          },
+          {
+            "name": "work_assignment_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "nullable": true
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful response",
@@ -331,7 +362,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/WorkStopItem"
+                    "$ref": "#/components/schemas/WorkStopResponse"
                   }
                 }
               }
@@ -342,7 +373,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "integer"
+                  "$ref": "#/components/schemas/WorkStopErrorResponse"
                 }
               }
             }
@@ -881,6 +912,298 @@
         }
       }
     },
+    "/education/completions": {
+      "get": {
+        "operationId": "list_education_completions",
+        "tags": [
+          "education"
+        ],
+        "description": "교육 이수 목록. employee_id/course_id로 작업자의 이수 이력을 조회할 수 있다.",
+        "parameters": [
+          {
+            "name": "employee_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "nullable": true
+            }
+          },
+          {
+            "name": "education_course_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "nullable": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EducationCompletionResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "create_education_completion",
+        "tags": [
+          "education"
+        ],
+        "description": "교육 이수 등록 (관리 권한). 동일 과정 재이수를 허용한다.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEducationCompletionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EducationCompletionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EducationErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/education/courses": {
+      "get": {
+        "operationId": "list_education_courses",
+        "tags": [
+          "education"
+        ],
+        "description": "교육 과정 목록",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EducationCourseResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "create_education_course",
+        "tags": [
+          "education"
+        ],
+        "description": "교육 과정 생성 (관리 권한)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEducationCourseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EducationCourseResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/education/readiness": {
+      "get": {
+        "operationId": "get_education_readiness",
+        "tags": [
+          "education"
+        ],
+        "description": "작업 배정 전 교육 충족 여부. CURRENT / EXPIRED / MISSING 을 구분한다.",
+        "parameters": [
+          {
+            "name": "employee_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "work_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EducationReadinessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EducationErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/education/rules": {
+      "get": {
+        "operationId": "list_education_target_rules",
+        "tags": [
+          "education"
+        ],
+        "description": "교육 대상 규칙 목록",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EducationTargetRuleResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "create_education_target_rule",
+        "tags": [
+          "education"
+        ],
+        "description": "교육 대상 규칙 생성 (관리 권한)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEducationTargetRuleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EducationTargetRuleResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EducationErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/employees": {
       "get": {
         "operationId": "list_employees",
@@ -1002,7 +1325,7 @@
         "tags": [
           "equipment_checks"
         ],
-        "description": "장비 NFC 태깅 (FR-D3/D4)\n409 = 오늘 이미 다른 출근 건에서 사용된 장비 (돌려쓰기 차단 — 데모 시나리오 2)",
+        "description": "장비 NFC 태깅. v2 sidecar의 불투명 토큰만 장비 식별에 사용한다.",
         "requestBody": {
           "required": true,
           "content": {
@@ -1029,7 +1352,214 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "integer"
+                  "$ref": "#/components/schemas/TagResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equipment-checks/tag-tokens": {
+      "post": {
+        "operationId": "issue_equipment_tag_token",
+        "tags": [
+          "equipment_checks"
+        ],
+        "description": "관리자 장비 프로필 태그 토큰 발급. 평문은 이 응답에서만 반환하고 DB에는 SHA-256만 저장한다.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IssueEquipmentTagTokenRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IssueEquipmentTagTokenResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenAdminError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equipment-checks/tag-tokens/{equipment-profile-id}/rotate": {
+      "post": {
+        "operationId": "rotate_equipment_tag_token",
+        "tags": [
+          "equipment_checks"
+        ],
+        "description": "기존 활성 토큰을 폐기하고 새 토큰을 발급한다.",
+        "parameters": [
+          {
+            "name": "equipment-profile-id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IssueEquipmentTagTokenResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenAdminError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equipment-checks/tag-tokens/{tokenid}": {
+      "delete": {
+        "operationId": "revoke_equipment_tag_token",
+        "tags": [
+          "equipment_checks"
+        ],
+        "description": "관리자 태그 토큰 폐기. 행은 남기고 활성 플래그만 끈다.",
+        "parameters": [
+          {
+            "name": "tokenid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevokeEquipmentTagTokenResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenAdminError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equipment-checks/{equipment-profile-id}/tag-token": {
+      "post": {
+        "operationId": "issue_equipment_tag_token_for_profile",
+        "tags": [
+          "equipment_checks"
+        ],
+        "description": "프로필 경로를 사용하는 관리자 발급 별칭.",
+        "parameters": [
+          {
+            "name": "equipment-profile-id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IssueEquipmentTagTokenResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenAdminError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "revoke_equipment_tag_token_for_profile",
+        "tags": [
+          "equipment_checks"
+        ],
+        "description": "프로필 경로를 사용하는 관리자 폐기 별칭. 해당 프로필의 활성 토큰을 모두 폐기한다.",
+        "parameters": [
+          {
+            "name": "equipment-profile-id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevokeEquipmentTagTokenResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenAdminError"
                 }
               }
             }
@@ -1308,6 +1838,206 @@
         }
       }
     },
+    "/ppe/requirements": {
+      "get": {
+        "operationId": "list_ppe_requirements",
+        "tags": [
+          "ppe"
+        ],
+        "description": "보호구 요구조건 목록",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PpeRequirementResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "create_ppe_requirement",
+        "tags": [
+          "ppe"
+        ],
+        "description": "보호구 요구조건 생성 (관리 권한). 검수 전 PENDING 으로 저장한다.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePpeRequirementRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PpeRequirementResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PpeErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ppe/requirements/{id}/confirm": {
+      "post": {
+        "operationId": "confirm_ppe_requirement",
+        "tags": [
+          "ppe"
+        ],
+        "description": "보호구 요구조건 검수 확정 (관리 권한)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PpeRequirementResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PpeErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ppe/snapshots": {
+      "get": {
+        "operationId": "list_ppe_snapshots",
+        "tags": [
+          "ppe"
+        ],
+        "description": "작업 확정 시점의 불변 보호구 스냅샷 목록",
+        "parameters": [
+          {
+            "name": "work_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "nullable": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PpeSnapshotResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "create_ppe_snapshot",
+        "tags": [
+          "ppe"
+        ],
+        "description": "검수 확정된 요구조건을 작업 스냅샷으로 고정한다.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePpeSnapshotRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PpeSnapshotResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PpeErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/work-assignments": {
       "post": {
         "operationId": "create_work_assignment",
@@ -1394,6 +2124,235 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AssignmentErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/work-preparations": {
+      "post": {
+        "operationId": "upsert_work_preparation",
+        "tags": [
+          "work_preparations"
+        ],
+        "description": "v2 배정 준비 상태를 생성하거나 재계산한다 (관리 권한)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertWorkPreparationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkPreparationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkPreparationErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/work-preparations/{id}": {
+      "get": {
+        "operationId": "get_work_preparation",
+        "tags": [
+          "work_preparations"
+        ],
+        "description": "v2 배정 준비 상태 조회",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkPreparationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkPreparationErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/work-stops": {
+      "get": {
+        "operationId": "list_work_stops",
+        "tags": [
+          "work_stops"
+        ],
+        "description": "작업중지 목록. OPEN 은 미충족, CLOSED 는 충족으로 구분한다.",
+        "parameters": [
+          {
+            "name": "work_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "nullable": true
+            }
+          },
+          {
+            "name": "work_assignment_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "nullable": true
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WorkStopResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkStopErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "create_work_stop",
+        "tags": [
+          "work_stops"
+        ],
+        "description": "작업 또는 v2 배정 범위의 작업중지를 연다 (관리 권한)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWorkStopRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkStopResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkStopErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/work-stops/{id}/close": {
+      "post": {
+        "operationId": "close_work_stop",
+        "tags": [
+          "work_stops"
+        ],
+        "description": "작업중지를 해제한다 (관리 권한). 이미 CLOSED 이면 멱등하게 200을 반환한다.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkStopResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkStopErrorResponse"
                 }
               }
             }
@@ -1639,6 +2598,10 @@
                 "$ref": "#/components/schemas/WorkStatus"
               }
             ]
+          },
+          "workStops": {
+            "$ref": "#/components/schemas/AttendancesSchema_WorkStops",
+            "nullable": true
           }
         },
         "required": [
@@ -1652,6 +2615,87 @@
           "workStatus",
           "createdAt",
           "employee"
+        ]
+      },
+      "AttendancesSchema_WorkStops": {
+        "type": "object",
+        "properties": {
+          "closedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "작업중지 해제일시",
+            "nullable": true
+          },
+          "closedById": {
+            "type": "integer",
+            "format": "int64",
+            "description": "작업중지 해제자 FK",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시"
+          },
+          "legacyAttendanceId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "PR #48 출근 작업중지 변환 출처 FK",
+            "nullable": true
+          },
+          "reason": {
+            "type": "string",
+            "description": "작업중지 사유"
+          },
+          "status": {
+            "description": "작업중지 상태",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WorkStopStatus"
+              }
+            ]
+          },
+          "stoppedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "작업중지 일시"
+          },
+          "stoppedById": {
+            "type": "integer",
+            "format": "int64",
+            "description": "작업중지 등록자 FK, PR #48 변환행은 null",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          },
+          "workAssignmentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "중지 대상 v2 작업 배정 FK",
+            "nullable": true
+          },
+          "workId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "중지 대상 작업 FK, 레거시 변환행은 null",
+            "nullable": true
+          },
+          "workStopId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "작업중지 고유번호"
+          }
+        },
+        "required": [
+          "workStopId",
+          "status",
+          "reason",
+          "stoppedAt",
+          "createdAt"
         ]
       },
       "AuditLogsSchema": {
@@ -1768,11 +2812,188 @@
           "created_at"
         ]
       },
+      "CargoDocumentRole": {
+        "type": "string",
+        "enum": [
+          "BL",
+          "DGD",
+          "CI",
+          "MSDS"
+        ]
+      },
       "CargoDocumentType": {
         "type": "string",
         "enum": [
           "BL",
           "DGD"
+        ]
+      },
+      "CargoDocumentVersionsSchema": {
+        "type": "object",
+        "description": "화물 문서의 v2 유형·처리·검수 버전 상태",
+        "properties": {
+          "cargoDocumentVersionId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "v2 화물문서 버전 고유번호",
+            "default": 0
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "documentType": {
+            "description": "v2 문서 유형",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/V2CargoDocumentType"
+              }
+            ]
+          },
+          "documentVersion": {
+            "type": "integer",
+            "format": "int32",
+            "description": "동일 문서의 검수 버전",
+            "default": 1
+          },
+          "legacy": {
+            "$ref": "#/components/schemas/CargoDocumentVersionsSchema_Legacy",
+            "nullable": true
+          },
+          "legacyCargoDocumentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "변환된 0001-0004 화물문서 FK, v2 신규 문서는 null",
+            "nullable": true
+          },
+          "processingStatus": {
+            "description": "문서 분석 처리 상태",
+            "default": "PENDING",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CargoProcessingStatus"
+              }
+            ]
+          },
+          "reviewStatus": {
+            "description": "v2 관리자 검수 상태",
+            "default": "PENDING",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CargoReviewStatus"
+              }
+            ]
+          },
+          "reviewedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "검수일시",
+            "nullable": true
+          },
+          "reviewedBy": {
+            "$ref": "#/components/schemas/EmployeesSchema",
+            "nullable": true
+          },
+          "reviewedById": {
+            "type": "integer",
+            "format": "int64",
+            "description": "검수자 FK",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          }
+        },
+        "required": [
+          "cargoDocumentVersionId",
+          "documentType",
+          "documentVersion",
+          "processingStatus",
+          "reviewStatus",
+          "createdAt"
+        ]
+      },
+      "CargoDocumentVersionsSchema_Legacy": {
+        "type": "object",
+        "properties": {
+          "cargoDocumentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "화물문서 고유번호"
+          },
+          "contentType": {
+            "type": "string",
+            "description": "업로드 MIME 타입",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시"
+          },
+          "documentType": {
+            "description": "문서 유형 (선하증권/위험물신고서)",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CargoDocumentType"
+              }
+            ]
+          },
+          "fileFormat": {
+            "description": "파일 형식",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/FileFormat"
+              }
+            ]
+          },
+          "fileHash": {
+            "type": "string",
+            "description": "SHA-256 파일 무결성 해시",
+            "nullable": true
+          },
+          "fileSize": {
+            "type": "integer",
+            "format": "int64",
+            "description": "파일 크기(byte)",
+            "nullable": true
+          },
+          "fileUrl": {
+            "type": "string",
+            "description": "원본 파일 경로"
+          },
+          "originalFileName": {
+            "type": "string",
+            "description": "사용자가 업로드한 원본 파일명",
+            "nullable": true
+          },
+          "reviewStatus": {
+            "description": "검수 상태 (FR-B2 — CONFIRMED여야 작업 배정 가능)",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ReviewStatus"
+              }
+            ]
+          },
+          "uploadedById": {
+            "type": "integer",
+            "format": "int64",
+            "description": "업로더 FK"
+          }
+        },
+        "required": [
+          "cargoDocumentId",
+          "documentType",
+          "fileFormat",
+          "fileUrl",
+          "reviewStatus",
+          "uploadedById",
+          "createdAt"
         ]
       },
       "CargoDocumentsSchema": {
@@ -1784,6 +3005,10 @@
             "format": "int64",
             "description": "화물문서 고유번호",
             "default": 0
+          },
+          "cargoDocumentVersions": {
+            "$ref": "#/components/schemas/CargoDocumentsSchema_CargoDocumentVersions",
+            "nullable": true
           },
           "contentType": {
             "type": "string",
@@ -1859,6 +3084,139 @@
           "uploadedById",
           "createdAt",
           "uploadedBy"
+        ]
+      },
+      "CargoDocumentsSchema_CargoDocumentVersions": {
+        "type": "object",
+        "properties": {
+          "cargoDocumentVersionId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "v2 화물문서 버전 고유번호"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시"
+          },
+          "documentType": {
+            "description": "v2 문서 유형",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/V2CargoDocumentType"
+              }
+            ]
+          },
+          "documentVersion": {
+            "type": "integer",
+            "format": "int32",
+            "description": "동일 문서의 검수 버전"
+          },
+          "legacyCargoDocumentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "변환된 0001-0004 화물문서 FK, v2 신규 문서는 null",
+            "nullable": true
+          },
+          "processingStatus": {
+            "description": "문서 분석 처리 상태",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CargoProcessingStatus"
+              }
+            ]
+          },
+          "reviewStatus": {
+            "description": "v2 관리자 검수 상태",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CargoReviewStatus"
+              }
+            ]
+          },
+          "reviewedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "검수일시",
+            "nullable": true
+          },
+          "reviewedById": {
+            "type": "integer",
+            "format": "int64",
+            "description": "검수자 FK",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          }
+        },
+        "required": [
+          "cargoDocumentVersionId",
+          "documentType",
+          "documentVersion",
+          "processingStatus",
+          "reviewStatus",
+          "createdAt"
+        ]
+      },
+      "CargoItemDocumentsSchema": {
+        "type": "object",
+        "description": "화물과 v2 문서 버전의 역할별 다대다 관계",
+        "properties": {
+          "cargoDocumentVersion": {
+            "type": "object"
+          },
+          "cargoDocumentVersionId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "v2 화물문서 버전 FK"
+          },
+          "cargoItem": {
+            "type": "object"
+          },
+          "cargoItemDocumentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "화물 문서 관계 고유번호",
+            "default": 0
+          },
+          "cargoItemId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "레거시 화물 FK"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "documentRole": {
+            "description": "화물에서 문서가 담당하는 역할",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CargoDocumentRole"
+              }
+            ]
+          },
+          "isPrimary": {
+            "type": "boolean",
+            "description": "동일 역할의 대표 문서 여부",
+            "default": false
+          }
+        },
+        "required": [
+          "cargoItemDocumentId",
+          "cargoItemId",
+          "cargoDocumentVersionId",
+          "documentRole",
+          "isPrimary",
+          "createdAt",
+          "cargoItem",
+          "cargoDocumentVersion"
         ]
       },
       "CargoItemResponse": {
@@ -2017,12 +3375,49 @@
           }
         }
       },
+      "CargoProcessingStatus": {
+        "type": "string",
+        "enum": [
+          "PENDING",
+          "PROCESSING",
+          "COMPLETED",
+          "FAILED"
+        ]
+      },
+      "CargoReviewStatus": {
+        "type": "string",
+        "enum": [
+          "PENDING",
+          "CONFIRMED",
+          "REJECTED"
+        ]
+      },
       "ChangeType": {
         "type": "string",
         "enum": [
           "ADDED",
           "MODIFIED",
           "DELETED"
+        ]
+      },
+      "ChecklistItem": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "satisfied": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "category",
+          "satisfied"
         ]
       },
       "ClassEquipmentMappingsSchema": {
@@ -2130,6 +3525,104 @@
           "instruction"
         ]
       },
+      "ContainerCargoItemsSchema": {
+        "type": "object",
+        "description": "컨테이너와 혼재 화물의 다대다 관계",
+        "properties": {
+          "cargoItem": {
+            "type": "object"
+          },
+          "cargoItemId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "화물 FK"
+          },
+          "container": {
+            "$ref": "#/components/schemas/ContainersSchema"
+          },
+          "containerCargoItemId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "컨테이너 화물 관계 고유번호",
+            "default": 0
+          },
+          "containerId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "컨테이너 FK"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "loadedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "적재 확인일시",
+            "nullable": true
+          }
+        },
+        "required": [
+          "containerCargoItemId",
+          "containerId",
+          "cargoItemId",
+          "createdAt",
+          "container",
+          "cargoItem"
+        ]
+      },
+      "ContainersSchema": {
+        "type": "object",
+        "description": "작업 대상 컨테이너",
+        "properties": {
+          "arrivalAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "터미널 도착일시",
+            "nullable": true
+          },
+          "containerId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "컨테이너 고유번호",
+            "default": 0
+          },
+          "containerNumber": {
+            "type": "string",
+            "description": "ISO 6346 컨테이너 번호"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "departureAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "터미널 출발일시",
+            "nullable": true
+          },
+          "sealNumber": {
+            "type": "string",
+            "description": "봉인 번호",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          }
+        },
+        "required": [
+          "containerId",
+          "containerNumber",
+          "createdAt"
+        ]
+      },
       "CreateCargoItemRequest": {
         "type": "object",
         "properties": {
@@ -2186,6 +3679,97 @@
         "required": [
           "department_code",
           "name"
+        ]
+      },
+      "CreateEducationCompletionRequest": {
+        "type": "object",
+        "properties": {
+          "completed_at": {
+            "type": "string",
+            "description": "RFC3339"
+          },
+          "course_version": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "education_course_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "employee_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "evidence_url": {
+            "type": "string",
+            "nullable": true
+          },
+          "expires_at": {
+            "type": "string",
+            "description": "RFC3339, 생략 시 과정의 validity_days로 계산",
+            "nullable": true
+          }
+        },
+        "required": [
+          "education_course_id",
+          "employee_id",
+          "completed_at"
+        ]
+      },
+      "CreateEducationCourseRequest": {
+        "type": "object",
+        "properties": {
+          "course_code": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string"
+          },
+          "validity_days": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "required": [
+          "course_code",
+          "title"
+        ]
+      },
+      "CreateEducationTargetRuleRequest": {
+        "type": "object",
+        "properties": {
+          "dg_class_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "education_course_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "is_required": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "work_type_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          }
+        },
+        "required": [
+          "education_course_id"
         ]
       },
       "CreateEmployeeRequest": {
@@ -2261,6 +3845,52 @@
           "name"
         ]
       },
+      "CreatePpeRequirementRequest": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "equipment_type_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "performance_criteria": {
+            "type": "object",
+            "nullable": true
+          },
+          "source_document_version_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "source_text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "equipment_type_id",
+          "category",
+          "source_text",
+          "source_document_version_id"
+        ]
+      },
+      "CreatePpeSnapshotRequest": {
+        "type": "object",
+        "properties": {
+          "ppe_requirement_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "work_id": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "work_id",
+          "ppe_requirement_id"
+        ]
+      },
       "CreateWorkAssignmentRequest": {
         "type": "object",
         "properties": {
@@ -2278,6 +3908,27 @@
         },
         "required": [
           "employee_id"
+        ]
+      },
+      "CreateWorkStopRequest": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string"
+          },
+          "work_assignment_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "work_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          }
+        },
+        "required": [
+          "reason"
         ]
       },
       "DecideApprovalRequest": {
@@ -2449,6 +4100,447 @@
           "classCode",
           "nameKo",
           "createdAt"
+        ]
+      },
+      "EducationCompletionQuery": {
+        "type": "object",
+        "properties": {
+          "education_course_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "employee_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          }
+        }
+      },
+      "EducationCompletionResponse": {
+        "type": "object",
+        "properties": {
+          "completed_at": {
+            "type": "string"
+          },
+          "course_version": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "education_completion_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "education_course_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "employee_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "evidence_url": {
+            "type": "string",
+            "nullable": true
+          },
+          "expires_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "fulfilled": {
+            "type": "boolean"
+          },
+          "recorded_by_id": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "education_completion_id",
+          "education_course_id",
+          "employee_id",
+          "course_version",
+          "completed_at",
+          "recorded_by_id",
+          "fulfilled"
+        ]
+      },
+      "EducationCompletionsSchema": {
+        "type": "object",
+        "description": "작업자 교육 이수 이력(재이수 허용)",
+        "properties": {
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "이수일시"
+          },
+          "courseVersion": {
+            "type": "integer",
+            "format": "int32",
+            "description": "이수한 교육 과정 버전"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "educationCompletionId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "교육 이수 고유번호",
+            "default": 0
+          },
+          "educationCourse": {
+            "type": "object"
+          },
+          "educationCourseId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "교육 과정 FK"
+          },
+          "employee": {
+            "$ref": "#/components/schemas/EmployeesSchema"
+          },
+          "employeeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "이수 작업자 FK"
+          },
+          "evidenceUrl": {
+            "type": "string",
+            "description": "이수 증빙 경로",
+            "nullable": true
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "이수 만료일시",
+            "nullable": true
+          },
+          "recordedBy": {
+            "$ref": "#/components/schemas/EmployeesSchema"
+          },
+          "recordedById": {
+            "type": "integer",
+            "format": "int64",
+            "description": "이수 등록자 FK"
+          }
+        },
+        "required": [
+          "educationCompletionId",
+          "educationCourseId",
+          "employeeId",
+          "courseVersion",
+          "completedAt",
+          "recordedById",
+          "createdAt",
+          "educationCourse",
+          "employee",
+          "recordedBy"
+        ]
+      },
+      "EducationCourseResponse": {
+        "type": "object",
+        "properties": {
+          "course_code": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "education_course_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "is_active": {
+            "type": "boolean"
+          },
+          "title": {
+            "type": "string"
+          },
+          "validity_days": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "required": [
+          "education_course_id",
+          "course_code",
+          "title",
+          "version",
+          "is_active"
+        ]
+      },
+      "EducationCoursesSchema": {
+        "type": "object",
+        "description": "작업 투입 전 교육 과정 기준정보",
+        "properties": {
+          "courseCode": {
+            "type": "string",
+            "description": "교육 과정 코드"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "description": {
+            "type": "string",
+            "description": "교육 과정 설명",
+            "nullable": true
+          },
+          "educationCourseId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "교육 과정 고유번호",
+            "default": 0
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "사용 여부",
+            "default": true
+          },
+          "title": {
+            "type": "string",
+            "description": "교육 과정명"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          },
+          "validityDays": {
+            "type": "integer",
+            "format": "int32",
+            "description": "이수 유효기간 일수, null이면 무기한",
+            "nullable": true
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "description": "교육 과정 버전",
+            "default": 1
+          }
+        },
+        "required": [
+          "educationCourseId",
+          "courseCode",
+          "title",
+          "version",
+          "isActive",
+          "createdAt"
+        ]
+      },
+      "EducationErrorResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ]
+      },
+      "EducationReadinessQuery": {
+        "type": "object",
+        "properties": {
+          "employee_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "work_id": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "employee_id",
+          "work_id"
+        ]
+      },
+      "EducationReadinessResponse": {
+        "type": "object",
+        "properties": {
+          "employee_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "fulfilled": {
+            "type": "boolean"
+          },
+          "requirements": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EducationRequirementStatus"
+            }
+          },
+          "work_id": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "employee_id",
+          "work_id",
+          "fulfilled",
+          "requirements"
+        ]
+      },
+      "EducationRequirementStatus": {
+        "type": "object",
+        "properties": {
+          "course_code": {
+            "type": "string"
+          },
+          "education_completion_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "education_course_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "expires_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "fulfilled": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "description": "CURRENT | EXPIRED | MISSING"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "education_course_id",
+          "course_code",
+          "title",
+          "status",
+          "fulfilled"
+        ]
+      },
+      "EducationTargetRuleResponse": {
+        "type": "object",
+        "properties": {
+          "dg_class_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "education_course_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "education_target_rule_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "is_active": {
+            "type": "boolean"
+          },
+          "is_required": {
+            "type": "boolean"
+          },
+          "work_type_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          }
+        },
+        "required": [
+          "education_target_rule_id",
+          "education_course_id",
+          "is_required",
+          "is_active"
+        ]
+      },
+      "EducationTargetRulesSchema": {
+        "type": "object",
+        "description": "작업유형·위험물 등급별 필수 교육 규칙",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "dgClass": {
+            "type": "object",
+            "nullable": true
+          },
+          "dgClassId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "대상 위험물 등급 FK",
+            "nullable": true
+          },
+          "educationCourse": {
+            "type": "object"
+          },
+          "educationCourseId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "교육 과정 FK"
+          },
+          "educationTargetRuleId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "교육 대상 규칙 고유번호",
+            "default": 0
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "규칙 사용 여부",
+            "default": true
+          },
+          "isRequired": {
+            "type": "boolean",
+            "description": "필수 교육 여부",
+            "default": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          },
+          "workType": {
+            "type": "object",
+            "nullable": true
+          },
+          "workTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "대상 작업 유형 FK",
+            "nullable": true
+          }
+        },
+        "required": [
+          "educationTargetRuleId",
+          "educationCourseId",
+          "isRequired",
+          "isActive",
+          "createdAt",
+          "educationCourse"
         ]
       },
       "EligibilityStatus": {
@@ -2928,6 +5020,96 @@
           "createdAt"
         ]
       },
+      "EquipmentCheckEventsSchema": {
+        "type": "object",
+        "description": "v2 작업 배정 범위의 append-only 장비 태깅·멱등 응답 이벤트",
+        "properties": {
+          "accepted": {
+            "type": "boolean",
+            "description": "장비 태깅 수락 여부"
+          },
+          "clientScannedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "클라이언트 스캔 감사시각"
+          },
+          "employee": {
+            "$ref": "#/components/schemas/EmployeesSchema"
+          },
+          "employeeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "JWT로 확인한 작업자 FK"
+          },
+          "equipmentCheckEventId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "장비 태깅 이벤트 고유번호",
+            "default": 0
+          },
+          "equipmentProfile": {
+            "type": "object",
+            "nullable": true
+          },
+          "equipmentProfileId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "토큰으로 확인한 v2 장비 프로필 FK, 미확인 토큰은 null",
+            "nullable": true
+          },
+          "httpStatus": {
+            "type": "integer",
+            "format": "int16",
+            "description": "최초 응답 HTTP 상태"
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid",
+            "description": "작업자 범위 멱등키"
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "서버 이벤트 발생일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "reasonCode": {
+            "type": "string",
+            "description": "안정된 결과 코드"
+          },
+          "requestFingerprint": {
+            "type": "string",
+            "description": "정규화하지 않은 요청의 SHA-256 지문"
+          },
+          "responseJson": {
+            "type": "object",
+            "description": "재전송할 최초 정확 응답 JSON"
+          },
+          "workAssignment": {
+            "type": "object"
+          },
+          "workAssignmentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "요청 v2 작업 배정 FK"
+          }
+        },
+        "required": [
+          "equipmentCheckEventId",
+          "employeeId",
+          "workAssignmentId",
+          "idempotencyKey",
+          "requestFingerprint",
+          "httpStatus",
+          "accepted",
+          "reasonCode",
+          "responseJson",
+          "clientScannedAt",
+          "occurredAt",
+          "employee",
+          "workAssignment"
+        ]
+      },
       "EquipmentCheckLogsSchema": {
         "type": "object",
         "description": "당일 장비 NFC 태깅 기록 (FR-D3/D4 — 돌려쓰기 방지)",
@@ -2993,6 +5175,208 @@
           "equipment"
         ]
       },
+      "EquipmentLifecycleStatus": {
+        "type": "string",
+        "enum": [
+          "AVAILABLE",
+          "BLOCKED",
+          "DAMAGED",
+          "LOST",
+          "REPLACED"
+        ]
+      },
+      "EquipmentOwnershipType": {
+        "type": "string",
+        "enum": [
+          "PERSONAL",
+          "SHARED"
+        ]
+      },
+      "EquipmentProfilesSchema": {
+        "type": "object",
+        "description": "v2 소유정책·수명주기를 갖는 보호구 프로필",
+        "properties": {
+          "assetNumber": {
+            "type": "string",
+            "description": "v2 자산 관리번호",
+            "nullable": true
+          },
+          "brailleLabel": {
+            "type": "string",
+            "description": "v2 점자 스티커 병기 내용",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "equipmentProfileId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "v2 장비 프로필 고유번호",
+            "default": 0
+          },
+          "equipmentType": {
+            "type": "object"
+          },
+          "equipmentTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "장비 종류 FK"
+          },
+          "legacy": {
+            "$ref": "#/components/schemas/EquipmentProfilesSchema_Legacy",
+            "nullable": true
+          },
+          "legacyEquipmentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "변환된 0001 장비 FK, v2 신규 장비는 null",
+            "nullable": true
+          },
+          "manufacturerReplacementDueAt": {
+            "type": "string",
+            "format": "date",
+            "description": "해당 품목에만 적용하는 제조사 교체 권고일",
+            "nullable": true
+          },
+          "owner": {
+            "$ref": "#/components/schemas/EmployeesSchema",
+            "nullable": true
+          },
+          "ownerEmployeeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "개인 장비 소유자 FK, 공용은 null",
+            "nullable": true
+          },
+          "ownershipType": {
+            "description": "개인 또는 공용 소유정책",
+            "default": "SHARED",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EquipmentOwnershipType"
+              }
+            ]
+          },
+          "sharedEquipmentClaims": {
+            "$ref": "#/components/schemas/EquipmentProfilesSchema_SharedEquipmentClaims",
+            "nullable": true
+          },
+          "status": {
+            "description": "v2 장비 수명주기 상태",
+            "default": "BLOCKED",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EquipmentLifecycleStatus"
+              }
+            ]
+          },
+          "statusReason": {
+            "type": "string",
+            "description": "상태 변경 사유",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          }
+        },
+        "required": [
+          "equipmentProfileId",
+          "equipmentTypeId",
+          "ownershipType",
+          "status",
+          "createdAt",
+          "equipmentType"
+        ]
+      },
+      "EquipmentProfilesSchema_Legacy": {
+        "type": "object",
+        "properties": {
+          "assetNumber": {
+            "type": "string",
+            "description": "자산 관리번호",
+            "nullable": true
+          },
+          "brailleLabel": {
+            "type": "string",
+            "description": "점자 스티커 병기 내용 (FR-D2)",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시"
+          },
+          "equipmentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "장비 고유번호"
+          },
+          "equipmentTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "장비 종류 FK"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "사용 가능 여부"
+          },
+          "nfcTagUid": {
+            "type": "string",
+            "description": "NFC 태그 UID (FR-D2)"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          }
+        },
+        "required": [
+          "equipmentId",
+          "equipmentTypeId",
+          "nfcTagUid",
+          "isActive",
+          "createdAt"
+        ]
+      },
+      "EquipmentProfilesSchema_SharedEquipmentClaims": {
+        "type": "object",
+        "properties": {
+          "claimedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "점유 시작일시"
+          },
+          "equipmentProfileId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "점유 v2 공용 장비 프로필 FK"
+          },
+          "sharedEquipmentClaimId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "공용 장비 점유 고유번호"
+          },
+          "workAssignmentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "v2 점유 작업 배정 FK"
+          }
+        },
+        "required": [
+          "sharedEquipmentClaimId",
+          "workAssignmentId",
+          "equipmentProfileId",
+          "claimedAt"
+        ]
+      },
       "EquipmentSchema": {
         "type": "object",
         "description": "개별 안전장비 (NFC 태그 단위, FR-D2)",
@@ -3018,6 +5402,10 @@
             "format": "int64",
             "description": "장비 고유번호",
             "default": 0
+          },
+          "equipmentProfiles": {
+            "$ref": "#/components/schemas/EquipmentSchema_EquipmentProfiles",
+            "nullable": true
           },
           "equipmentType": {
             "type": "object"
@@ -3050,6 +5438,208 @@
           "isActive",
           "createdAt",
           "equipmentType"
+        ]
+      },
+      "EquipmentSchema_EquipmentProfiles": {
+        "type": "object",
+        "properties": {
+          "assetNumber": {
+            "type": "string",
+            "description": "v2 자산 관리번호",
+            "nullable": true
+          },
+          "brailleLabel": {
+            "type": "string",
+            "description": "v2 점자 스티커 병기 내용",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시"
+          },
+          "equipmentProfileId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "v2 장비 프로필 고유번호"
+          },
+          "equipmentTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "장비 종류 FK"
+          },
+          "legacyEquipmentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "변환된 0001 장비 FK, v2 신규 장비는 null",
+            "nullable": true
+          },
+          "manufacturerReplacementDueAt": {
+            "type": "string",
+            "format": "date",
+            "description": "해당 품목에만 적용하는 제조사 교체 권고일",
+            "nullable": true
+          },
+          "ownerEmployeeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "개인 장비 소유자 FK, 공용은 null",
+            "nullable": true
+          },
+          "ownershipType": {
+            "description": "개인 또는 공용 소유정책",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EquipmentOwnershipType"
+              }
+            ]
+          },
+          "status": {
+            "description": "v2 장비 수명주기 상태",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EquipmentLifecycleStatus"
+              }
+            ]
+          },
+          "statusReason": {
+            "type": "string",
+            "description": "상태 변경 사유",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          }
+        },
+        "required": [
+          "equipmentProfileId",
+          "equipmentTypeId",
+          "ownershipType",
+          "status",
+          "createdAt"
+        ]
+      },
+      "EquipmentSummary": {
+        "type": "object",
+        "properties": {
+          "asset_number": {
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "ownership": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/EquipmentTypeSummary"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "ownership",
+          "status"
+        ]
+      },
+      "EquipmentTagTokensSchema": {
+        "type": "object",
+        "description": "v2 장비 프로필 NFC 불투명 토큰 해시와 발급 수명주기",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "deactivatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "토큰 비활성화일시",
+            "nullable": true
+          },
+          "deactivatedBy": {
+            "$ref": "#/components/schemas/EmployeesSchema",
+            "nullable": true
+          },
+          "deactivatedById": {
+            "type": "integer",
+            "format": "int64",
+            "description": "토큰 비활성화 관리자 FK",
+            "nullable": true
+          },
+          "equipmentProfile": {
+            "type": "object"
+          },
+          "equipmentProfileId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "v2 장비 프로필 FK"
+          },
+          "equipmentTagTokenId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "장비 태그 토큰 고유번호",
+            "default": 0
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "활성 토큰 여부",
+            "default": true
+          },
+          "issuedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "토큰 발급일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "issuedBy": {
+            "$ref": "#/components/schemas/EmployeesSchema"
+          },
+          "issuedById": {
+            "type": "integer",
+            "format": "int64",
+            "description": "토큰 발급 관리자 FK"
+          },
+          "tagTokenHash": {
+            "type": "string",
+            "description": "서버 발급 불투명 토큰 SHA-256 해시"
+          }
+        },
+        "required": [
+          "equipmentTagTokenId",
+          "equipmentProfileId",
+          "tagTokenHash",
+          "isActive",
+          "issuedById",
+          "issuedAt",
+          "createdAt",
+          "equipmentProfile",
+          "issuedBy"
+        ]
+      },
+      "EquipmentTypeSummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
         ]
       },
       "EquipmentTypesSchema": {
@@ -3105,6 +5695,200 @@
           "IMAGE"
         ]
       },
+      "GateDecision": {
+        "type": "string",
+        "enum": [
+          "PASS",
+          "BLOCK"
+        ]
+      },
+      "GateEventsSchema": {
+        "type": "object",
+        "description": "작업 배정 준비도를 기록하는 append-only 게이트 PASS/BLOCK 이벤트",
+        "properties": {
+          "decision": {
+            "description": "통과 또는 차단 판정",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GateDecision"
+              }
+            ]
+          },
+          "decisionInputVersions": {
+            "type": "object",
+            "description": "판정에 사용한 문서·교육·보호구·중지 버전"
+          },
+          "employee": {
+            "$ref": "#/components/schemas/EmployeesSchema"
+          },
+          "employeeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "판정 작업자 FK"
+          },
+          "gateEventId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "게이트 이벤트 고유번호",
+            "default": 0
+          },
+          "gateId": {
+            "type": "string",
+            "description": "판정 시점 게이트 식별자"
+          },
+          "httpStatus": {
+            "type": "integer",
+            "format": "int16",
+            "description": "최초 응답 HTTP 상태"
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid",
+            "description": "단말 범위 멱등키, 레거시 변환행은 null",
+            "nullable": true
+          },
+          "legacy": {
+            "$ref": "#/components/schemas/GateEventsSchema_Legacy",
+            "nullable": true
+          },
+          "legacy1": {
+            "$ref": "#/components/schemas/AttendancesSchema",
+            "nullable": true
+          },
+          "legacyAttendanceId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "PR #48 출근 참조 FK",
+            "nullable": true
+          },
+          "legacyVerifyLogId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "PR #48 게이트 검증 기록 변환 출처 FK",
+            "nullable": true
+          },
+          "legacyWorkDate": {
+            "type": "string",
+            "format": "date",
+            "description": "PR #48 작업일 감사값",
+            "nullable": true
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "서버 판정 발생일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "reasonCode": {
+            "type": "string",
+            "description": "우선순위가 가장 높은 안정된 판정 코드"
+          },
+          "reasonCodes": {
+            "type": "object",
+            "description": "우선순위대로 정렬된 전체 판정 코드"
+          },
+          "requestFingerprint": {
+            "type": "string",
+            "description": "요청 SHA-256 지문, 레거시 변환행은 null",
+            "nullable": true
+          },
+          "responseJson": {
+            "type": "object",
+            "description": "멱등 재전송할 최초 정확 응답 JSON"
+          },
+          "terminal": {
+            "type": "object",
+            "nullable": true
+          },
+          "terminalId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "검증 단말 FK",
+            "nullable": true
+          },
+          "workAssignment": {
+            "type": "object",
+            "nullable": true
+          },
+          "workAssignmentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "판정 v2 작업 배정 FK, 변환 불가 레거시는 null",
+            "nullable": true
+          }
+        },
+        "required": [
+          "gateEventId",
+          "gateId",
+          "employeeId",
+          "decision",
+          "reasonCode",
+          "reasonCodes",
+          "decisionInputVersions",
+          "httpStatus",
+          "responseJson",
+          "occurredAt",
+          "employee"
+        ]
+      },
+      "GateEventsSchema_Legacy": {
+        "type": "object",
+        "properties": {
+          "allowed": {
+            "type": "boolean",
+            "description": "통과 허용 여부"
+          },
+          "attendanceId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "출근 FK (출근 절차 시작 전 스캔은 NULL)",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "기록 시각"
+          },
+          "employeeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "직원 FK"
+          },
+          "isPassEvent": {
+            "type": "boolean",
+            "description": "통과 이벤트 멱등 플래그 — PASSED 건만 true로 기록해 유니크 제약 대상이 된다"
+          },
+          "reason": {
+            "type": "string",
+            "description": "판정 사유 (한국어 안내 문구)"
+          },
+          "terminalId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "검증 단말 FK (게이트 단말 자격증명)",
+            "nullable": true
+          },
+          "verifyLogId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "게이트 검증 기록 고유번호"
+          },
+          "workDate": {
+            "type": "string",
+            "format": "date",
+            "description": "작업 일자 (출근일 기준 통과 이벤트 멱등키 구성 요소)"
+          }
+        },
+        "required": [
+          "verifyLogId",
+          "employeeId",
+          "allowed",
+          "reason",
+          "workDate",
+          "isPassEvent",
+          "createdAt"
+        ]
+      },
       "GateStatus": {
         "type": "string",
         "enum": [
@@ -3115,7 +5899,7 @@
       },
       "GateTerminalsSchema": {
         "type": "object",
-        "description": "게이트 단말 자격증명 (FR-D5 — 게이트 리더기 전용 인증)\n발급 시 평문 토큰은 응답으로 한 번만 반환하고 SHA-256 해시만 저장한다.",
+        "description": "게이트 단말 자격증명(PR #48 보존)",
         "properties": {
           "createdAt": {
             "type": "string",
@@ -3153,6 +5937,7 @@
       },
       "GateVerifyLogsSchema": {
         "type": "object",
+        "description": "게이트 검증 기록 (FR-D5, AC-5 — 이벤트 멱등 보장)",
         "properties": {
           "allowed": {
             "type": "boolean",
@@ -3183,6 +5968,10 @@
             "format": "int64",
             "description": "직원 FK"
           },
+          "gateEvents": {
+            "$ref": "#/components/schemas/GateVerifyLogsSchema_GateEvents",
+            "nullable": true
+          },
           "isPassEvent": {
             "type": "boolean",
             "description": "통과 이벤트 멱등 플래그 — PASSED 건만 true로 기록해 유니크 제약 대상이 된다",
@@ -3191,6 +5980,10 @@
           "reason": {
             "type": "string",
             "description": "판정 사유 (한국어 안내 문구)"
+          },
+          "terminal": {
+            "type": "object",
+            "nullable": true
           },
           "terminalId": {
             "type": "integer",
@@ -3221,12 +6014,124 @@
           "employee"
         ]
       },
+      "GateVerifyLogsSchema_GateEvents": {
+        "type": "object",
+        "properties": {
+          "decision": {
+            "description": "통과 또는 차단 판정",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GateDecision"
+              }
+            ]
+          },
+          "decisionInputVersions": {
+            "type": "object",
+            "description": "판정에 사용한 문서·교육·보호구·중지 버전"
+          },
+          "employeeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "판정 작업자 FK"
+          },
+          "gateEventId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "게이트 이벤트 고유번호"
+          },
+          "gateId": {
+            "type": "string",
+            "description": "판정 시점 게이트 식별자"
+          },
+          "httpStatus": {
+            "type": "integer",
+            "format": "int16",
+            "description": "최초 응답 HTTP 상태"
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid",
+            "description": "단말 범위 멱등키, 레거시 변환행은 null",
+            "nullable": true
+          },
+          "legacyAttendanceId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "PR #48 출근 참조 FK",
+            "nullable": true
+          },
+          "legacyVerifyLogId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "PR #48 게이트 검증 기록 변환 출처 FK",
+            "nullable": true
+          },
+          "legacyWorkDate": {
+            "type": "string",
+            "format": "date",
+            "description": "PR #48 작업일 감사값",
+            "nullable": true
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "서버 판정 발생일시"
+          },
+          "reasonCode": {
+            "type": "string",
+            "description": "우선순위가 가장 높은 안정된 판정 코드"
+          },
+          "reasonCodes": {
+            "type": "object",
+            "description": "우선순위대로 정렬된 전체 판정 코드"
+          },
+          "requestFingerprint": {
+            "type": "string",
+            "description": "요청 SHA-256 지문, 레거시 변환행은 null",
+            "nullable": true
+          },
+          "responseJson": {
+            "type": "object",
+            "description": "멱등 재전송할 최초 정확 응답 JSON"
+          },
+          "terminalId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "검증 단말 FK",
+            "nullable": true
+          },
+          "workAssignmentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "판정 v2 작업 배정 FK, 변환 불가 레거시는 null",
+            "nullable": true
+          }
+        },
+        "required": [
+          "gateEventId",
+          "gateId",
+          "employeeId",
+          "decision",
+          "reasonCode",
+          "reasonCodes",
+          "decisionInputVersions",
+          "httpStatus",
+          "responseJson",
+          "occurredAt"
+        ]
+      },
       "GateVerifyRequest": {
         "type": "object",
         "properties": {
           "nfc_card_uid": {
             "type": "string",
             "description": "사원증 NFC UID (FR-D5)"
+          },
+          "v2_work_assignment_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "v2 작업 배정 준비도를 함께 검증할 때 사용하는 선택 식별자",
+            "nullable": true
           }
         },
         "required": [
@@ -3480,6 +6385,48 @@
           "instruction"
         ]
       },
+      "IssueEquipmentTagTokenRequest": {
+        "type": "object",
+        "properties": {
+          "equipment_profile_id": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "equipment_profile_id"
+        ]
+      },
+      "IssueEquipmentTagTokenResponse": {
+        "type": "object",
+        "properties": {
+          "equipment_profile_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "equipment_tag_token_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "ndef_mime_type": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string",
+            "description": "평문은 발급/회전 응답으로만 한 번 반환한다."
+          },
+          "token_uri": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "equipment_tag_token_id",
+          "equipment_profile_id",
+          "token",
+          "token_uri",
+          "ndef_mime_type"
+        ]
+      },
       "IssueTerminalRequest": {
         "type": "object",
         "properties": {
@@ -3613,6 +6560,258 @@
           "work_date",
           "instruction_ack_completed",
           "equipment_check_completed"
+        ]
+      },
+      "PpeErrorResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ]
+      },
+      "PpeRequirementResponse": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "equipment_type_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "is_active": {
+            "type": "boolean"
+          },
+          "performance_criteria": {
+            "type": "object",
+            "nullable": true
+          },
+          "ppe_requirement_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "review_status": {
+            "type": "string"
+          },
+          "reviewed_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "reviewed_by_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "source_document_version_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "source_document_version_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "source_text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "ppe_requirement_id",
+          "equipment_type_id",
+          "category",
+          "source_text",
+          "source_document_version_id",
+          "source_document_version_number",
+          "review_status",
+          "is_active"
+        ]
+      },
+      "PpeRequirementsSchema": {
+        "type": "object",
+        "description": "검수된 문서 원문 기반 보호구 요구조건",
+        "properties": {
+          "category": {
+            "type": "string",
+            "description": "보호구 카테고리"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "equipmentType": {
+            "type": "object"
+          },
+          "equipmentTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "요구 장비 종류 FK"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "사용 여부",
+            "default": true
+          },
+          "performanceCriteria": {
+            "type": "object",
+            "description": "성능조건 구조화 값",
+            "nullable": true
+          },
+          "ppeRequirementId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "보호구 요구조건 고유번호",
+            "default": 0
+          },
+          "reviewStatus": {
+            "description": "요구조건 검수 상태",
+            "default": "PENDING",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PpeReviewStatus"
+              }
+            ]
+          },
+          "reviewedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "검수일시",
+            "nullable": true
+          },
+          "reviewedBy": {
+            "$ref": "#/components/schemas/EmployeesSchema",
+            "nullable": true
+          },
+          "reviewedById": {
+            "type": "integer",
+            "format": "int64",
+            "description": "검수자 FK",
+            "nullable": true
+          },
+          "sourceDocumentVersion": {
+            "type": "object"
+          },
+          "sourceDocumentVersionId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "근거 v2 화물문서 버전 FK"
+          },
+          "sourceDocumentVersionNumber": {
+            "type": "integer",
+            "format": "int32",
+            "description": "근거 문서 버전"
+          },
+          "sourceText": {
+            "type": "string",
+            "description": "근거 문서 원문"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          }
+        },
+        "required": [
+          "ppeRequirementId",
+          "equipmentTypeId",
+          "category",
+          "sourceText",
+          "sourceDocumentVersionId",
+          "sourceDocumentVersionNumber",
+          "reviewStatus",
+          "isActive",
+          "createdAt",
+          "equipmentType",
+          "sourceDocumentVersion"
+        ]
+      },
+      "PpeReviewStatus": {
+        "type": "string",
+        "enum": [
+          "PENDING",
+          "CONFIRMED",
+          "REJECTED"
+        ]
+      },
+      "PpeSnapshotListQuery": {
+        "type": "object",
+        "properties": {
+          "work_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          }
+        }
+      },
+      "PpeSnapshotResponse": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "equipment_type_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "performance_criteria": {
+            "type": "object",
+            "nullable": true
+          },
+          "ppe_requirement_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "reviewed_at": {
+            "type": "string"
+          },
+          "reviewed_by_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "snapshotted_at": {
+            "type": "string"
+          },
+          "source_document_version_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "source_document_version_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "source_text": {
+            "type": "string"
+          },
+          "work_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "work_ppe_requirement_snapshot_id": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "work_ppe_requirement_snapshot_id",
+          "work_id",
+          "ppe_requirement_id",
+          "equipment_type_id",
+          "category",
+          "source_text",
+          "source_document_version_id",
+          "source_document_version_number",
+          "reviewed_by_id",
+          "reviewed_at",
+          "snapshotted_at"
         ]
       },
       "ProcessingStatus": {
@@ -3811,6 +7010,47 @@
           "RECOMMENDED"
         ]
       },
+      "RequirementProgress": {
+        "type": "object",
+        "properties": {
+          "complete": {
+            "type": "boolean"
+          },
+          "required": {
+            "type": "integer",
+            "format": "uint64"
+          },
+          "satisfied": {
+            "type": "integer",
+            "format": "uint64"
+          }
+        },
+        "required": [
+          "required",
+          "satisfied",
+          "complete"
+        ]
+      },
+      "RequirementSummary": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "satisfied": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "category",
+          "satisfied"
+        ]
+      },
       "RestrictionCondition": {
         "type": "string",
         "enum": [
@@ -3827,6 +7067,27 @@
         "enum": [
           "PENDING",
           "CONFIRMED"
+        ]
+      },
+      "RevokeEquipmentTagTokenResponse": {
+        "type": "object",
+        "properties": {
+          "equipment_profile_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "equipment_tag_token_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "is_active": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "equipment_tag_token_id",
+          "equipment_profile_id",
+          "is_active"
         ]
       },
       "RevokeTerminalResponse": {
@@ -4010,6 +7271,130 @@
           "work_status"
         ]
       },
+      "SharedEquipmentClaimsSchema": {
+        "type": "object",
+        "description": "v2 공용 장비 프로필의 활성 작업 배타적 점유",
+        "properties": {
+          "claimedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "점유 시작일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "equipmentProfile": {
+            "$ref": "#/components/schemas/SharedEquipmentClaimsSchema_EquipmentProfile"
+          },
+          "equipmentProfileId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "점유 v2 공용 장비 프로필 FK"
+          },
+          "sharedEquipmentClaimId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "공용 장비 점유 고유번호",
+            "default": 0
+          },
+          "workAssignment": {
+            "type": "object"
+          },
+          "workAssignmentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "v2 점유 작업 배정 FK"
+          }
+        },
+        "required": [
+          "sharedEquipmentClaimId",
+          "workAssignmentId",
+          "equipmentProfileId",
+          "claimedAt",
+          "workAssignment",
+          "equipmentProfile"
+        ]
+      },
+      "SharedEquipmentClaimsSchema_EquipmentProfile": {
+        "type": "object",
+        "properties": {
+          "assetNumber": {
+            "type": "string",
+            "description": "v2 자산 관리번호",
+            "nullable": true
+          },
+          "brailleLabel": {
+            "type": "string",
+            "description": "v2 점자 스티커 병기 내용",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시"
+          },
+          "equipmentProfileId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "v2 장비 프로필 고유번호"
+          },
+          "equipmentTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "장비 종류 FK"
+          },
+          "legacyEquipmentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "변환된 0001 장비 FK, v2 신규 장비는 null",
+            "nullable": true
+          },
+          "manufacturerReplacementDueAt": {
+            "type": "string",
+            "format": "date",
+            "description": "해당 품목에만 적용하는 제조사 교체 권고일",
+            "nullable": true
+          },
+          "ownerEmployeeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "개인 장비 소유자 FK, 공용은 null",
+            "nullable": true
+          },
+          "ownershipType": {
+            "description": "개인 또는 공용 소유정책",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EquipmentOwnershipType"
+              }
+            ]
+          },
+          "status": {
+            "description": "v2 장비 수명주기 상태",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EquipmentLifecycleStatus"
+              }
+            ]
+          },
+          "statusReason": {
+            "type": "string",
+            "description": "상태 변경 사유",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          }
+        },
+        "required": [
+          "equipmentProfileId",
+          "equipmentTypeId",
+          "ownershipType",
+          "status",
+          "createdAt"
+        ]
+      },
       "SignInRequest": {
         "type": "object",
         "properties": {
@@ -4070,36 +7455,67 @@
       },
       "TagRequest": {
         "type": "object",
+        "description": "v2 장비 태깅 요청. 작업자·장비·종류는 요청에서 받지 않고 JWT, 배정, 토큰에서\n각각 확인한다.",
         "properties": {
-          "nfc_tag_uid": {
+          "client_scanned_at": {
             "type": "string",
-            "description": "장비에 부착된 NFC 태그 UID (FR-D2)"
+            "description": "RFC3339 클라이언트 감사 시각. 작업 선택이나 서버 시각 대체에 사용하지 않는다."
+          },
+          "idempotency_key": {
+            "type": "string"
+          },
+          "tag_token": {
+            "type": "string",
+            "description": "서버가 발급한 대소문자 구분 불투명 토큰. 공백 제거·정규화를 하지 않는다."
+          },
+          "work_assignment_id": {
+            "type": "integer",
+            "format": "int64"
           }
         },
         "required": [
-          "nfc_tag_uid"
+          "work_assignment_id",
+          "tag_token",
+          "client_scanned_at",
+          "idempotency_key"
         ]
       },
       "TagResponse": {
         "type": "object",
         "properties": {
-          "asset_number": {
+          "accepted": {
+            "type": "boolean"
+          },
+          "checklist": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChecklistItem"
+            }
+          },
+          "equipment": {
+            "$ref": "#/components/schemas/EquipmentSummary",
+            "nullable": true
+          },
+          "message": {
             "type": "string",
             "nullable": true
           },
-          "equipment_id": {
-            "type": "integer",
-            "format": "int64"
+          "progress": {
+            "$ref": "#/components/schemas/RequirementProgress"
           },
-          "tagged_count_today": {
-            "type": "integer",
-            "format": "uint64",
-            "description": "오늘 이 출근 건으로 태깅 완료한 장비 수"
+          "reason_code": {
+            "type": "string"
+          },
+          "requirement": {
+            "$ref": "#/components/schemas/RequirementSummary",
+            "nullable": true
           }
         },
         "required": [
-          "equipment_id",
-          "tagged_count_today"
+          "accepted",
+          "progress",
+          "checklist",
+          "reason_code"
         ]
       },
       "TodayInstructionItem": {
@@ -4133,6 +7549,17 @@
           "body",
           "language_code",
           "acknowledged"
+        ]
+      },
+      "TokenAdminError": {
+        "type": "object",
+        "properties": {
+          "reason_code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason_code"
         ]
       },
       "UnNumbersSchema": {
@@ -4247,6 +7674,326 @@
           "file"
         ]
       },
+      "UpsertWorkPreparationRequest": {
+        "type": "object",
+        "properties": {
+          "document_ready": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "instruction_ready": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "work_assignment_id": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "work_assignment_id"
+        ]
+      },
+      "V2CargoDocumentType": {
+        "type": "string",
+        "enum": [
+          "BL",
+          "DGD",
+          "CI",
+          "MSDS"
+        ]
+      },
+      "V2WorkAssignmentStatus": {
+        "type": "string",
+        "enum": [
+          "ASSIGNED",
+          "SELECTED",
+          "ACTIVE",
+          "COMPLETED",
+          "CANCELLED"
+        ]
+      },
+      "V2WorkAssignmentsSchema": {
+        "type": "object",
+        "description": "v2 작업과 작업자를 연결하는 authoritative 작업 배정",
+        "properties": {
+          "assignedBy": {
+            "$ref": "#/components/schemas/EmployeesSchema"
+          },
+          "assignedById": {
+            "type": "integer",
+            "format": "int64",
+            "description": "배치 담당자 FK"
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "배정 작업 완료일시",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "employee": {
+            "$ref": "#/components/schemas/EmployeesSchema"
+          },
+          "employeeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "작업자 FK"
+          },
+          "legacy": {
+            "$ref": "#/components/schemas/V2WorkAssignmentsSchema_Legacy",
+            "nullable": true
+          },
+          "legacyAssignmentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "변환된 0001 작업 배정 FK, v2 신규 배정은 null",
+            "nullable": true
+          },
+          "selectedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "작업자가 NFC 대상 작업으로 선택한 일시",
+            "nullable": true
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "배정 작업 시작일시",
+            "nullable": true
+          },
+          "status": {
+            "description": "v2 배정 수명주기 상태",
+            "default": "ASSIGNED",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/V2WorkAssignmentStatus"
+              }
+            ]
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          },
+          "work": {
+            "$ref": "#/components/schemas/WorksSchema"
+          },
+          "workAssignmentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "v2 작업 배정 고유번호",
+            "default": 0
+          },
+          "workId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "v2 작업 FK"
+          },
+          "workPreparations": {
+            "$ref": "#/components/schemas/V2WorkAssignmentsSchema_WorkPreparations",
+            "nullable": true
+          }
+        },
+        "required": [
+          "workAssignmentId",
+          "workId",
+          "employeeId",
+          "assignedById",
+          "status",
+          "createdAt",
+          "work",
+          "employee",
+          "assignedBy"
+        ]
+      },
+      "V2WorkAssignmentsSchema_Legacy": {
+        "type": "object",
+        "properties": {
+          "assignedById": {
+            "type": "integer",
+            "format": "int64",
+            "description": "배치 담당자 FK"
+          },
+          "assignmentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "배치 고유번호"
+          },
+          "cargoItemId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "대상 화물 FK",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시"
+          },
+          "eligibilityStatus": {
+            "description": "투입 가능 여부 (제한규칙 대조 결과)",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EligibilityStatus"
+              }
+            ]
+          },
+          "employeeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "작업자 FK"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          },
+          "workDate": {
+            "type": "string",
+            "format": "date",
+            "description": "작업 일자"
+          }
+        },
+        "required": [
+          "assignmentId",
+          "employeeId",
+          "workDate",
+          "assignedById",
+          "eligibilityStatus",
+          "createdAt"
+        ]
+      },
+      "V2WorkAssignmentsSchema_WorkPreparations": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시"
+          },
+          "decisionInputVersions": {
+            "type": "object",
+            "description": "준비 판정 입력 버전"
+          },
+          "documentReady": {
+            "type": "boolean",
+            "description": "관련 문서 검수 충족 여부"
+          },
+          "educationReady": {
+            "type": "boolean",
+            "description": "교육 이수 충족 여부"
+          },
+          "instructionReady": {
+            "type": "boolean",
+            "description": "작업 지침 확인 여부"
+          },
+          "ppeReady": {
+            "type": "boolean",
+            "description": "보호구 준비 충족 여부"
+          },
+          "preparedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "준비 완료일시",
+            "nullable": true
+          },
+          "status": {
+            "description": "종합 준비 상태",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WorkPreparationStatus"
+              }
+            ]
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          },
+          "workAssignmentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "v2 작업 배정 FK"
+          },
+          "workPreparationId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "작업 준비 고유번호"
+          }
+        },
+        "required": [
+          "workPreparationId",
+          "workAssignmentId",
+          "status",
+          "documentReady",
+          "educationReady",
+          "instructionReady",
+          "ppeReady",
+          "decisionInputVersions",
+          "createdAt"
+        ]
+      },
+      "WorkAssignmentEquipmentSchema": {
+        "type": "object",
+        "description": "v2 작업 배정에 수락된 보호구 할당 이력",
+        "properties": {
+          "acceptedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수락일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "equipmentProfile": {
+            "type": "object"
+          },
+          "equipmentProfileId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "수락 v2 장비 프로필 FK"
+          },
+          "requirementSnapshot": {
+            "type": "object"
+          },
+          "requirementSnapshotId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "충족한 보호구 스냅샷 FK"
+          },
+          "workAssignment": {
+            "type": "object"
+          },
+          "workAssignmentEquipmentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "작업 장비 할당 고유번호",
+            "default": 0
+          },
+          "workAssignmentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "v2 작업 배정 FK"
+          }
+        },
+        "required": [
+          "workAssignmentEquipmentId",
+          "workAssignmentId",
+          "equipmentProfileId",
+          "requirementSnapshotId",
+          "acceptedAt",
+          "workAssignment",
+          "equipmentProfile",
+          "requirementSnapshot"
+        ]
+      },
       "WorkAssignmentResponse": {
         "type": "object",
         "properties": {
@@ -4344,6 +8091,10 @@
             "description": "수정일시",
             "nullable": true
           },
+          "v2WorkAssignments": {
+            "$ref": "#/components/schemas/WorkAssignmentsSchema_V2WorkAssignments",
+            "nullable": true
+          },
           "workDate": {
             "type": "string",
             "format": "date",
@@ -4359,6 +8110,424 @@
           "createdAt",
           "employee",
           "assignedBy"
+        ]
+      },
+      "WorkAssignmentsSchema_V2WorkAssignments": {
+        "type": "object",
+        "properties": {
+          "assignedById": {
+            "type": "integer",
+            "format": "int64",
+            "description": "배치 담당자 FK"
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "배정 작업 완료일시",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시"
+          },
+          "employeeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "작업자 FK"
+          },
+          "legacyAssignmentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "변환된 0001 작업 배정 FK, v2 신규 배정은 null",
+            "nullable": true
+          },
+          "selectedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "작업자가 NFC 대상 작업으로 선택한 일시",
+            "nullable": true
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "배정 작업 시작일시",
+            "nullable": true
+          },
+          "status": {
+            "description": "v2 배정 수명주기 상태",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/V2WorkAssignmentStatus"
+              }
+            ]
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          },
+          "workAssignmentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "v2 작업 배정 고유번호"
+          },
+          "workId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "v2 작업 FK"
+          }
+        },
+        "required": [
+          "workAssignmentId",
+          "workId",
+          "employeeId",
+          "assignedById",
+          "status",
+          "createdAt"
+        ]
+      },
+      "WorkLifecycleStatus": {
+        "type": "string",
+        "enum": [
+          "PLANNED",
+          "ACTIVE",
+          "STOPPED",
+          "COMPLETED",
+          "CANCELLED"
+        ]
+      },
+      "WorkPpeRequirementSnapshotsSchema": {
+        "type": "object",
+        "description": "작업 확정 시점의 불변 보호구 요구조건 스냅샷",
+        "properties": {
+          "category": {
+            "type": "string",
+            "description": "확정 보호구 카테고리"
+          },
+          "equipmentType": {
+            "type": "object"
+          },
+          "equipmentTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "확정 장비 종류 FK"
+          },
+          "performanceCriteria": {
+            "type": "object",
+            "description": "확정 성능조건",
+            "nullable": true
+          },
+          "ppeRequirement": {
+            "type": "object"
+          },
+          "ppeRequirementId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "원본 보호구 요구조건 FK"
+          },
+          "reviewedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "원본 검수일시"
+          },
+          "reviewedBy": {
+            "$ref": "#/components/schemas/EmployeesSchema"
+          },
+          "reviewedById": {
+            "type": "integer",
+            "format": "int64",
+            "description": "확정 검수자 FK"
+          },
+          "snapshottedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "스냅샷 생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "sourceDocumentVersion": {
+            "type": "object"
+          },
+          "sourceDocumentVersionId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "확정 근거 v2 문서 버전 FK"
+          },
+          "sourceDocumentVersionNumber": {
+            "type": "integer",
+            "format": "int32",
+            "description": "확정 근거 문서 버전"
+          },
+          "sourceText": {
+            "type": "string",
+            "description": "확정 근거 원문"
+          },
+          "work": {
+            "$ref": "#/components/schemas/WorksSchema"
+          },
+          "workId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "작업 FK"
+          },
+          "workPpeRequirementSnapshotId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "작업 보호구 스냅샷 고유번호",
+            "default": 0
+          }
+        },
+        "required": [
+          "workPpeRequirementSnapshotId",
+          "workId",
+          "ppeRequirementId",
+          "equipmentTypeId",
+          "category",
+          "sourceText",
+          "sourceDocumentVersionId",
+          "sourceDocumentVersionNumber",
+          "reviewedById",
+          "reviewedAt",
+          "snapshottedAt",
+          "work",
+          "ppeRequirement",
+          "equipmentType",
+          "sourceDocumentVersion",
+          "reviewedBy"
+        ]
+      },
+      "WorkPreparationErrorResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ]
+      },
+      "WorkPreparationResponse": {
+        "type": "object",
+        "properties": {
+          "decision_input_versions": {
+            "type": "object"
+          },
+          "document_ready": {
+            "type": "boolean"
+          },
+          "education_ready": {
+            "type": "boolean"
+          },
+          "fulfilled": {
+            "type": "boolean",
+            "description": "문서·지침·교육·PPE가 충족되고 열린 작업중지가 없으면 true"
+          },
+          "instruction_ready": {
+            "type": "boolean"
+          },
+          "ppe_ready": {
+            "type": "boolean"
+          },
+          "prepared_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string"
+          },
+          "work_assignment_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "work_preparation_id": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "work_preparation_id",
+          "work_assignment_id",
+          "status",
+          "document_ready",
+          "education_ready",
+          "instruction_ready",
+          "ppe_ready",
+          "decision_input_versions",
+          "fulfilled"
+        ]
+      },
+      "WorkPreparationStatus": {
+        "type": "string",
+        "enum": [
+          "NOT_STARTED",
+          "IN_PROGRESS",
+          "READY",
+          "BLOCKED"
+        ]
+      },
+      "WorkPreparationsSchema": {
+        "type": "object",
+        "description": "출근 전역 불리언을 대체하는 작업 배정별 준비 상태",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "decisionInputVersions": {
+            "type": "object",
+            "description": "준비 판정 입력 버전"
+          },
+          "documentReady": {
+            "type": "boolean",
+            "description": "관련 문서 검수 충족 여부",
+            "default": false
+          },
+          "educationReady": {
+            "type": "boolean",
+            "description": "교육 이수 충족 여부",
+            "default": false
+          },
+          "instructionReady": {
+            "type": "boolean",
+            "description": "작업 지침 확인 여부",
+            "default": false
+          },
+          "ppeReady": {
+            "type": "boolean",
+            "description": "보호구 준비 충족 여부",
+            "default": false
+          },
+          "preparedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "준비 완료일시",
+            "nullable": true
+          },
+          "status": {
+            "description": "종합 준비 상태",
+            "default": "NOT_STARTED",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WorkPreparationStatus"
+              }
+            ]
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          },
+          "workAssignment": {
+            "$ref": "#/components/schemas/WorkPreparationsSchema_WorkAssignment"
+          },
+          "workAssignmentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "v2 작업 배정 FK"
+          },
+          "workPreparationId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "작업 준비 고유번호",
+            "default": 0
+          }
+        },
+        "required": [
+          "workPreparationId",
+          "workAssignmentId",
+          "status",
+          "documentReady",
+          "educationReady",
+          "instructionReady",
+          "ppeReady",
+          "decisionInputVersions",
+          "createdAt",
+          "workAssignment"
+        ]
+      },
+      "WorkPreparationsSchema_WorkAssignment": {
+        "type": "object",
+        "properties": {
+          "assignedById": {
+            "type": "integer",
+            "format": "int64",
+            "description": "배치 담당자 FK"
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "배정 작업 완료일시",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시"
+          },
+          "employeeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "작업자 FK"
+          },
+          "legacyAssignmentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "변환된 0001 작업 배정 FK, v2 신규 배정은 null",
+            "nullable": true
+          },
+          "selectedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "작업자가 NFC 대상 작업으로 선택한 일시",
+            "nullable": true
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "배정 작업 시작일시",
+            "nullable": true
+          },
+          "status": {
+            "description": "v2 배정 수명주기 상태",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/V2WorkAssignmentStatus"
+              }
+            ]
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          },
+          "workAssignmentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "v2 작업 배정 고유번호"
+          },
+          "workId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "v2 작업 FK"
+          }
+        },
+        "required": [
+          "workAssignmentId",
+          "workId",
+          "employeeId",
+          "assignedById",
+          "status",
+          "createdAt"
         ]
       },
       "WorkRestrictionRulesSchema": {
@@ -4436,6 +8605,21 @@
           "STOPPED"
         ]
       },
+      "WorkStopErrorResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ]
+      },
       "WorkStopItem": {
         "type": "object",
         "properties": {
@@ -4461,6 +8645,476 @@
           "work_date",
           "work_status"
         ]
+      },
+      "WorkStopListQuery": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "OPEN | CLOSED",
+            "nullable": true
+          },
+          "work_assignment_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "work_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          }
+        }
+      },
+      "WorkStopResponse": {
+        "type": "object",
+        "properties": {
+          "closed_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "closed_by_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "fulfilled": {
+            "type": "boolean",
+            "description": "CLOSED 이면 충족(해제됨), OPEN 이면 미충족(작업 차단)"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "stopped_at": {
+            "type": "string"
+          },
+          "stopped_by_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "work_assignment_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "work_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "work_stop_id": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "work_stop_id",
+          "status",
+          "reason",
+          "stopped_at",
+          "fulfilled"
+        ]
+      },
+      "WorkStopStatus": {
+        "type": "string",
+        "enum": [
+          "OPEN",
+          "CLOSED"
+        ]
+      },
+      "WorkStopsSchema": {
+        "type": "object",
+        "description": "작업 또는 작업 배정 범위의 작업중지 기록",
+        "properties": {
+          "closedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "작업중지 해제일시",
+            "nullable": true
+          },
+          "closedBy": {
+            "$ref": "#/components/schemas/EmployeesSchema",
+            "nullable": true
+          },
+          "closedById": {
+            "type": "integer",
+            "format": "int64",
+            "description": "작업중지 해제자 FK",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "legacy": {
+            "$ref": "#/components/schemas/WorkStopsSchema_Legacy",
+            "nullable": true
+          },
+          "legacyAttendanceId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "PR #48 출근 작업중지 변환 출처 FK",
+            "nullable": true
+          },
+          "reason": {
+            "type": "string",
+            "description": "작업중지 사유"
+          },
+          "status": {
+            "description": "작업중지 상태",
+            "default": "OPEN",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WorkStopStatus"
+              }
+            ]
+          },
+          "stoppedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "작업중지 일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "stoppedBy": {
+            "$ref": "#/components/schemas/EmployeesSchema",
+            "nullable": true
+          },
+          "stoppedById": {
+            "type": "integer",
+            "format": "int64",
+            "description": "작업중지 등록자 FK, PR #48 변환행은 null",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          },
+          "work": {
+            "$ref": "#/components/schemas/WorksSchema",
+            "nullable": true
+          },
+          "workAssignment": {
+            "type": "object",
+            "nullable": true
+          },
+          "workAssignmentId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "중지 대상 v2 작업 배정 FK",
+            "nullable": true
+          },
+          "workId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "중지 대상 작업 FK, 레거시 변환행은 null",
+            "nullable": true
+          },
+          "workStopId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "작업중지 고유번호",
+            "default": 0
+          }
+        },
+        "required": [
+          "workStopId",
+          "status",
+          "reason",
+          "stoppedAt",
+          "createdAt"
+        ]
+      },
+      "WorkStopsSchema_Legacy": {
+        "type": "object",
+        "properties": {
+          "approvalStatus": {
+            "description": "관리자 승인 상태",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ApprovalStatus"
+              }
+            ]
+          },
+          "attendanceId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "출근 고유번호"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시"
+          },
+          "employeeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "직원 FK"
+          },
+          "equipmentCheckCompleted": {
+            "type": "boolean",
+            "description": "필수 장비 착용 완료 (FR-D3)"
+          },
+          "gatePassedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "사원증 태깅 통과 시각 (FR-D5)",
+            "nullable": true
+          },
+          "gateStatus": {
+            "description": "게이트 통과 상태",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GateStatus"
+              }
+            ]
+          },
+          "instructionAckCompleted": {
+            "type": "boolean",
+            "description": "안전지침 확인 완료 (FR-C4)"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          },
+          "workDate": {
+            "type": "string",
+            "format": "date",
+            "description": "작업 일자"
+          },
+          "workStatus": {
+            "description": "작업중지 여부 (시나리오 5 — STOPPED면 게이트 차단)",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WorkStatus"
+              }
+            ]
+          }
+        },
+        "required": [
+          "attendanceId",
+          "employeeId",
+          "workDate",
+          "instructionAckCompleted",
+          "equipmentCheckCompleted",
+          "approvalStatus",
+          "gateStatus",
+          "workStatus",
+          "createdAt"
+        ]
+      },
+      "WorkTargetType": {
+        "type": "string",
+        "enum": [
+          "CONTAINER",
+          "CARGO_ITEM"
+        ]
+      },
+      "WorkTargetsSchema": {
+        "type": "object",
+        "description": "작업별 컨테이너 또는 개별 화물 대상",
+        "properties": {
+          "cargoItem": {
+            "type": "object",
+            "nullable": true
+          },
+          "cargoItemId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "개별 화물 대상 FK",
+            "nullable": true
+          },
+          "container": {
+            "$ref": "#/components/schemas/ContainersSchema",
+            "nullable": true
+          },
+          "containerId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "컨테이너 대상 FK",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "targetType": {
+            "description": "대상 구분",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WorkTargetType"
+              }
+            ]
+          },
+          "work": {
+            "$ref": "#/components/schemas/WorksSchema"
+          },
+          "workId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "작업 FK"
+          },
+          "workTargetId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "작업 대상 고유번호",
+            "default": 0
+          }
+        },
+        "required": [
+          "workTargetId",
+          "workId",
+          "targetType",
+          "createdAt",
+          "work"
+        ]
+      },
+      "WorkTypesSchema": {
+        "type": "object",
+        "description": "항만 작업 유형 기준정보",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "description": {
+            "type": "string",
+            "description": "작업 유형 설명",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "사용 여부",
+            "default": true
+          },
+          "name": {
+            "type": "string",
+            "description": "작업 유형명"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          },
+          "workTypeCode": {
+            "type": "string",
+            "description": "작업 유형 코드"
+          },
+          "workTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "작업 유형 고유번호",
+            "default": 0
+          }
+        },
+        "required": [
+          "workTypeId",
+          "workTypeCode",
+          "name",
+          "isActive",
+          "createdAt"
+        ]
+      },
+      "WorksSchema": {
+        "type": "object",
+        "description": "컨테이너·화물 대상을 묶는 작업 단위",
+        "properties": {
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "완료일시",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "생성일시",
+            "default": "1970-01-01T00:00:00+00:00"
+          },
+          "createdBy": {
+            "$ref": "#/components/schemas/EmployeesSchema"
+          },
+          "createdById": {
+            "type": "integer",
+            "format": "int64",
+            "description": "작업 등록자 FK"
+          },
+          "scheduledEndAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "예정 종료일시",
+            "nullable": true
+          },
+          "scheduledStartAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "예정 시작일시"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "실제 시작일시",
+            "nullable": true
+          },
+          "status": {
+            "description": "작업 수명주기 상태",
+            "default": "PLANNED",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WorkLifecycleStatus"
+              }
+            ]
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "수정일시",
+            "nullable": true
+          },
+          "workId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "작업 고유번호",
+            "default": 0
+          },
+          "workReference": {
+            "type": "string",
+            "description": "운영 작업 참조번호"
+          },
+          "workType": {
+            "type": "object"
+          },
+          "workTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "작업 유형 FK"
+          }
+        },
+        "required": [
+          "workId",
+          "workTypeId",
+          "workReference",
+          "status",
+          "scheduledStartAt",
+          "createdById",
+          "createdAt",
+          "workType",
+          "createdBy"
+        ]
       }
     }
   },
@@ -4484,6 +9138,9 @@
       "name": "departments"
     },
     {
+      "name": "education"
+    },
+    {
       "name": "employees"
     },
     {
@@ -4496,7 +9153,16 @@
       "name": "job_roles"
     },
     {
+      "name": "ppe"
+    },
+    {
       "name": "work_assignments"
+    },
+    {
+      "name": "work_preparations"
+    },
+    {
+      "name": "work_stops"
     }
   ]
 }

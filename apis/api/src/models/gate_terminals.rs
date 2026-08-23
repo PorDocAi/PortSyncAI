@@ -1,7 +1,6 @@
 use sea_orm::entity::prelude::*;
 
-/// 게이트 단말 자격증명 (FR-D5 — 게이트 리더기 전용 인증)
-/// 발급 시 평문 토큰은 응답으로 한 번만 반환하고 SHA-256 해시만 저장한다.
+/// 게이트 단말 자격증명(PR #48 보존)
 #[sea_orm::model]
 #[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel)]
 #[sea_orm(table_name = "gate_terminals")]
@@ -20,6 +19,10 @@ pub struct Model {
     /// 생성일시
     #[sea_orm(default_value = "NOW()")]
     pub created_at: DateTimeWithTimeZone,
+    #[sea_orm(has_many)]
+    pub gate_verify_logs: HasMany<super::gate_verify_logs::Entity>,
+    #[sea_orm(has_many)]
+    pub gate_events: HasMany<super::gate_events::Entity>,
 }
 
 vespera::schema_type!(Schema from Model, name = "GateTerminalsSchema");

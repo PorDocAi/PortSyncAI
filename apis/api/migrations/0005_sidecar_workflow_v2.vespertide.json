@@ -1,0 +1,1831 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/migration.schema.json",
+  "actions": [
+    {
+      "columns": [
+        {
+          "comment": "v2 화물문서 버전 고유번호",
+          "name": "cargo_document_version_id",
+          "nullable": false,
+          "primary_key": {
+            "auto_increment": true
+          },
+          "type": "big_int"
+        },
+        {
+          "comment": "변환된 0001-0004 화물문서 FK, v2 신규 문서는 null",
+          "foreign_key": {
+            "on_delete": "set_null",
+            "references": "cargo_documents.cargo_document_id"
+          },
+          "name": "legacy_cargo_document_id",
+          "nullable": true,
+          "type": "big_int",
+          "unique": true
+        },
+        {
+          "comment": "v2 문서 유형",
+          "name": "document_type",
+          "nullable": false,
+          "type": {
+            "kind": "enum",
+            "name": "v2_cargo_document_type",
+            "values": [
+              "BL",
+              "DGD",
+              "CI",
+              "MSDS"
+            ]
+          }
+        },
+        {
+          "comment": "동일 문서의 검수 버전",
+          "default": 1,
+          "name": "document_version",
+          "nullable": false,
+          "type": "integer"
+        },
+        {
+          "comment": "문서 분석 처리 상태",
+          "default": "'PENDING'",
+          "index": true,
+          "name": "processing_status",
+          "nullable": false,
+          "type": {
+            "kind": "enum",
+            "name": "cargo_processing_status",
+            "values": [
+              "PENDING",
+              "PROCESSING",
+              "COMPLETED",
+              "FAILED"
+            ]
+          }
+        },
+        {
+          "comment": "v2 관리자 검수 상태",
+          "default": "'PENDING'",
+          "index": true,
+          "name": "review_status",
+          "nullable": false,
+          "type": {
+            "kind": "enum",
+            "name": "cargo_review_status",
+            "values": [
+              "PENDING",
+              "CONFIRMED",
+              "REJECTED"
+            ]
+          }
+        },
+        {
+          "comment": "검수자 FK",
+          "foreign_key": {
+            "on_delete": "set_null",
+            "references": "employees.employee_id"
+          },
+          "name": "reviewed_by_id",
+          "nullable": true,
+          "type": "big_int"
+        },
+        {
+          "comment": "검수일시",
+          "name": "reviewed_at",
+          "nullable": true,
+          "type": "timestamptz"
+        },
+        {
+          "comment": "생성일시",
+          "default": "NOW()",
+          "name": "created_at",
+          "nullable": false,
+          "type": "timestamptz"
+        },
+        {
+          "comment": "수정일시",
+          "name": "updated_at",
+          "nullable": true,
+          "type": "timestamptz"
+        }
+      ],
+      "constraints": [],
+      "table": "cargo_document_versions",
+      "type": "create_table"
+    },
+    {
+      "columns": [
+        {
+          "comment": "컨테이너 고유번호",
+          "name": "container_id",
+          "nullable": false,
+          "primary_key": {
+            "auto_increment": true
+          },
+          "type": "big_int"
+        },
+        {
+          "comment": "ISO 6346 컨테이너 번호",
+          "name": "container_number",
+          "nullable": false,
+          "type": {
+            "kind": "varchar",
+            "length": 20
+          },
+          "unique": true
+        },
+        {
+          "comment": "봉인 번호",
+          "name": "seal_number",
+          "nullable": true,
+          "type": {
+            "kind": "varchar",
+            "length": 50
+          }
+        },
+        {
+          "comment": "터미널 도착일시",
+          "name": "arrival_at",
+          "nullable": true,
+          "type": "timestamptz"
+        },
+        {
+          "comment": "터미널 출발일시",
+          "name": "departure_at",
+          "nullable": true,
+          "type": "timestamptz"
+        },
+        {
+          "comment": "생성일시",
+          "default": "NOW()",
+          "name": "created_at",
+          "nullable": false,
+          "type": "timestamptz"
+        },
+        {
+          "comment": "수정일시",
+          "name": "updated_at",
+          "nullable": true,
+          "type": "timestamptz"
+        }
+      ],
+      "constraints": [],
+      "table": "containers",
+      "type": "create_table"
+    },
+    {
+      "columns": [
+        {
+          "comment": "교육 과정 고유번호",
+          "name": "education_course_id",
+          "nullable": false,
+          "primary_key": {
+            "auto_increment": true
+          },
+          "type": "big_int"
+        },
+        {
+          "comment": "교육 과정 코드",
+          "name": "course_code",
+          "nullable": false,
+          "type": {
+            "kind": "varchar",
+            "length": 30
+          },
+          "unique": true
+        },
+        {
+          "comment": "교육 과정명",
+          "name": "title",
+          "nullable": false,
+          "type": {
+            "kind": "varchar",
+            "length": 255
+          }
+        },
+        {
+          "comment": "교육 과정 설명",
+          "name": "description",
+          "nullable": true,
+          "type": "text"
+        },
+        {
+          "comment": "교육 과정 버전",
+          "default": 1,
+          "name": "version",
+          "nullable": false,
+          "type": "integer"
+        },
+        {
+          "comment": "이수 유효기간 일수, null이면 무기한",
+          "name": "validity_days",
+          "nullable": true,
+          "type": "integer"
+        },
+        {
+          "comment": "사용 여부",
+          "default": true,
+          "name": "is_active",
+          "nullable": false,
+          "type": "boolean"
+        },
+        {
+          "comment": "생성일시",
+          "default": "NOW()",
+          "name": "created_at",
+          "nullable": false,
+          "type": "timestamptz"
+        },
+        {
+          "comment": "수정일시",
+          "name": "updated_at",
+          "nullable": true,
+          "type": "timestamptz"
+        }
+      ],
+      "constraints": [],
+      "table": "education_courses",
+      "type": "create_table"
+    },
+    {
+      "columns": [
+        {
+          "comment": "v2 장비 프로필 고유번호",
+          "name": "equipment_profile_id",
+          "nullable": false,
+          "primary_key": {
+            "auto_increment": true
+          },
+          "type": "big_int"
+        },
+        {
+          "comment": "변환된 0001 장비 FK, v2 신규 장비는 null",
+          "foreign_key": {
+            "on_delete": "set_null",
+            "references": "equipment.equipment_id"
+          },
+          "name": "legacy_equipment_id",
+          "nullable": true,
+          "type": "big_int",
+          "unique": true
+        },
+        {
+          "comment": "장비 종류 FK",
+          "foreign_key": "equipment_types.equipment_type_id",
+          "index": true,
+          "name": "equipment_type_id",
+          "nullable": false,
+          "type": "big_int"
+        },
+        {
+          "comment": "v2 자산 관리번호",
+          "name": "asset_number",
+          "nullable": true,
+          "type": {
+            "kind": "varchar",
+            "length": 50
+          },
+          "unique": true
+        },
+        {
+          "comment": "개인 또는 공용 소유정책",
+          "default": "'SHARED'",
+          "index": true,
+          "name": "ownership_type",
+          "nullable": false,
+          "type": {
+            "kind": "enum",
+            "name": "equipment_ownership_type",
+            "values": [
+              "PERSONAL",
+              "SHARED"
+            ]
+          }
+        },
+        {
+          "comment": "개인 장비 소유자 FK, 공용은 null",
+          "foreign_key": {
+            "on_delete": "set_null",
+            "references": "employees.employee_id"
+          },
+          "index": true,
+          "name": "owner_employee_id",
+          "nullable": true,
+          "type": "big_int"
+        },
+        {
+          "comment": "v2 장비 수명주기 상태",
+          "default": "'BLOCKED'",
+          "index": true,
+          "name": "status",
+          "nullable": false,
+          "type": {
+            "kind": "enum",
+            "name": "equipment_lifecycle_status",
+            "values": [
+              "AVAILABLE",
+              "BLOCKED",
+              "DAMAGED",
+              "LOST",
+              "REPLACED"
+            ]
+          }
+        },
+        {
+          "comment": "상태 변경 사유",
+          "name": "status_reason",
+          "nullable": true,
+          "type": "text"
+        },
+        {
+          "comment": "v2 점자 스티커 병기 내용",
+          "name": "braille_label",
+          "nullable": true,
+          "type": {
+            "kind": "varchar",
+            "length": 100
+          }
+        },
+        {
+          "comment": "해당 품목에만 적용하는 제조사 교체 권고일",
+          "name": "manufacturer_replacement_due_at",
+          "nullable": true,
+          "type": "date"
+        },
+        {
+          "comment": "생성일시",
+          "default": "NOW()",
+          "name": "created_at",
+          "nullable": false,
+          "type": "timestamptz"
+        },
+        {
+          "comment": "수정일시",
+          "name": "updated_at",
+          "nullable": true,
+          "type": "timestamptz"
+        }
+      ],
+      "constraints": [],
+      "table": "equipment_profiles",
+      "type": "create_table"
+    },
+    {
+      "columns": [
+        {
+          "comment": "작업 유형 고유번호",
+          "name": "work_type_id",
+          "nullable": false,
+          "primary_key": {
+            "auto_increment": true
+          },
+          "type": "big_int"
+        },
+        {
+          "comment": "작업 유형 코드",
+          "name": "work_type_code",
+          "nullable": false,
+          "type": {
+            "kind": "varchar",
+            "length": 30
+          },
+          "unique": true
+        },
+        {
+          "comment": "작업 유형명",
+          "name": "name",
+          "nullable": false,
+          "type": {
+            "kind": "varchar",
+            "length": 100
+          }
+        },
+        {
+          "comment": "작업 유형 설명",
+          "name": "description",
+          "nullable": true,
+          "type": "text"
+        },
+        {
+          "comment": "사용 여부",
+          "default": true,
+          "name": "is_active",
+          "nullable": false,
+          "type": "boolean"
+        },
+        {
+          "comment": "생성일시",
+          "default": "NOW()",
+          "name": "created_at",
+          "nullable": false,
+          "type": "timestamptz"
+        },
+        {
+          "comment": "수정일시",
+          "name": "updated_at",
+          "nullable": true,
+          "type": "timestamptz"
+        }
+      ],
+      "constraints": [],
+      "table": "work_types",
+      "type": "create_table"
+    },
+    {
+      "columns": [
+        {
+          "comment": "화물 문서 관계 고유번호",
+          "name": "cargo_item_document_id",
+          "nullable": false,
+          "primary_key": {
+            "auto_increment": true
+          },
+          "type": "big_int"
+        },
+        {
+          "comment": "레거시 화물 FK",
+          "foreign_key": {
+            "on_delete": "cascade",
+            "references": "cargo_items.cargo_item_id"
+          },
+          "name": "cargo_item_id",
+          "nullable": false,
+          "type": "big_int",
+          "unique": "uq_cargo_item_document_role"
+        },
+        {
+          "comment": "v2 화물문서 버전 FK",
+          "foreign_key": {
+            "on_delete": "cascade",
+            "references": "cargo_document_versions.cargo_document_version_id"
+          },
+          "name": "cargo_document_version_id",
+          "nullable": false,
+          "type": "big_int",
+          "unique": "uq_cargo_item_document_role"
+        },
+        {
+          "comment": "화물에서 문서가 담당하는 역할",
+          "name": "document_role",
+          "nullable": false,
+          "type": {
+            "kind": "enum",
+            "name": "cargo_document_role",
+            "values": [
+              "BL",
+              "DGD",
+              "CI",
+              "MSDS"
+            ]
+          },
+          "unique": "uq_cargo_item_document_role"
+        },
+        {
+          "comment": "동일 역할의 대표 문서 여부",
+          "default": false,
+          "name": "is_primary",
+          "nullable": false,
+          "type": "boolean"
+        },
+        {
+          "comment": "생성일시",
+          "default": "NOW()",
+          "name": "created_at",
+          "nullable": false,
+          "type": "timestamptz"
+        }
+      ],
+      "constraints": [],
+      "table": "cargo_item_documents",
+      "type": "create_table"
+    },
+    {
+      "columns": [
+        {
+          "comment": "보호구 요구조건 고유번호",
+          "name": "ppe_requirement_id",
+          "nullable": false,
+          "primary_key": {
+            "auto_increment": true
+          },
+          "type": "big_int"
+        },
+        {
+          "comment": "요구 장비 종류 FK",
+          "foreign_key": "equipment_types.equipment_type_id",
+          "index": true,
+          "name": "equipment_type_id",
+          "nullable": false,
+          "type": "big_int"
+        },
+        {
+          "comment": "보호구 카테고리",
+          "index": true,
+          "name": "category",
+          "nullable": false,
+          "type": {
+            "kind": "varchar",
+            "length": 50
+          }
+        },
+        {
+          "comment": "성능조건 구조화 값",
+          "name": "performance_criteria",
+          "nullable": true,
+          "type": "json"
+        },
+        {
+          "comment": "근거 문서 원문",
+          "name": "source_text",
+          "nullable": false,
+          "type": "text"
+        },
+        {
+          "comment": "근거 v2 화물문서 버전 FK",
+          "foreign_key": "cargo_document_versions.cargo_document_version_id",
+          "index": true,
+          "name": "source_document_version_id",
+          "nullable": false,
+          "type": "big_int"
+        },
+        {
+          "comment": "근거 문서 버전",
+          "name": "source_document_version",
+          "nullable": false,
+          "type": "integer"
+        },
+        {
+          "comment": "요구조건 검수 상태",
+          "default": "'PENDING'",
+          "name": "review_status",
+          "nullable": false,
+          "type": {
+            "kind": "enum",
+            "name": "ppe_review_status",
+            "values": [
+              "PENDING",
+              "CONFIRMED",
+              "REJECTED"
+            ]
+          }
+        },
+        {
+          "comment": "검수자 FK",
+          "foreign_key": {
+            "on_delete": "set_null",
+            "references": "employees.employee_id"
+          },
+          "name": "reviewed_by_id",
+          "nullable": true,
+          "type": "big_int"
+        },
+        {
+          "comment": "검수일시",
+          "name": "reviewed_at",
+          "nullable": true,
+          "type": "timestamptz"
+        },
+        {
+          "comment": "사용 여부",
+          "default": true,
+          "name": "is_active",
+          "nullable": false,
+          "type": "boolean"
+        },
+        {
+          "comment": "생성일시",
+          "default": "NOW()",
+          "name": "created_at",
+          "nullable": false,
+          "type": "timestamptz"
+        },
+        {
+          "comment": "수정일시",
+          "name": "updated_at",
+          "nullable": true,
+          "type": "timestamptz"
+        }
+      ],
+      "constraints": [],
+      "table": "ppe_requirements",
+      "type": "create_table"
+    },
+    {
+      "columns": [
+        {
+          "comment": "컨테이너 화물 관계 고유번호",
+          "name": "container_cargo_item_id",
+          "nullable": false,
+          "primary_key": {
+            "auto_increment": true
+          },
+          "type": "big_int"
+        },
+        {
+          "comment": "컨테이너 FK",
+          "foreign_key": {
+            "on_delete": "cascade",
+            "references": "containers.container_id"
+          },
+          "name": "container_id",
+          "nullable": false,
+          "type": "big_int",
+          "unique": "uq_container_cargo_item"
+        },
+        {
+          "comment": "화물 FK",
+          "foreign_key": {
+            "on_delete": "cascade",
+            "references": "cargo_items.cargo_item_id"
+          },
+          "name": "cargo_item_id",
+          "nullable": false,
+          "type": "big_int",
+          "unique": "uq_container_cargo_item"
+        },
+        {
+          "comment": "적재 확인일시",
+          "name": "loaded_at",
+          "nullable": true,
+          "type": "timestamptz"
+        },
+        {
+          "comment": "생성일시",
+          "default": "NOW()",
+          "name": "created_at",
+          "nullable": false,
+          "type": "timestamptz"
+        }
+      ],
+      "constraints": [],
+      "table": "container_cargo_items",
+      "type": "create_table"
+    },
+    {
+      "columns": [
+        {
+          "comment": "교육 이수 고유번호",
+          "name": "education_completion_id",
+          "nullable": false,
+          "primary_key": {
+            "auto_increment": true
+          },
+          "type": "big_int"
+        },
+        {
+          "comment": "교육 과정 FK",
+          "foreign_key": "education_courses.education_course_id",
+          "index": true,
+          "name": "education_course_id",
+          "nullable": false,
+          "type": "big_int"
+        },
+        {
+          "comment": "이수 작업자 FK",
+          "foreign_key": {
+            "on_delete": "cascade",
+            "references": "employees.employee_id"
+          },
+          "index": true,
+          "name": "employee_id",
+          "nullable": false,
+          "type": "big_int"
+        },
+        {
+          "comment": "이수한 교육 과정 버전",
+          "name": "course_version",
+          "nullable": false,
+          "type": "integer"
+        },
+        {
+          "comment": "이수일시",
+          "name": "completed_at",
+          "nullable": false,
+          "type": "timestamptz"
+        },
+        {
+          "comment": "이수 만료일시",
+          "index": true,
+          "name": "expires_at",
+          "nullable": true,
+          "type": "timestamptz"
+        },
+        {
+          "comment": "이수 증빙 경로",
+          "name": "evidence_url",
+          "nullable": true,
+          "type": {
+            "kind": "varchar",
+            "length": 500
+          }
+        },
+        {
+          "comment": "이수 등록자 FK",
+          "foreign_key": "employees.employee_id",
+          "name": "recorded_by_id",
+          "nullable": false,
+          "type": "big_int"
+        },
+        {
+          "comment": "생성일시",
+          "default": "NOW()",
+          "name": "created_at",
+          "nullable": false,
+          "type": "timestamptz"
+        }
+      ],
+      "constraints": [],
+      "table": "education_completions",
+      "type": "create_table"
+    },
+    {
+      "columns": [
+        {
+          "comment": "장비 태그 토큰 고유번호",
+          "name": "equipment_tag_token_id",
+          "nullable": false,
+          "primary_key": {
+            "auto_increment": true
+          },
+          "type": "big_int"
+        },
+        {
+          "comment": "v2 장비 프로필 FK",
+          "foreign_key": {
+            "on_delete": "cascade",
+            "references": "equipment_profiles.equipment_profile_id"
+          },
+          "index": true,
+          "name": "equipment_profile_id",
+          "nullable": false,
+          "type": "big_int"
+        },
+        {
+          "comment": "서버 발급 불투명 토큰 SHA-256 해시",
+          "name": "tag_token_hash",
+          "nullable": false,
+          "type": {
+            "kind": "char",
+            "length": 64
+          },
+          "unique": true
+        },
+        {
+          "comment": "활성 토큰 여부",
+          "default": true,
+          "index": true,
+          "name": "is_active",
+          "nullable": false,
+          "type": "boolean"
+        },
+        {
+          "comment": "토큰 발급 관리자 FK",
+          "foreign_key": "employees.employee_id",
+          "name": "issued_by_id",
+          "nullable": false,
+          "type": "big_int"
+        },
+        {
+          "comment": "토큰 발급일시",
+          "default": "NOW()",
+          "name": "issued_at",
+          "nullable": false,
+          "type": "timestamptz"
+        },
+        {
+          "comment": "토큰 비활성화 관리자 FK",
+          "foreign_key": {
+            "on_delete": "set_null",
+            "references": "employees.employee_id"
+          },
+          "name": "deactivated_by_id",
+          "nullable": true,
+          "type": "big_int"
+        },
+        {
+          "comment": "토큰 비활성화일시",
+          "name": "deactivated_at",
+          "nullable": true,
+          "type": "timestamptz"
+        },
+        {
+          "comment": "생성일시",
+          "default": "NOW()",
+          "name": "created_at",
+          "nullable": false,
+          "type": "timestamptz"
+        }
+      ],
+      "constraints": [],
+      "table": "equipment_tag_tokens",
+      "type": "create_table"
+    },
+    {
+      "columns": [
+        {
+          "comment": "교육 대상 규칙 고유번호",
+          "name": "education_target_rule_id",
+          "nullable": false,
+          "primary_key": {
+            "auto_increment": true
+          },
+          "type": "big_int"
+        },
+        {
+          "comment": "교육 과정 FK",
+          "foreign_key": {
+            "on_delete": "cascade",
+            "references": "education_courses.education_course_id"
+          },
+          "index": true,
+          "name": "education_course_id",
+          "nullable": false,
+          "type": "big_int"
+        },
+        {
+          "comment": "대상 작업 유형 FK",
+          "foreign_key": {
+            "on_delete": "cascade",
+            "references": "work_types.work_type_id"
+          },
+          "name": "work_type_id",
+          "nullable": true,
+          "type": "big_int"
+        },
+        {
+          "comment": "대상 위험물 등급 FK",
+          "foreign_key": {
+            "on_delete": "cascade",
+            "references": "dg_classes.dg_class_id"
+          },
+          "name": "dg_class_id",
+          "nullable": true,
+          "type": "big_int"
+        },
+        {
+          "comment": "필수 교육 여부",
+          "default": true,
+          "name": "is_required",
+          "nullable": false,
+          "type": "boolean"
+        },
+        {
+          "comment": "규칙 사용 여부",
+          "default": true,
+          "name": "is_active",
+          "nullable": false,
+          "type": "boolean"
+        },
+        {
+          "comment": "생성일시",
+          "default": "NOW()",
+          "name": "created_at",
+          "nullable": false,
+          "type": "timestamptz"
+        },
+        {
+          "comment": "수정일시",
+          "name": "updated_at",
+          "nullable": true,
+          "type": "timestamptz"
+        }
+      ],
+      "constraints": [],
+      "table": "education_target_rules",
+      "type": "create_table"
+    },
+    {
+      "columns": [
+        {
+          "comment": "작업 고유번호",
+          "name": "work_id",
+          "nullable": false,
+          "primary_key": {
+            "auto_increment": true
+          },
+          "type": "big_int"
+        },
+        {
+          "comment": "작업 유형 FK",
+          "foreign_key": "work_types.work_type_id",
+          "index": true,
+          "name": "work_type_id",
+          "nullable": false,
+          "type": "big_int"
+        },
+        {
+          "comment": "운영 작업 참조번호",
+          "name": "work_reference",
+          "nullable": false,
+          "type": {
+            "kind": "varchar",
+            "length": 50
+          },
+          "unique": true
+        },
+        {
+          "comment": "작업 수명주기 상태",
+          "default": "'PLANNED'",
+          "index": true,
+          "name": "status",
+          "nullable": false,
+          "type": {
+            "kind": "enum",
+            "name": "work_lifecycle_status",
+            "values": [
+              "PLANNED",
+              "ACTIVE",
+              "STOPPED",
+              "COMPLETED",
+              "CANCELLED"
+            ]
+          }
+        },
+        {
+          "comment": "예정 시작일시",
+          "name": "scheduled_start_at",
+          "nullable": false,
+          "type": "timestamptz"
+        },
+        {
+          "comment": "예정 종료일시",
+          "name": "scheduled_end_at",
+          "nullable": true,
+          "type": "timestamptz"
+        },
+        {
+          "comment": "실제 시작일시",
+          "name": "started_at",
+          "nullable": true,
+          "type": "timestamptz"
+        },
+        {
+          "comment": "완료일시",
+          "name": "completed_at",
+          "nullable": true,
+          "type": "timestamptz"
+        },
+        {
+          "comment": "작업 등록자 FK",
+          "foreign_key": "employees.employee_id",
+          "name": "created_by_id",
+          "nullable": false,
+          "type": "big_int"
+        },
+        {
+          "comment": "생성일시",
+          "default": "NOW()",
+          "name": "created_at",
+          "nullable": false,
+          "type": "timestamptz"
+        },
+        {
+          "comment": "수정일시",
+          "name": "updated_at",
+          "nullable": true,
+          "type": "timestamptz"
+        }
+      ],
+      "constraints": [],
+      "table": "works",
+      "type": "create_table"
+    },
+    {
+      "columns": [
+        {
+          "comment": "v2 작업 배정 고유번호",
+          "name": "work_assignment_id",
+          "nullable": false,
+          "primary_key": {
+            "auto_increment": true
+          },
+          "type": "big_int"
+        },
+        {
+          "comment": "변환된 0001 작업 배정 FK, v2 신규 배정은 null",
+          "foreign_key": {
+            "on_delete": "set_null",
+            "references": "work_assignments.assignment_id"
+          },
+          "name": "legacy_assignment_id",
+          "nullable": true,
+          "type": "big_int",
+          "unique": true
+        },
+        {
+          "comment": "v2 작업 FK",
+          "foreign_key": {
+            "on_delete": "cascade",
+            "references": "works.work_id"
+          },
+          "name": "work_id",
+          "nullable": false,
+          "type": "big_int",
+          "unique": "uq_v2_work_assignment_work_employee"
+        },
+        {
+          "comment": "작업자 FK",
+          "foreign_key": "employees.employee_id",
+          "index": true,
+          "name": "employee_id",
+          "nullable": false,
+          "type": "big_int",
+          "unique": "uq_v2_work_assignment_work_employee"
+        },
+        {
+          "comment": "배치 담당자 FK",
+          "foreign_key": "employees.employee_id",
+          "name": "assigned_by_id",
+          "nullable": false,
+          "type": "big_int"
+        },
+        {
+          "comment": "v2 배정 수명주기 상태",
+          "default": "'ASSIGNED'",
+          "index": true,
+          "name": "status",
+          "nullable": false,
+          "type": {
+            "kind": "enum",
+            "name": "v2_work_assignment_status",
+            "values": [
+              "ASSIGNED",
+              "SELECTED",
+              "ACTIVE",
+              "COMPLETED",
+              "CANCELLED"
+            ]
+          }
+        },
+        {
+          "comment": "작업자가 NFC 대상 작업으로 선택한 일시",
+          "name": "selected_at",
+          "nullable": true,
+          "type": "timestamptz"
+        },
+        {
+          "comment": "배정 작업 시작일시",
+          "name": "started_at",
+          "nullable": true,
+          "type": "timestamptz"
+        },
+        {
+          "comment": "배정 작업 완료일시",
+          "name": "completed_at",
+          "nullable": true,
+          "type": "timestamptz"
+        },
+        {
+          "comment": "생성일시",
+          "default": "NOW()",
+          "name": "created_at",
+          "nullable": false,
+          "type": "timestamptz"
+        },
+        {
+          "comment": "수정일시",
+          "name": "updated_at",
+          "nullable": true,
+          "type": "timestamptz"
+        }
+      ],
+      "constraints": [],
+      "table": "v2_work_assignments",
+      "type": "create_table"
+    },
+    {
+      "columns": [
+        {
+          "comment": "작업 보호구 스냅샷 고유번호",
+          "name": "work_ppe_requirement_snapshot_id",
+          "nullable": false,
+          "primary_key": {
+            "auto_increment": true
+          },
+          "type": "big_int"
+        },
+        {
+          "comment": "작업 FK",
+          "foreign_key": {
+            "on_delete": "cascade",
+            "references": "works.work_id"
+          },
+          "name": "work_id",
+          "nullable": false,
+          "type": "big_int",
+          "unique": "uq_work_ppe_requirement_snapshot"
+        },
+        {
+          "comment": "원본 보호구 요구조건 FK",
+          "foreign_key": "ppe_requirements.ppe_requirement_id",
+          "name": "ppe_requirement_id",
+          "nullable": false,
+          "type": "big_int",
+          "unique": "uq_work_ppe_requirement_snapshot"
+        },
+        {
+          "comment": "확정 장비 종류 FK",
+          "foreign_key": "equipment_types.equipment_type_id",
+          "index": true,
+          "name": "equipment_type_id",
+          "nullable": false,
+          "type": "big_int"
+        },
+        {
+          "comment": "확정 보호구 카테고리",
+          "name": "category",
+          "nullable": false,
+          "type": {
+            "kind": "varchar",
+            "length": 50
+          }
+        },
+        {
+          "comment": "확정 성능조건",
+          "name": "performance_criteria",
+          "nullable": true,
+          "type": "json"
+        },
+        {
+          "comment": "확정 근거 원문",
+          "name": "source_text",
+          "nullable": false,
+          "type": "text"
+        },
+        {
+          "comment": "확정 근거 v2 문서 버전 FK",
+          "foreign_key": "cargo_document_versions.cargo_document_version_id",
+          "name": "source_document_version_id",
+          "nullable": false,
+          "type": "big_int"
+        },
+        {
+          "comment": "확정 근거 문서 버전",
+          "name": "source_document_version",
+          "nullable": false,
+          "type": "integer"
+        },
+        {
+          "comment": "확정 검수자 FK",
+          "foreign_key": "employees.employee_id",
+          "name": "reviewed_by_id",
+          "nullable": false,
+          "type": "big_int"
+        },
+        {
+          "comment": "원본 검수일시",
+          "name": "reviewed_at",
+          "nullable": false,
+          "type": "timestamptz"
+        },
+        {
+          "comment": "스냅샷 생성일시",
+          "default": "NOW()",
+          "name": "snapshotted_at",
+          "nullable": false,
+          "type": "timestamptz"
+        }
+      ],
+      "constraints": [],
+      "table": "work_ppe_requirement_snapshots",
+      "type": "create_table"
+    },
+    {
+      "columns": [
+        {
+          "comment": "작업 대상 고유번호",
+          "name": "work_target_id",
+          "nullable": false,
+          "primary_key": {
+            "auto_increment": true
+          },
+          "type": "big_int"
+        },
+        {
+          "comment": "작업 FK",
+          "foreign_key": {
+            "on_delete": "cascade",
+            "references": "works.work_id"
+          },
+          "name": "work_id",
+          "nullable": false,
+          "type": "big_int",
+          "unique": [
+            "uq_work_target_container",
+            "uq_work_target_cargo_item"
+          ]
+        },
+        {
+          "comment": "대상 구분",
+          "name": "target_type",
+          "nullable": false,
+          "type": {
+            "kind": "enum",
+            "name": "work_target_type",
+            "values": [
+              "CONTAINER",
+              "CARGO_ITEM"
+            ]
+          }
+        },
+        {
+          "comment": "컨테이너 대상 FK",
+          "foreign_key": {
+            "on_delete": "cascade",
+            "references": "containers.container_id"
+          },
+          "name": "container_id",
+          "nullable": true,
+          "type": "big_int",
+          "unique": "uq_work_target_container"
+        },
+        {
+          "comment": "개별 화물 대상 FK",
+          "foreign_key": {
+            "on_delete": "cascade",
+            "references": "cargo_items.cargo_item_id"
+          },
+          "name": "cargo_item_id",
+          "nullable": true,
+          "type": "big_int",
+          "unique": "uq_work_target_cargo_item"
+        },
+        {
+          "comment": "생성일시",
+          "default": "NOW()",
+          "name": "created_at",
+          "nullable": false,
+          "type": "timestamptz"
+        }
+      ],
+      "constraints": [],
+      "table": "work_targets",
+      "type": "create_table"
+    },
+    {
+      "columns": [
+        {
+          "comment": "장비 태깅 이벤트 고유번호",
+          "name": "equipment_check_event_id",
+          "nullable": false,
+          "primary_key": {
+            "auto_increment": true
+          },
+          "type": "big_int"
+        },
+        {
+          "comment": "JWT로 확인한 작업자 FK",
+          "foreign_key": "employees.employee_id",
+          "index": true,
+          "name": "employee_id",
+          "nullable": false,
+          "type": "big_int",
+          "unique": "uq_equipment_check_employee_idempotency"
+        },
+        {
+          "comment": "요청 v2 작업 배정 FK",
+          "foreign_key": "v2_work_assignments.work_assignment_id",
+          "index": true,
+          "name": "work_assignment_id",
+          "nullable": false,
+          "type": "big_int"
+        },
+        {
+          "comment": "토큰으로 확인한 v2 장비 프로필 FK, 미확인 토큰은 null",
+          "foreign_key": {
+            "on_delete": "set_null",
+            "references": "equipment_profiles.equipment_profile_id"
+          },
+          "name": "equipment_profile_id",
+          "nullable": true,
+          "type": "big_int"
+        },
+        {
+          "comment": "작업자 범위 멱등키",
+          "name": "idempotency_key",
+          "nullable": false,
+          "type": "uuid",
+          "unique": "uq_equipment_check_employee_idempotency"
+        },
+        {
+          "comment": "정규화하지 않은 요청의 SHA-256 지문",
+          "name": "request_fingerprint",
+          "nullable": false,
+          "type": {
+            "kind": "char",
+            "length": 64
+          }
+        },
+        {
+          "comment": "최초 응답 HTTP 상태",
+          "name": "http_status",
+          "nullable": false,
+          "type": "small_int"
+        },
+        {
+          "comment": "장비 태깅 수락 여부",
+          "name": "accepted",
+          "nullable": false,
+          "type": "boolean"
+        },
+        {
+          "comment": "안정된 결과 코드",
+          "name": "reason_code",
+          "nullable": false,
+          "type": {
+            "kind": "varchar",
+            "length": 64
+          }
+        },
+        {
+          "comment": "재전송할 최초 정확 응답 JSON",
+          "name": "response_json",
+          "nullable": false,
+          "type": "json"
+        },
+        {
+          "comment": "클라이언트 스캔 감사시각",
+          "name": "client_scanned_at",
+          "nullable": false,
+          "type": "timestamptz"
+        },
+        {
+          "comment": "서버 이벤트 발생일시",
+          "default": "NOW()",
+          "name": "occurred_at",
+          "nullable": false,
+          "type": "timestamptz"
+        }
+      ],
+      "constraints": [],
+      "table": "equipment_check_events",
+      "type": "create_table"
+    },
+    {
+      "columns": [
+        {
+          "comment": "게이트 이벤트 고유번호",
+          "name": "gate_event_id",
+          "nullable": false,
+          "primary_key": {
+            "auto_increment": true
+          },
+          "type": "big_int"
+        },
+        {
+          "comment": "검증 단말 FK",
+          "foreign_key": {
+            "on_delete": "set_null",
+            "references": "gate_terminals.terminal_id"
+          },
+          "index": true,
+          "name": "terminal_id",
+          "nullable": true,
+          "type": "big_int",
+          "unique": "uq_gate_event_terminal_idempotency"
+        },
+        {
+          "comment": "판정 시점 게이트 식별자",
+          "name": "gate_id",
+          "nullable": false,
+          "type": {
+            "kind": "varchar",
+            "length": 100
+          }
+        },
+        {
+          "comment": "판정 v2 작업 배정 FK, 변환 불가 레거시는 null",
+          "foreign_key": {
+            "on_delete": "set_null",
+            "references": "v2_work_assignments.work_assignment_id"
+          },
+          "index": true,
+          "name": "work_assignment_id",
+          "nullable": true,
+          "type": "big_int"
+        },
+        {
+          "comment": "판정 작업자 FK",
+          "foreign_key": "employees.employee_id",
+          "index": true,
+          "name": "employee_id",
+          "nullable": false,
+          "type": "big_int"
+        },
+        {
+          "comment": "단말 범위 멱등키, 레거시 변환행은 null",
+          "name": "idempotency_key",
+          "nullable": true,
+          "type": "uuid",
+          "unique": "uq_gate_event_terminal_idempotency"
+        },
+        {
+          "comment": "요청 SHA-256 지문, 레거시 변환행은 null",
+          "name": "request_fingerprint",
+          "nullable": true,
+          "type": {
+            "kind": "char",
+            "length": 64
+          }
+        },
+        {
+          "comment": "통과 또는 차단 판정",
+          "index": true,
+          "name": "decision",
+          "nullable": false,
+          "type": {
+            "kind": "enum",
+            "name": "gate_decision",
+            "values": [
+              "PASS",
+              "BLOCK"
+            ]
+          }
+        },
+        {
+          "comment": "우선순위가 가장 높은 안정된 판정 코드",
+          "name": "reason_code",
+          "nullable": false,
+          "type": {
+            "kind": "varchar",
+            "length": 64
+          }
+        },
+        {
+          "comment": "우선순위대로 정렬된 전체 판정 코드",
+          "name": "reason_codes",
+          "nullable": false,
+          "type": "json"
+        },
+        {
+          "comment": "판정에 사용한 문서·교육·보호구·중지 버전",
+          "name": "decision_input_versions",
+          "nullable": false,
+          "type": "json"
+        },
+        {
+          "comment": "최초 응답 HTTP 상태",
+          "name": "http_status",
+          "nullable": false,
+          "type": "small_int"
+        },
+        {
+          "comment": "멱등 재전송할 최초 정확 응답 JSON",
+          "name": "response_json",
+          "nullable": false,
+          "type": "json"
+        },
+        {
+          "comment": "서버 판정 발생일시",
+          "default": "NOW()",
+          "name": "occurred_at",
+          "nullable": false,
+          "type": "timestamptz"
+        },
+        {
+          "comment": "PR #48 게이트 검증 기록 변환 출처 FK",
+          "foreign_key": {
+            "on_delete": "set_null",
+            "references": "gate_verify_logs.verify_log_id"
+          },
+          "name": "legacy_verify_log_id",
+          "nullable": true,
+          "type": "big_int",
+          "unique": true
+        },
+        {
+          "comment": "PR #48 출근 참조 FK",
+          "foreign_key": {
+            "on_delete": "set_null",
+            "references": "attendances.attendance_id"
+          },
+          "name": "legacy_attendance_id",
+          "nullable": true,
+          "type": "big_int"
+        },
+        {
+          "comment": "PR #48 작업일 감사값",
+          "name": "legacy_work_date",
+          "nullable": true,
+          "type": "date"
+        }
+      ],
+      "constraints": [],
+      "table": "gate_events",
+      "type": "create_table"
+    },
+    {
+      "columns": [
+        {
+          "comment": "공용 장비 점유 고유번호",
+          "name": "shared_equipment_claim_id",
+          "nullable": false,
+          "primary_key": {
+            "auto_increment": true
+          },
+          "type": "big_int"
+        },
+        {
+          "comment": "v2 점유 작업 배정 FK",
+          "foreign_key": {
+            "on_delete": "cascade",
+            "references": "v2_work_assignments.work_assignment_id"
+          },
+          "name": "work_assignment_id",
+          "nullable": false,
+          "type": "big_int",
+          "unique": "uq_shared_equipment_assignment"
+        },
+        {
+          "comment": "점유 v2 공용 장비 프로필 FK",
+          "foreign_key": {
+            "on_delete": "cascade",
+            "references": "equipment_profiles.equipment_profile_id"
+          },
+          "name": "equipment_profile_id",
+          "nullable": false,
+          "type": "big_int",
+          "unique": [
+            "uq_shared_equipment_assignment",
+            "uq_shared_equipment_active_claim"
+          ]
+        },
+        {
+          "comment": "점유 시작일시",
+          "default": "NOW()",
+          "name": "claimed_at",
+          "nullable": false,
+          "type": "timestamptz"
+        }
+      ],
+      "constraints": [],
+      "table": "shared_equipment_claims",
+      "type": "create_table"
+    },
+    {
+      "columns": [
+        {
+          "comment": "작업 준비 고유번호",
+          "name": "work_preparation_id",
+          "nullable": false,
+          "primary_key": {
+            "auto_increment": true
+          },
+          "type": "big_int"
+        },
+        {
+          "comment": "v2 작업 배정 FK",
+          "foreign_key": {
+            "on_delete": "cascade",
+            "references": "v2_work_assignments.work_assignment_id"
+          },
+          "name": "work_assignment_id",
+          "nullable": false,
+          "type": "big_int",
+          "unique": true
+        },
+        {
+          "comment": "종합 준비 상태",
+          "default": "'NOT_STARTED'",
+          "index": true,
+          "name": "status",
+          "nullable": false,
+          "type": {
+            "kind": "enum",
+            "name": "work_preparation_status",
+            "values": [
+              "NOT_STARTED",
+              "IN_PROGRESS",
+              "READY",
+              "BLOCKED"
+            ]
+          }
+        },
+        {
+          "comment": "관련 문서 검수 충족 여부",
+          "default": false,
+          "name": "document_ready",
+          "nullable": false,
+          "type": "boolean"
+        },
+        {
+          "comment": "교육 이수 충족 여부",
+          "default": false,
+          "name": "education_ready",
+          "nullable": false,
+          "type": "boolean"
+        },
+        {
+          "comment": "작업 지침 확인 여부",
+          "default": false,
+          "name": "instruction_ready",
+          "nullable": false,
+          "type": "boolean"
+        },
+        {
+          "comment": "보호구 준비 충족 여부",
+          "default": false,
+          "name": "ppe_ready",
+          "nullable": false,
+          "type": "boolean"
+        },
+        {
+          "comment": "준비 판정 입력 버전",
+          "name": "decision_input_versions",
+          "nullable": false,
+          "type": "json"
+        },
+        {
+          "comment": "준비 완료일시",
+          "name": "prepared_at",
+          "nullable": true,
+          "type": "timestamptz"
+        },
+        {
+          "comment": "생성일시",
+          "default": "NOW()",
+          "name": "created_at",
+          "nullable": false,
+          "type": "timestamptz"
+        },
+        {
+          "comment": "수정일시",
+          "name": "updated_at",
+          "nullable": true,
+          "type": "timestamptz"
+        }
+      ],
+      "constraints": [],
+      "table": "work_preparations",
+      "type": "create_table"
+    },
+    {
+      "columns": [
+        {
+          "comment": "작업중지 고유번호",
+          "name": "work_stop_id",
+          "nullable": false,
+          "primary_key": {
+            "auto_increment": true
+          },
+          "type": "big_int"
+        },
+        {
+          "comment": "중지 대상 작업 FK, 레거시 변환행은 null",
+          "foreign_key": {
+            "on_delete": "cascade",
+            "references": "works.work_id"
+          },
+          "index": true,
+          "name": "work_id",
+          "nullable": true,
+          "type": "big_int"
+        },
+        {
+          "comment": "중지 대상 v2 작업 배정 FK",
+          "foreign_key": {
+            "on_delete": "cascade",
+            "references": "v2_work_assignments.work_assignment_id"
+          },
+          "index": true,
+          "name": "work_assignment_id",
+          "nullable": true,
+          "type": "big_int"
+        },
+        {
+          "comment": "PR #48 출근 작업중지 변환 출처 FK",
+          "foreign_key": {
+            "on_delete": "set_null",
+            "references": "attendances.attendance_id"
+          },
+          "name": "legacy_attendance_id",
+          "nullable": true,
+          "type": "big_int",
+          "unique": true
+        },
+        {
+          "comment": "작업중지 상태",
+          "default": "'OPEN'",
+          "index": true,
+          "name": "status",
+          "nullable": false,
+          "type": {
+            "kind": "enum",
+            "name": "work_stop_status",
+            "values": [
+              "OPEN",
+              "CLOSED"
+            ]
+          }
+        },
+        {
+          "comment": "작업중지 사유",
+          "name": "reason",
+          "nullable": false,
+          "type": "text"
+        },
+        {
+          "comment": "작업중지 등록자 FK, PR #48 변환행은 null",
+          "foreign_key": {
+            "on_delete": "set_null",
+            "references": "employees.employee_id"
+          },
+          "name": "stopped_by_id",
+          "nullable": true,
+          "type": "big_int"
+        },
+        {
+          "comment": "작업중지 일시",
+          "default": "NOW()",
+          "name": "stopped_at",
+          "nullable": false,
+          "type": "timestamptz"
+        },
+        {
+          "comment": "작업중지 해제자 FK",
+          "foreign_key": {
+            "on_delete": "set_null",
+            "references": "employees.employee_id"
+          },
+          "name": "closed_by_id",
+          "nullable": true,
+          "type": "big_int"
+        },
+        {
+          "comment": "작업중지 해제일시",
+          "name": "closed_at",
+          "nullable": true,
+          "type": "timestamptz"
+        },
+        {
+          "comment": "생성일시",
+          "default": "NOW()",
+          "name": "created_at",
+          "nullable": false,
+          "type": "timestamptz"
+        },
+        {
+          "comment": "수정일시",
+          "name": "updated_at",
+          "nullable": true,
+          "type": "timestamptz"
+        }
+      ],
+      "constraints": [],
+      "table": "work_stops",
+      "type": "create_table"
+    },
+    {
+      "columns": [
+        {
+          "comment": "작업 장비 할당 고유번호",
+          "name": "work_assignment_equipment_id",
+          "nullable": false,
+          "primary_key": {
+            "auto_increment": true
+          },
+          "type": "big_int"
+        },
+        {
+          "comment": "v2 작업 배정 FK",
+          "foreign_key": {
+            "on_delete": "cascade",
+            "references": "v2_work_assignments.work_assignment_id"
+          },
+          "name": "work_assignment_id",
+          "nullable": false,
+          "type": "big_int",
+          "unique": "uq_assignment_equipment"
+        },
+        {
+          "comment": "수락 v2 장비 프로필 FK",
+          "foreign_key": "equipment_profiles.equipment_profile_id",
+          "name": "equipment_profile_id",
+          "nullable": false,
+          "type": "big_int",
+          "unique": "uq_assignment_equipment"
+        },
+        {
+          "comment": "충족한 보호구 스냅샷 FK",
+          "foreign_key": "work_ppe_requirement_snapshots.work_ppe_requirement_snapshot_id",
+          "name": "requirement_snapshot_id",
+          "nullable": false,
+          "type": "big_int"
+        },
+        {
+          "comment": "수락일시",
+          "default": "NOW()",
+          "name": "accepted_at",
+          "nullable": false,
+          "type": "timestamptz"
+        }
+      ],
+      "constraints": [],
+      "table": "work_assignment_equipment",
+      "type": "create_table"
+    }
+  ],
+  "comment": "sidecar workflow v2",
+  "created_at": "2026-08-23T10:01:43Z",
+  "id": "95b7c900-9f42-48c7-9ede-4c90b812dee0",
+  "version": 5
+}

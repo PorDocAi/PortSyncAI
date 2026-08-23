@@ -44,7 +44,13 @@ pub struct Model {
     #[sea_orm(belongs_to, from = "dg_class_id", to = "dg_class_id")]
     pub dg_class: HasOne<super::dg_classes::Entity>,
     #[sea_orm(has_many)]
+    pub cargo_item_documents: HasMany<super::cargo_item_documents::Entity>,
+    #[sea_orm(has_many)]
     pub work_assignments: HasMany<super::work_assignments::Entity>,
+    #[sea_orm(has_many)]
+    pub container_cargo_items: HasMany<super::container_cargo_items::Entity>,
+    #[sea_orm(has_many)]
+    pub work_targets: HasMany<super::work_targets::Entity>,
 }
 
 // Index definitions (SeaORM uses Statement builders externally)
