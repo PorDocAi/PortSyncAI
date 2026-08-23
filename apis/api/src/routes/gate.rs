@@ -4,7 +4,8 @@ use vespera::axum::{Json, extract::State, http::StatusCode};
 
 use crate::models::attendances::{self, ApprovalStatus, GateStatus};
 use crate::models::employees::{self, Entity as Employees};
-use crate::routes::attendances::find_today_attendance;
+use crate::models::work_assignments::EligibilityStatus;
+use crate::routes::attendances::{find_today_assignments, find_today_attendance};
 use crate::utils::{AppState, auth::AuthUser};
 
 #[derive(Deserialize, vespera::Schema)]
@@ -20,8 +21,29 @@ pub struct GateVerifyResponse {
     pub reason: String,
 }
 
+fn attendance_block_reasons(
+    instruction_ack_completed: bool,
+    equipment_check_completed: bool,
+    approval_status: &ApprovalStatus,
+) -> Vec<&'static str> {
+    let mut reasons = Vec::new();
+    if !instruction_ack_completed {
+        reasons.push("안전지침 미확인");
+    }
+    if !equipment_check_completed {
+        reasons.push("필수 장비 확인 미완료");
+    }
+    match approval_status {
+        ApprovalStatus::Approved | ApprovalStatus::NotRequired => {}
+        ApprovalStatus::Pending => reasons.push("관리자 승인 대기 중"),
+        ApprovalStatus::Rejected => reasons.push("관리자 반려됨"),
+    }
+    reasons
+}
+
 /// 게이트 사원증 태깅 검증 (FR-D5, 데모 시나리오 1)
-/// (지침 확인 + 장비 완료 + 승인) 충족 시 통과 처리, 아니면 사유와 함께 차단
+/// (작업 투입 적격성 + 지침 확인 + 장비 완료 + 승인 상태) 충족 시 통과 처리한다.
+/// 관리자 승인은 지침 또는 장비 확인을 면제하지 않는다.
 /// 현재 게이트 단말 전용 자격증명은 분리하지 않았으며 로그인 JWT로 접근을 보호한다.
 #[vespera::route(post, path = "/verify", tags = ["gate"])]
 pub async fn verify_gate(
@@ -35,6 +57,29 @@ pub async fn verify_gate(
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
         .ok_or(StatusCode::NOT_FOUND)?;
+
+    // 현재 교육 이력은 별도 모델로 관리되지 않으므로, 작업 배정 단계에서 계산한
+    // 투입 적격성(제한규칙 포함)을 게이트의 첫 번째 필수조건으로 사용한다.
+    let assignments = find_today_assignments(&state.db, employee.employee_id).await?;
+
+    if assignments.is_empty() {
+        return Ok(Json(GateVerifyResponse {
+            allowed: false,
+            employee_name: employee.name,
+            reason: "오늘 배정된 작업이 없습니다.".to_string(),
+        }));
+    }
+
+    if assignments
+        .iter()
+        .any(|assignment| assignment.eligibility_status == EligibilityStatus::Excluded)
+    {
+        return Ok(Json(GateVerifyResponse {
+            allowed: false,
+            employee_name: employee.name,
+            reason: "작업 투입 적격성이 충족되지 않았습니다.".to_string(),
+        }));
+    }
 
     let Some(attendance) = find_today_attendance(&state.db, employee.employee_id).await? else {
         return Ok(Json(GateVerifyResponse {
@@ -53,21 +98,12 @@ pub async fn verify_gate(
     }
 
     // 차단 사유 수집 (FR-C4: 우회 경로 없음)
-    // 단 APPROVED는 관리자가 사유와 함께 예외를 승인한 것이므로 미비 항목을 면제 (FR-E2)
-    let mut reasons: Vec<&str> = Vec::new();
-    match attendance.approval_status {
-        ApprovalStatus::Approved => {}
-        ApprovalStatus::Pending => reasons.push("관리자 승인 대기 중"),
-        ApprovalStatus::Rejected => reasons.push("관리자 반려됨"),
-        ApprovalStatus::NotRequired => {
-            if !attendance.instruction_ack_completed {
-                reasons.push("안전지침 미확인");
-            }
-            if !attendance.equipment_check_completed {
-                reasons.push("필수 장비 확인 미완료");
-            }
-        }
-    }
+    // APPROVED는 예외 요청의 승인 상태일 뿐, 필수 안전조건을 면제하지 않는다.
+    let reasons = attendance_block_reasons(
+        attendance.instruction_ack_completed,
+        attendance.equipment_check_completed,
+        &attendance.approval_status,
+    );
 
     if !reasons.is_empty() {
         return Ok(Json(GateVerifyResponse {
@@ -91,4 +127,31 @@ pub async fn verify_gate(
         employee_name: employee.name,
         reason: "통과".to_string(),
     }))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::attendance_block_reasons;
+    use crate::models::attendances::ApprovalStatus;
+
+    #[test]
+    fn approved_exception_does_not_waive_mandatory_checks() {
+        let reasons = attendance_block_reasons(false, false, &ApprovalStatus::Approved);
+
+        assert_eq!(reasons, vec!["안전지침 미확인", "필수 장비 확인 미완료"]);
+    }
+
+    #[test]
+    fn pending_approval_is_blocked_after_mandatory_checks() {
+        let reasons = attendance_block_reasons(true, true, &ApprovalStatus::Pending);
+
+        assert_eq!(reasons, vec!["관리자 승인 대기 중"]);
+    }
+
+    #[test]
+    fn fully_ready_attendance_has_no_block_reason() {
+        let reasons = attendance_block_reasons(true, true, &ApprovalStatus::NotRequired);
+
+        assert!(reasons.is_empty());
+    }
 }

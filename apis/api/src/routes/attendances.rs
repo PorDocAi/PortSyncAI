@@ -19,6 +19,7 @@ use crate::models::safety_instruction_translations::{
     self, Entity as SafetyInstructionTranslations,
 };
 use crate::models::safety_instructions::{self, Entity as SafetyInstructions};
+use crate::models::work_assignments::{self, EligibilityStatus, Entity as WorkAssignments};
 use crate::utils::{AppState, auth::AuthUser};
 
 pub fn approval_as_str(s: &ApprovalStatus) -> &'static str {
@@ -97,26 +98,55 @@ pub async fn find_today_attendance(
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
 
-/// 오늘 입고 화물의 위험물 Class에 연결된 활성 지침을 중복 없이 조회한다.
-async fn required_instructions_for_today(
+pub async fn find_today_assignments(
     db: &sea_orm::DatabaseConnection,
-) -> Result<Vec<safety_instructions::Model>, StatusCode> {
-    let cargo = CargoItems::find()
-        .filter(cargo_items::Column::ArrivalDate.eq(today()))
-        .filter(cargo_items::Column::DgClassId.is_not_null())
+    employee_id: i64,
+) -> Result<Vec<work_assignments::Model>, StatusCode> {
+    WorkAssignments::find()
+        .filter(work_assignments::Column::EmployeeId.eq(employee_id))
+        .filter(work_assignments::Column::WorkDate.eq(today()))
         .all(db)
         .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    let class_ids: HashSet<i64> = cargo.into_iter().filter_map(|c| c.dg_class_id).collect();
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+}
+
+async fn assigned_cargo_class_ids(
+    db: &sea_orm::DatabaseConnection,
+    employee_id: i64,
+) -> Result<Vec<i64>, StatusCode> {
+    let cargo_item_ids: Vec<i64> = find_today_assignments(db, employee_id)
+        .await?
+        .into_iter()
+        .filter_map(|assignment| assignment.cargo_item_id)
+        .collect();
+    if cargo_item_ids.is_empty() {
+        return Ok(Vec::new());
+    }
+
+    let class_ids: HashSet<i64> = CargoItems::find()
+        .filter(cargo_items::Column::CargoItemId.is_in(cargo_item_ids))
+        .all(db)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+        .into_iter()
+        .filter_map(|cargo| cargo.dg_class_id)
+        .collect();
+
+    Ok(class_ids.into_iter().collect())
+}
+
+/// 작업자에게 오늘 배정된 화물의 위험물 Class에 연결된 활성 지침을 중복 없이 조회한다.
+async fn required_instructions_for_employee_today(
+    db: &sea_orm::DatabaseConnection,
+    employee_id: i64,
+) -> Result<Vec<safety_instructions::Model>, StatusCode> {
+    let class_ids = assigned_cargo_class_ids(db, employee_id).await?;
     if class_ids.is_empty() {
         return Ok(Vec::new());
     }
 
     let mappings = ClassInstructionMappings::find()
-        .filter(
-            class_instruction_mappings::Column::DgClassId
-                .is_in(class_ids.into_iter().collect::<Vec<_>>()),
-        )
+        .filter(class_instruction_mappings::Column::DgClassId.is_in(class_ids))
         .all(db)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -147,6 +177,18 @@ pub async fn start_attendance(
     if let Some(existing) = find_today_attendance(&state.db, claims.sub).await? {
         return Ok(Json(AttendanceResponse::from(existing)));
     }
+
+    let assignments = find_today_assignments(&state.db, claims.sub).await?;
+    if assignments.is_empty() {
+        return Err(StatusCode::PRECONDITION_FAILED);
+    }
+    if assignments
+        .iter()
+        .any(|assignment| assignment.eligibility_status == EligibilityStatus::Excluded)
+    {
+        return Err(StatusCode::FORBIDDEN);
+    }
+
     let new_attendance = attendances::ActiveModel {
         employee_id: Set(claims.sub),
         work_date: Set(today()),
@@ -158,7 +200,10 @@ pub async fn start_attendance(
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     // 확인할 지침이 없는 날은 형식적인 확인 절차를 만들지 않고 자동 완료한다.
-    if required_instructions_for_today(&state.db).await?.is_empty() {
+    if required_instructions_for_employee_today(&state.db, claims.sub)
+        .await?
+        .is_empty()
+    {
         let mut active: attendances::ActiveModel = saved.into();
         active.instruction_ack_completed = Set(true);
         active.updated_at = Set(Some(chrono::Utc::now().into()));
@@ -204,7 +249,7 @@ pub async fn acknowledge_instruction(
     let attendance = find_today_attendance(&state.db, claims.sub)
         .await?
         .ok_or(StatusCode::NOT_FOUND)?;
-    let required = required_instructions_for_today(&state.db).await?;
+    let required = required_instructions_for_employee_today(&state.db, claims.sub).await?;
     let instruction = required
         .iter()
         .find(|i| i.instruction_id == req.instruction_id)
@@ -308,7 +353,7 @@ pub async fn get_today_instructions(
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
         .ok_or(StatusCode::UNAUTHORIZED)?;
-    let instructions = required_instructions_for_today(&state.db).await?;
+    let instructions = required_instructions_for_employee_today(&state.db, claims.sub).await?;
     let ids: Vec<i64> = instructions.iter().map(|i| i.instruction_id).collect();
 
     let translations = if ids.is_empty() {
@@ -408,20 +453,15 @@ pub struct RequiredEquipmentItem {
     pub satisfied: bool,
 }
 
-/// 당일 입고 위험물 화물의 Class 기반 필수/권장 장비 목록과 충족 여부 산출 (FR-D1)
+/// 작업자에게 당일 배정된 위험물 화물의 Class 기반 필수/권장 장비 목록과 충족 여부 산출 (FR-D1)
 /// REQUIRED가 우선 — 같은 장비가 여러 Class에서 매핑되면 REQUIRED로 승격
 async fn required_equipment_for_today(
     db: &sea_orm::DatabaseConnection,
     attendance_id: i64,
+    employee_id: i64,
 ) -> Result<Vec<RequiredEquipmentItem>, StatusCode> {
-    // 1) 당일 입고 위험물 화물의 Class 수집
-    let cargo = CargoItems::find()
-        .filter(cargo_items::Column::ArrivalDate.eq(today()))
-        .filter(cargo_items::Column::DgClassId.is_not_null())
-        .all(db)
-        .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    let class_ids: Vec<i64> = cargo.iter().filter_map(|c| c.dg_class_id).collect();
+    // 1) 이 작업자에게 오늘 배정된 화물의 Class 수집
+    let class_ids = assigned_cargo_class_ids(db, employee_id).await?;
     if class_ids.is_empty() {
         return Ok(Vec::new());
     }
@@ -508,7 +548,8 @@ pub async fn get_required_equipment(
     let attendance = find_today_attendance(&state.db, claims.sub)
         .await?
         .ok_or(StatusCode::NOT_FOUND)?;
-    let items = required_equipment_for_today(&state.db, attendance.attendance_id).await?;
+    let items =
+        required_equipment_for_today(&state.db, attendance.attendance_id, claims.sub).await?;
     Ok(Json(items))
 }
 
@@ -523,7 +564,8 @@ pub async fn complete_equipment_check(
         .await?
         .ok_or(StatusCode::NOT_FOUND)?;
 
-    let required = required_equipment_for_today(&state.db, attendance.attendance_id).await?;
+    let required =
+        required_equipment_for_today(&state.db, attendance.attendance_id, claims.sub).await?;
     let all_required_satisfied = required
         .iter()
         .filter(|i| i.requirement_level == "REQUIRED")
