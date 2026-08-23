@@ -1,10 +1,6 @@
-//! 장비 NFC 태깅 동시성 테스트 (AC-7 — #42)
+//! v2 NFC tagging concurrency tests.
 //!
-//! AC-7: 같은 장비를 10명이 동시에 태깅하면 정확히 1건만 201을 받고
-//! 나머지 9건은 409로 거부된다. 최종 방어선은 DB의 (장비, 작업일)
-//! 유니크 제약이므로, 요청 인터리빙 순서와 무관하게 결과 집합이 결정적이다.
-//! 하네스스 방침과 동일하게 sleep·폴링은 일절 없다 — JoinSet으로 요청을
-//! 한꺼번에 기동하고 응답 상태로만 단언한다.
+//! Every request is a real in-process Axum future. No sleeps or polling are used.
 
 mod common;
 
@@ -12,32 +8,56 @@ use std::sync::Arc;
 
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 use tokio::task::JoinSet;
+use uuid::Uuid;
 use vespera::axum::http::StatusCode;
 
-/// AC-7 — 동시 태깅 10개 요청 (같은 장비) → 정확히 1건 201, 나머지 9건 409
-#[tokio::test]
-async fn ten_concurrent_tags_yield_one_created_and_nine_conflicts() {
-    let app = Arc::new(common::spawn_app().await);
-    let device = common::seed_active_equipment(&app.db).await;
+use api::models::{
+    equipment_check_events, equipment_profiles::EquipmentLifecycleStatus,
+    equipment_profiles::EquipmentOwnershipType, equipment_tag_tokens, shared_equipment_claims,
+    work_assignment_equipment,
+};
 
-    // 픽스처: 작업원 10명 (출근 절차 완료 상태). 생성은 직렬로 하고,
-    // 동시성은 태깅 요청에만 부여한다 — 시나리오의 대상은 태깅 경합이다.
+fn key() -> String {
+    Uuid::new_v4().to_string()
+}
+
+/// Distinct active assignments racing for one shared asset produce one accepted
+/// claim and nine portable conflict responses.
+#[tokio::test]
+async fn ten_concurrent_shared_tags_yield_one_acceptance_and_nine_conflicts() {
+    let app = Arc::new(common::spawn_app().await);
+    let (issuer, _) = common::spawn_worker(&app.db, "v2-concurrent-issuer").await;
+    let profile = common::seed_v2_equipment(
+        &app.db,
+        None,
+        EquipmentOwnershipType::Shared,
+        EquipmentLifecycleStatus::Available,
+    )
+    .await;
+    let (_, token) =
+        common::seed_v2_token(&app.db, profile.equipment_profile_id, issuer.employee_id).await;
+
     let mut participants = Vec::with_capacity(10);
-    for i in 0..10 {
-        let (worker, _) = common::spawn_worker(&app.db, &format!("nfc-ac7-{i:02}")).await;
+    for index in 0..10 {
+        let (worker, _) = common::spawn_worker(&app.db, &format!("v2-concurrent-{index:02}")).await;
+        let assignment =
+            common::seed_v2_assignment(&app.db, worker.employee_id, profile.equipment_type_id)
+                .await;
         participants.push((
             worker.employee_id,
+            assignment.work_assignment_id,
             common::bearer_for(worker.employee_id, "WORKER"),
         ));
     }
 
-    let device_uid = device.nfc_tag_uid.clone();
     let mut set = JoinSet::new();
-    for (employee_id, bearer) in participants {
+    for (employee_id, assignment_id, bearer) in participants {
         let app = Arc::clone(&app);
-        let uid = device_uid.clone();
+        let token = token.clone();
         set.spawn(async move {
-            let response = app.tag_equipment_with(&bearer, &uid).await;
+            let response = app
+                .tag_equipment_with(&bearer, assignment_id, &token, &key())
+                .await;
             (employee_id, response)
         });
     }
@@ -47,26 +67,106 @@ async fn ten_concurrent_tags_yield_one_created_and_nine_conflicts() {
         results.push(joined.expect("동시 태깅 태스크 패닉"));
     }
 
-    // 정확히 하나가 이기고, 나머지는 전부 409다 (다른 상태 코드는 허용하지 않는다)
-    assert_eq!(results.len(), 10, "모든 요청에 대한 응답을 받아야 한다");
-    let mut responses = results.into_iter();
-    let (winner_id, winner_response) = responses
-        .find(|(_, response)| response.status() == StatusCode::CREATED)
-        .expect("동시 요청 중 정확히 하나는 201이어야 한다");
-    assert!(
-        responses.all(|(_, response)| response.status() == StatusCode::CONFLICT),
-        "승자를 제외한 나머지 9건은 모두 409여야 한다"
+    assert_eq!(results.len(), 10);
+    assert_eq!(
+        results
+            .iter()
+            .filter(|(_, response)| response.status() == StatusCode::CREATED)
+            .count(),
+        1,
+        "공용 장비에 대한 첫 수락은 정확히 하나여야 한다"
     );
+    assert_eq!(
+        results
+            .iter()
+            .filter(|(_, response)| {
+                response.status() == StatusCode::CONFLICT
+                    && response.json()["reason_code"] == "SHARED_EQUIPMENT_IN_USE"
+            })
+            .count(),
+        9,
+        "나머지는 모두 SHARED_EQUIPMENT_IN_USE여야 한다"
+    );
+    assert!(results.iter().all(|(_, response)| {
+        response.status() == StatusCode::CREATED
+            || (response.status() == StatusCode::CONFLICT
+                && response.json()["reason_code"] == "SHARED_EQUIPMENT_IN_USE")
+    }));
 
-    // 승자 응답도 정상 본문을 가진다 — 오늘자 태깅 수는 자기 자신 1건
-    assert_eq!(winner_response.json()["tagged_count_today"], 1);
-
-    // 로그는 첫 태깅 1건만 남고, 소유자는 201을 받은 작업원이다
-    let logs = api::models::equipment_check_logs::Entity::find()
-        .filter(api::models::equipment_check_logs::Column::EquipmentId.eq(device.equipment_id))
+    let claims = shared_equipment_claims::Entity::find()
         .all(&app.db)
         .await
-        .expect("태깅 로그 조회 실패");
-    assert_eq!(logs.len(), 1, "동시 태깅이 정리되면 로그는 1건뿐이다");
-    assert_eq!(logs[0].employee_id, winner_id);
+        .expect("공용 점유 조회 실패");
+    assert_eq!(claims.len(), 1);
+    let allocations = work_assignment_equipment::Entity::find()
+        .filter(
+            work_assignment_equipment::Column::EquipmentProfileId.eq(profile.equipment_profile_id),
+        )
+        .all(&app.db)
+        .await
+        .expect("장비 할당 조회 실패");
+    assert_eq!(allocations.len(), 1);
+    let events = equipment_check_events::Entity::find()
+        .all(&app.db)
+        .await
+        .expect("태깅 이벤트 조회 실패");
+    assert_eq!(events.len(), 10);
+}
+
+/// Concurrent copies of one request use the worker/key uniqueness boundary and
+/// return the same stored response rather than creating duplicate allocations.
+#[tokio::test]
+async fn concurrent_same_key_requests_replay_one_stored_response() {
+    let app = Arc::new(common::spawn_app().await);
+    let (worker, _) = common::spawn_worker(&app.db, "v2-concurrent-same-key").await;
+    let profile = common::seed_v2_equipment(
+        &app.db,
+        None,
+        EquipmentOwnershipType::Shared,
+        EquipmentLifecycleStatus::Available,
+    )
+    .await;
+    let (_, token) =
+        common::seed_v2_token(&app.db, profile.equipment_profile_id, worker.employee_id).await;
+    let assignment =
+        common::seed_v2_assignment(&app.db, worker.employee_id, profile.equipment_type_id).await;
+    let bearer = common::bearer_for(worker.employee_id, "WORKER");
+    let idempotency_key = key();
+
+    let mut set = JoinSet::new();
+    for _ in 0..10 {
+        let app = Arc::clone(&app);
+        let bearer = bearer.clone();
+        let token = token.clone();
+        let idempotency_key = idempotency_key.clone();
+        let assignment_id = assignment.work_assignment_id;
+        set.spawn(async move {
+            app.tag_equipment_with(&bearer, assignment_id, &token, &idempotency_key)
+                .await
+        });
+    }
+
+    let mut responses = Vec::with_capacity(10);
+    while let Some(joined) = set.join_next().await {
+        responses.push(joined.expect("동일 멱등키 태스크 패닉"));
+    }
+    assert_eq!(responses.len(), 10);
+    assert!(responses.iter().all(|response| {
+        response.status() == StatusCode::CREATED && response.json()["reason_code"] == "TAG_ACCEPTED"
+    }));
+    let allocations = work_assignment_equipment::Entity::find()
+        .all(&app.db)
+        .await
+        .expect("장비 할당 조회 실패");
+    assert_eq!(allocations.len(), 1);
+    let events = equipment_check_events::Entity::find()
+        .all(&app.db)
+        .await
+        .expect("태깅 이벤트 조회 실패");
+    assert_eq!(events.len(), 1);
+    let tokens = equipment_tag_tokens::Entity::find()
+        .all(&app.db)
+        .await
+        .expect("토큰 조회 실패");
+    assert_eq!(tokens.len(), 1);
 }
