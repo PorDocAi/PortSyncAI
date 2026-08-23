@@ -47,6 +47,7 @@ export function WorkerWorkspace() {
   const [selectedId, setSelectedId] = useState(WORKS[0].id)
   const [detailsOpen, setDetailsOpen] = useState(false)
   const [activeView, setActiveView] = useState<WorkerView>('today')
+  const [weatherAlertOpen, setWeatherAlertOpen] = useState(true)
   const selected = useMemo(
     () => WORKS.find((work) => work.id === selectedId) ?? WORKS[0],
     [selectedId],
@@ -76,7 +77,7 @@ export function WorkerWorkspace() {
             <p>배정된 작업을 확인한 뒤 준비 절차를 시작하세요.</p>
           </section>
 
-          <UiButton className="field-bulletin" aria-label="기상·긴급 알림 열기" onClick={() => setActiveView('alerts')} type="button">
+          <UiButton className="field-bulletin" aria-label="강풍 예보 상세 열기" onClick={() => setWeatherAlertOpen(true)} type="button">
             <div>
               <span className="field-bulletin__label">기상 주의</span>
               <time>14:00–18:00</time>
@@ -165,6 +166,31 @@ export function WorkerWorkspace() {
           <UiButton className={activeView === 'history' ? 'is-current' : ''} onClick={() => setActiveView('history')} type="button"><span>통과 기록</span></UiButton>
           <UiButton className={activeView === 'profile' ? 'is-current' : ''} onClick={() => setActiveView('profile')} type="button"><span>내 정보</span></UiButton>
         </nav>
+
+        {weatherAlertOpen && (
+          <div className="weather-alert-layer" role="presentation">
+            <section aria-labelledby="weather-alert-title" aria-modal="true" className="weather-alert-sheet" role="dialog">
+              <header>
+                <span>기상 주의 · 오늘 14:00–18:00</span>
+                <UiButton aria-label="기상 알림 닫기" onClick={() => setWeatherAlertOpen(false)} type="button">닫기</UiButton>
+              </header>
+              <div className="weather-alert-sheet__body">
+                <p className="overline">현재 작업 영향 알림</p>
+                <h2 id="weather-alert-title">오후 강풍 예보</h2>
+                <p>14시 이후 순간풍속이 증가할 수 있습니다. CFS·야드 작업자는 적치물과 이동식 장비의 고정 상태를 작업 전에 다시 확인하세요.</p>
+                <dl>
+                  <div><dt>영향 작업</dt><dd>CFS 적출·분류</dd></div>
+                  <div><dt>작업 구역</dt><dd>CFS B-3</dd></div>
+                  <div><dt>확인 기준</dt><dd>08:55 기상 연동</dd></div>
+                </dl>
+              </div>
+              <footer>
+                <UiButton onClick={() => setWeatherAlertOpen(false)} type="button">지금 닫기</UiButton>
+                <UiButton onClick={() => { setWeatherAlertOpen(false); setActiveView('alerts') }} type="button">대응 내용 확인</UiButton>
+              </footer>
+            </section>
+          </div>
+        )}
       </Box>
     </Grid>
   )
@@ -333,9 +359,14 @@ function PreparationScreen({ work }: { work: Work }) {
             </div>
             <div className="nfc-note"><strong>NFC 입력 규칙</strong><p>태그 토큰만 전송하며 장비 종류·소유자·사용중지 여부는 서버에서 판정합니다.</p></div>
             {lastScan && (
-              <p className="nfc-scan-result" role="status">
-                최근 확인 · {lastScan.equipmentCategory} · {lastScan.tagToken.slice(0, 12)}… · {lastScan.device.channel === 'phone-nfc' ? '휴대폰 NFC' : '개발 미리보기'}
-              </p>
+              <section className="nfc-receipt" role="status">
+                <header><strong>NFC 확인 완료</strong><time>방금 전</time></header>
+                <dl>
+                  <div><dt>보호구</dt><dd>{lastScan.equipmentCategory}</dd></div>
+                  <div><dt>입력 경로</dt><dd>{lastScan.device.channel === 'phone-nfc' ? '휴대폰 NFC' : '시연용 태그'}</dd></div>
+                  <div><dt>태그 식별값</dt><dd className="nfc-receipt__token">••••{lastScan.tagToken.slice(-6)}</dd></div>
+                </dl>
+              </section>
             )}
             {scanError && <p className="nfc-scan-error" role="alert">{scanError}</p>}
             <UiButton className="exception-toggle" onClick={() => setExceptionOpen((open) => !open)} type="button">
