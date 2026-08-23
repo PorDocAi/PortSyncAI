@@ -1,15 +1,9 @@
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(
-    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema,
-)]
+#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-#[sea_orm(
-    rs_type = "String",
-    db_type = "Enum",
-    enum_name = "class_equipment_mappings_requirement_level"
-)]
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "class_equipment_mappings_requirement_level")]
 pub enum RequirementLevel {
     #[sea_orm(string_value = "REQUIRED")]
     Required,
@@ -44,6 +38,7 @@ pub struct Model {
     #[sea_orm(belongs_to, from = "equipment_type_id", to = "equipment_type_id")]
     pub equipment_type: HasOne<super::equipment_types::Entity>,
 }
+
 
 /// Composite unique constraints — declare in migrations or use Statement builder.
 pub const COMPOSITE_UNIQUES: &[&[&str]] = &[

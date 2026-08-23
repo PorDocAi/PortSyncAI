@@ -1,15 +1,9 @@
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(
-    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema,
-)]
+#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-#[sea_orm(
-    rs_type = "String",
-    db_type = "Enum",
-    enum_name = "cargo_documents_cargo_document_type"
-)]
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "cargo_documents_cargo_document_type")]
 pub enum CargoDocumentType {
     #[sea_orm(string_value = "BL")]
     Bl,
@@ -17,15 +11,9 @@ pub enum CargoDocumentType {
     Dgd,
 }
 
-#[derive(
-    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema,
-)]
+#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-#[sea_orm(
-    rs_type = "String",
-    db_type = "Enum",
-    enum_name = "cargo_documents_file_format"
-)]
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "cargo_documents_file_format")]
 pub enum FileFormat {
     #[sea_orm(string_value = "HWP")]
     Hwp,
@@ -39,11 +27,9 @@ pub enum FileFormat {
     Image,
 }
 
-#[derive(
-    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema,
-)]
+#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "review_status")]
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "cargo_documents_review_status")]
 pub enum ReviewStatus {
     #[sea_orm(string_value = "PENDING")]
     Pending,
@@ -85,6 +71,8 @@ pub struct Model {
     pub uploaded_by: HasOne<super::employees::Entity>,
     #[sea_orm(has_many)]
     pub cargo_items: HasMany<super::cargo_items::Entity>,
+    #[sea_orm(has_one)]
+    pub cargo_document_versions: HasOne<super::cargo_document_versions::Entity>,
 }
 
 vespera::schema_type!(Schema from Model, name = "CargoDocumentsSchema");

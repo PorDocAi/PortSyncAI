@@ -22,6 +22,12 @@ pub struct Model {
     #[sea_orm(has_many)]
     pub class_equipment_mappings: HasMany<super::class_equipment_mappings::Entity>,
     #[sea_orm(has_many)]
+    pub ppe_requirements: HasMany<super::ppe_requirements::Entity>,
+    #[sea_orm(has_many)]
+    pub work_ppe_requirement_snapshots: HasMany<super::work_ppe_requirement_snapshots::Entity>,
+    #[sea_orm(has_many)]
+    pub equipment_profiles: HasMany<super::equipment_profiles::Entity>,
+    #[sea_orm(has_many)]
     pub equipments: HasMany<super::equipment::Entity>,
 }
 

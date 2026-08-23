@@ -1,15 +1,9 @@
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(
-    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema,
-)]
+#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-#[sea_orm(
-    rs_type = "String",
-    db_type = "Enum",
-    enum_name = "safety_instructions_source_law"
-)]
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "safety_instructions_source_law")]
 pub enum SourceLaw {
     #[sea_orm(string_value = "OSH_ACT")]
     OshAct,
@@ -59,9 +53,9 @@ pub struct Model {
     #[sea_orm(has_many)]
     pub class_instruction_mappings: HasMany<super::class_instruction_mappings::Entity>,
     #[sea_orm(has_many)]
-    pub instruction_acknowledgements: HasMany<super::instruction_acknowledgements::Entity>,
-    #[sea_orm(has_many)]
     pub safety_instruction_translations: HasMany<super::safety_instruction_translations::Entity>,
+    #[sea_orm(has_many)]
+    pub instruction_acknowledgements: HasMany<super::instruction_acknowledgements::Entity>,
 }
 
 vespera::schema_type!(Schema from Model, name = "SafetyInstructionsSchema");

@@ -21,6 +21,7 @@ pub struct Model {
     pub instruction: HasOne<super::safety_instructions::Entity>,
 }
 
+
 /// Composite unique constraints — declare in migrations or use Statement builder.
 pub const COMPOSITE_UNIQUES: &[&[&str]] = &[
     &["dg_class_id", "instruction_id"], // uq_class_instruction

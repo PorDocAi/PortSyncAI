@@ -1,15 +1,9 @@
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(
-    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema,
-)]
+#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-#[sea_orm(
-    rs_type = "String",
-    db_type = "Enum",
-    enum_name = "regulation_documents_source_law"
-)]
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "regulation_documents_source_law")]
 pub enum SourceLaw {
     #[sea_orm(string_value = "OSH_ACT")]
     OshAct,
@@ -23,15 +17,9 @@ pub enum SourceLaw {
     Other,
 }
 
-#[derive(
-    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema,
-)]
+#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-#[sea_orm(
-    rs_type = "String",
-    db_type = "Enum",
-    enum_name = "regulation_documents_file_format"
-)]
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "regulation_documents_file_format")]
 pub enum FileFormat {
     #[sea_orm(string_value = "HWP")]
     Hwp,
@@ -45,15 +33,9 @@ pub enum FileFormat {
     Image,
 }
 
-#[derive(
-    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema,
-)]
+#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-#[sea_orm(
-    rs_type = "String",
-    db_type = "Enum",
-    enum_name = "regulation_documents_processing_status"
-)]
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "regulation_documents_processing_status")]
 pub enum ProcessingStatus {
     #[sea_orm(string_value = "PENDING")]
     Pending,

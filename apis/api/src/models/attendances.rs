@@ -1,15 +1,9 @@
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(
-    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema,
-)]
+#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-#[sea_orm(
-    rs_type = "String",
-    db_type = "Enum",
-    enum_name = "attendances_approval_status"
-)]
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "attendances_approval_status")]
 pub enum ApprovalStatus {
     #[sea_orm(string_value = "NOT_REQUIRED")]
     NotRequired,
@@ -21,15 +15,9 @@ pub enum ApprovalStatus {
     Rejected,
 }
 
-#[derive(
-    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema,
-)]
+#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-#[sea_orm(
-    rs_type = "String",
-    db_type = "Enum",
-    enum_name = "attendances_gate_status"
-)]
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "attendances_gate_status")]
 pub enum GateStatus {
     #[sea_orm(string_value = "BLOCKED")]
     Blocked,
@@ -39,11 +27,9 @@ pub enum GateStatus {
     Passed,
 }
 
-#[derive(
-    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema,
-)]
+#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, vespera::Schema)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "work_status")]
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "attendances_work_status")]
 pub enum WorkStatus {
     #[sea_orm(string_value = "NORMAL")]
     Normal,
@@ -89,13 +75,19 @@ pub struct Model {
     #[sea_orm(belongs_to, from = "employee_id", to = "employee_id")]
     pub employee: HasOne<super::employees::Entity>,
     #[sea_orm(has_many)]
-    pub approvals: HasMany<super::approvals::Entity>,
-    #[sea_orm(has_many)]
     pub equipment_check_logs: HasMany<super::equipment_check_logs::Entity>,
     #[sea_orm(has_many)]
-    pub improvement_orders: HasMany<super::improvement_orders::Entity>,
+    pub gate_verify_logs: HasMany<super::gate_verify_logs::Entity>,
+    #[sea_orm(has_many)]
+    pub gate_events: HasMany<super::gate_events::Entity>,
+    #[sea_orm(has_one)]
+    pub work_stops: HasOne<super::work_stops::Entity>,
+    #[sea_orm(has_many)]
+    pub approvals: HasMany<super::approvals::Entity>,
     #[sea_orm(has_many)]
     pub instruction_acknowledgements: HasMany<super::instruction_acknowledgements::Entity>,
+    #[sea_orm(has_many)]
+    pub improvement_orders: HasMany<super::improvement_orders::Entity>,
 }
 
 // Index definitions (SeaORM uses Statement builders externally)
