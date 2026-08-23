@@ -6,7 +6,7 @@
     {"name": "gate_event_id", "type": "big_int", "nullable": false, "primary_key": {"auto_increment": true}, "comment": "게이트 이벤트 고유번호"},
     {"name": "terminal_id", "type": "big_int", "nullable": true, "foreign_key": {"references": "gate_terminals.terminal_id", "on_delete": "set_null"}, "unique": "uq_gate_event_terminal_idempotency", "index": true, "comment": "검증 단말 FK"},
     {"name": "gate_id", "type": {"kind": "varchar", "length": 100}, "nullable": false, "comment": "판정 시점 게이트 식별자"},
-    {"name": "work_assignment_id", "type": "big_int", "nullable": true, "foreign_key": {"references": "work_assignments.work_assignment_id", "on_delete": "set_null"}, "index": true, "comment": "판정 작업 배정 FK, 변환 불가 레거시는 null"},
+    {"name": "work_assignment_id", "type": "big_int", "nullable": true, "foreign_key": {"references": "work_assignments.assignment_id", "on_delete": "set_null"}, "index": true, "comment": "판정 작업 배정 FK, 변환 불가 레거시는 null"},
     {"name": "employee_id", "type": "big_int", "nullable": false, "foreign_key": "employees.employee_id", "index": true, "comment": "판정 작업자 FK"},
     {"name": "idempotency_key", "type": "uuid", "nullable": true, "unique": "uq_gate_event_terminal_idempotency", "comment": "단말 범위 멱등키, 레거시 변환행은 null"},
     {"name": "request_fingerprint", "type": {"kind": "char", "length": 64}, "nullable": true, "comment": "요청 SHA-256 지문, 레거시 변환행은 null"},

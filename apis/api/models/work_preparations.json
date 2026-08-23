@@ -4,7 +4,7 @@
   "description": "출근 전역 불리언을 대체하는 작업 배정별 준비 상태",
   "columns": [
     {"name": "work_preparation_id", "type": "big_int", "nullable": false, "primary_key": {"auto_increment": true}, "comment": "작업 준비 고유번호"},
-    {"name": "work_assignment_id", "type": "big_int", "nullable": false, "foreign_key": {"references": "work_assignments.work_assignment_id", "on_delete": "cascade"}, "unique": true, "comment": "작업 배정 FK"},
+    {"name": "work_assignment_id", "type": "big_int", "nullable": false, "foreign_key": {"references": "work_assignments.assignment_id", "on_delete": "cascade"}, "unique": true, "comment": "작업 배정 FK"},
     {"name": "status", "type": {"kind": "enum", "name": "work_preparation_status", "values": ["NOT_STARTED", "IN_PROGRESS", "READY", "BLOCKED"]}, "nullable": false, "default": "'NOT_STARTED'", "index": true, "comment": "종합 준비 상태"},
     {"name": "document_ready", "type": "boolean", "nullable": false, "default": false, "comment": "관련 문서 검수 충족 여부"},
     {"name": "education_ready", "type": "boolean", "nullable": false, "default": false, "comment": "교육 이수 충족 여부"},

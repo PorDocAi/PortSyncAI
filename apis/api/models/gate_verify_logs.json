@@ -1,0 +1,16 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dev-five-git/vespertide/refs/heads/main/schemas/model.schema.json",
+  "name": "gate_verify_logs",
+  "description": "게이트 검증 기록 (FR-D5, AC-5 — 이벤트 멱등 보장)",
+  "columns": [
+    {"name": "verify_log_id", "type": "big_int", "nullable": false, "primary_key": {"auto_increment": true}, "comment": "게이트 검증 기록 고유번호"},
+    {"name": "attendance_id", "type": "big_int", "nullable": true, "foreign_key": {"references": "attendances.attendance_id", "on_delete": "set_null"}, "index": true, "comment": "출근 FK (출근 절차 시작 전 스캔은 NULL)"},
+    {"name": "employee_id", "type": "big_int", "nullable": false, "foreign_key": "employees.employee_id", "comment": "직원 FK"},
+    {"name": "terminal_id", "type": "big_int", "nullable": true, "foreign_key": {"references": "gate_terminals.terminal_id", "on_delete": "set_null"}, "comment": "검증 단말 FK (게이트 단말 자격증명)"},
+    {"name": "allowed", "type": "boolean", "nullable": false, "default": false, "comment": "통과 허용 여부"},
+    {"name": "reason", "type": "text", "nullable": false, "comment": "판정 사유 (한국어 안내 문구)"},
+    {"name": "work_date", "type": "date", "nullable": false, "unique": "uq_attendance_workdate_passed", "comment": "작업 일자 (출근일 기준 통과 이벤트 멱등키 구성 요소)"},
+    {"name": "is_pass_event", "type": "boolean", "nullable": false, "default": false, "unique": "uq_attendance_workdate_passed", "comment": "통과 이벤트 멱등 플래그 — PASSED 건만 true로 기록해 유니크 제약 대상이 된다"},
+    {"name": "created_at", "type": "timestamptz", "nullable": false, "default": "NOW()", "comment": "기록 시각"}
+  ]
+}

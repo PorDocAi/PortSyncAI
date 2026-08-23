@@ -11,6 +11,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 MODELS_DIR = ROOT / "apis/api/models"
 MAPPING_PATH = ROOT / ".omo/evidence/task-2-pr48-conversion-map.md"
+GATE_VERIFY_LOGS_MIGRATION = (
+    ROOT / "apis/api/migrations/0003_add_gate_terminals_and_verify_logs.vespertide.json"
+)
 
 REQUIRED_TABLES = {
     "containers",
@@ -35,6 +38,7 @@ REQUIRED_TABLES = {
     "work_stops",
     "gate_terminals",
     "gate_events",
+    "gate_verify_logs",
 }
 
 REQUIRED_COLUMNS = {
@@ -51,11 +55,27 @@ REQUIRED_COLUMNS = {
     "works": {"work_type_id", "status", "scheduled_start_at", "scheduled_end_at"},
     "work_targets": {"work_id", "target_type", "container_id", "cargo_item_id"},
     "work_assignments": {
-        "work_assignment_id",
-        "work_id",
+        "assignment_id",
         "employee_id",
+        "work_date",
+        "cargo_item_id",
+        "assigned_by_id",
+        "eligibility_status",
+        "v2_work_id",
         "status",
         "selected_at",
+    },
+    "cargo_items": {"cargo_document_id"},
+    "gate_verify_logs": {
+        "verify_log_id",
+        "attendance_id",
+        "employee_id",
+        "terminal_id",
+        "allowed",
+        "reason",
+        "work_date",
+        "is_pass_event",
+        "created_at",
     },
     "education_target_rules": {"education_course_id", "work_type_id", "dg_class_id"},
     "education_completions": {
@@ -160,7 +180,10 @@ REQUIRED_ENUM_VALUES = {
 
 REQUIRED_UNIQUES = {
     "work_assignments": [
-        ("uq_work_assignment_work_employee", {"work_id", "employee_id"}),
+        ("uq_work_assignment_work_employee", {"v2_work_id", "employee_id"}),
+    ],
+    "gate_verify_logs": [
+        ("uq_attendance_workdate_passed", {"work_date", "is_pass_event"}),
     ],
     "equipment_check_events": [
         ("uq_equipment_check_employee_idempotency", {"employee_id", "idempotency_key"}),
@@ -190,6 +213,10 @@ MAPPING_ANCHORS = {
     "target",
     "conversion",
     "dropped legacy field",
+    "retained legacy",
+    "v2 counterpart",
+    "v2_work_id",
+    "cargo_items.cargo_document_id",
 }
 
 
@@ -279,6 +306,57 @@ def validate() -> list[str]:
     if legacy_logs and "uq_equipment_workdate" in unique_groups(legacy_logs):
         errors.append("equipment_check_logs: legacy day-wide equipment unique must be removed")
 
+    assignments = models.get("work_assignments")
+    if assignments:
+        assignment_columns = columns(assignments)
+        if "assignment_id" not in assignment_columns:
+            errors.append("work_assignments: legacy assignment_id primary key must be retained")
+        if "work_assignment_id" in assignment_columns:
+            errors.append(
+                "work_assignments: work_assignment_id is a required replacement PK and must not replace assignment_id"
+            )
+        if "work_id" in assignment_columns:
+            errors.append(
+                "work_assignments: required work_id replacement must not exist; use nullable v2_work_id"
+            )
+        v2_work = assignment_columns.get("v2_work_id")
+        if v2_work is not None:
+            if v2_work.get("nullable") is not True:
+                errors.append("work_assignments.v2_work_id must be nullable")
+            foreign_key = v2_work.get("foreign_key")
+            references = (
+                foreign_key.get("references")
+                if isinstance(foreign_key, dict)
+                else foreign_key
+            )
+            if references != "works.work_id":
+                errors.append("work_assignments.v2_work_id must reference works.work_id")
+        for legacy_column in ("work_date", "cargo_item_id", "eligibility_status"):
+            if legacy_column not in assignment_columns:
+                errors.append(f"work_assignments: missing retained legacy column {legacy_column}")
+
+    cargo_items = models.get("cargo_items")
+    if cargo_items:
+        cargo_document = columns(cargo_items).get("cargo_document_id")
+        if cargo_document is None:
+            errors.append("cargo_items: legacy cargo_document_id direct FK must be retained")
+        elif cargo_document.get("nullable") is not True:
+            errors.append("cargo_items.cargo_document_id must remain nullable")
+        else:
+            foreign_key = cargo_document.get("foreign_key")
+            references = (
+                foreign_key.get("references")
+                if isinstance(foreign_key, dict)
+                else foreign_key
+            )
+            if references != "cargo_documents.cargo_document_id":
+                errors.append(
+                    "cargo_items.cargo_document_id must reference cargo_documents.cargo_document_id"
+                )
+
+    if "cargo_item_documents" not in models:
+        errors.append("missing additive v2 counterpart: cargo_item_documents")
+
     gate_events = models.get("gate_events")
     if gate_events:
         gate_columns = columns(gate_events)
@@ -287,6 +365,57 @@ def validate() -> list[str]:
             errors.append("gate_events.gate_event_id must be the append-only event identity")
         if "updated_at" in gate_columns:
             errors.append("gate_events must be append-only and cannot expose updated_at")
+        legacy_verify = gate_columns.get("legacy_verify_log_id")
+        if legacy_verify is None:
+            errors.append("gate_events: additive nullable legacy_verify_log_id must be retained")
+        elif legacy_verify.get("nullable") is not True:
+            errors.append("gate_events.legacy_verify_log_id must be nullable")
+
+    if GATE_VERIFY_LOGS_MIGRATION.is_file():
+        migration = json.loads(GATE_VERIFY_LOGS_MIGRATION.read_text())
+        expected_columns = next(
+            (
+                action.get("columns", [])
+                for action in migration.get("actions", [])
+                if action.get("table") == "gate_verify_logs" and action.get("type") == "create_table"
+            ),
+            None,
+        )
+        if expected_columns is None:
+            errors.append("0003 migration missing gate_verify_logs create_table columns")
+        else:
+            logs = models.get("gate_verify_logs")
+            if logs:
+                actual_columns = logs.get("columns", [])
+                expected_names = [column["name"] for column in expected_columns]
+                actual_names = [column.get("name") for column in actual_columns]
+                if actual_names != expected_names:
+                    errors.append(
+                        "gate_verify_logs: column order/names must match 0003 exactly "
+                        f"{expected_names}"
+                    )
+                else:
+                    comparable_keys = (
+                        "name",
+                        "type",
+                        "nullable",
+                        "primary_key",
+                        "foreign_key",
+                        "index",
+                        "unique",
+                        "default",
+                        "comment",
+                    )
+                    for expected, actual in zip(expected_columns, actual_columns, strict=True):
+                        for key in comparable_keys:
+                            if expected.get(key) != actual.get(key):
+                                errors.append(
+                                    f"gate_verify_logs.{expected['name']}: {key} must match 0003"
+                                )
+    else:
+        errors.append(
+            f"missing 0003 migration: {GATE_VERIFY_LOGS_MIGRATION.relative_to(ROOT)}"
+        )
 
     if not MAPPING_PATH.is_file():
         errors.append(f"missing conversion map: {MAPPING_PATH.relative_to(ROOT)}")
@@ -308,6 +437,7 @@ def main() -> int:
         return 1
     print("schema-v2 contract: PASS")
     print(f"validated {len(REQUIRED_TABLES)} required #29/#34 source models")
+    print("validated retained legacy assignment/gate/cargo surfaces plus additive v2 counterparts")
     print("validated work assignment, token hash, idempotency, claim, and gate-event identities")
     print("validated PR #48 conversion map anchors")
     return 0
