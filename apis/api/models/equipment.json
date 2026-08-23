@@ -9,6 +9,7 @@
     {"name": "ownership_type", "type": {"kind": "enum", "name": "equipment_ownership_type", "values": ["PERSONAL", "SHARED"]}, "nullable": false, "default": "'SHARED'", "index": true, "comment": "개인 또는 공용 소유정책"},
     {"name": "owner_employee_id", "type": "big_int", "nullable": true, "foreign_key": {"references": "employees.employee_id", "on_delete": "set_null"}, "index": true, "comment": "개인 장비 소유자 FK, 공용은 null"},
     {"name": "status", "type": {"kind": "enum", "name": "equipment_lifecycle_status", "values": ["AVAILABLE", "BLOCKED", "DAMAGED", "LOST", "REPLACED"]}, "nullable": false, "default": "'BLOCKED'", "index": true, "comment": "장비 수명주기 상태"},
+    {"name": "is_active", "type": "boolean", "nullable": false, "default": true, "comment": "사용 가능 여부"},
     {"name": "status_reason", "type": "text", "nullable": true, "comment": "상태 변경 사유"},
     {"name": "braille_label", "type": {"kind": "varchar", "length": 100}, "nullable": true, "comment": "점자 스티커 병기 내용"},
     {"name": "manufacturer_replacement_due_at", "type": "date", "nullable": true, "comment": "해당 품목에만 적용하는 제조사 교체 권고일"},

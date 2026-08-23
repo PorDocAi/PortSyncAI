@@ -290,6 +290,20 @@ def validate() -> list[str]:
     equipment = models.get("equipment")
     if equipment and "nfc_tag_uid" in columns(equipment):
         errors.append("equipment: legacy nfc_tag_uid must not remain in the v2 source")
+    if equipment:
+        equipment_columns = columns(equipment)
+        legacy_activity = equipment_columns.get("is_active")
+        if legacy_activity is None:
+            errors.append("equipment: legacy is_active must coexist with v2 status")
+        else:
+            if legacy_activity.get("type") != "boolean":
+                errors.append("equipment.is_active must remain boolean")
+            if legacy_activity.get("nullable") is not False:
+                errors.append("equipment.is_active must remain NOT NULL")
+            if legacy_activity.get("default") is not True:
+                errors.append("equipment.is_active must retain default true")
+        if "status" not in equipment_columns:
+            errors.append("equipment: v2 status must coexist with legacy is_active")
 
     tokens = models.get("equipment_tag_tokens")
     if tokens:
