@@ -5,10 +5,14 @@ import { useState } from 'react'
 
 import { OrganizationScreen } from './screens/OrganizationScreen'
 import { PeopleScreen } from './screens/PeopleScreen'
+import { CargoScreen } from './screens/CargoScreen'
+import { DocumentsScreen } from './screens/DocumentsScreen'
+import { PpeReviewScreen } from './screens/PpeReviewScreen'
 
-type AdminView = 'people' | 'organization'
+type AdminView = 'documents' | 'cargo' | 'ppe-review' | 'people' | 'organization'
 
 const NAV: { group: string; items: { id: AdminView; label: string }[] }[] = [
+  { group: '화물·문서', items: [{ id: 'documents', label: '화물 문서' }, { id: 'cargo', label: '컨테이너·화물' }, { id: 'ppe-review', label: 'MSDS 보호구 검수' }] },
   { group: '조직', items: [{ id: 'people', label: '직원 관리' }, { id: 'organization', label: '부서·직무' }] },
 ]
 
@@ -31,6 +35,9 @@ export function AdminWorkspace() {
       </aside>
       <main className="admin-main">
         <div className="admin-topline"><span>2026년 8월 23일 일요일 · 주간조</span><div><button type="button">알림 3</button><span>운영 연결 정상</span></div></div>
+        {active === 'documents' && <DocumentsScreen />}
+        {active === 'cargo' && <CargoScreen />}
+        {active === 'ppe-review' && <PpeReviewScreen />}
         {active === 'people' && <PeopleScreen />}
         {active === 'organization' && <OrganizationScreen />}
       </main>
