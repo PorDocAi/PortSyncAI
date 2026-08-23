@@ -1,7 +1,8 @@
-//! 게이트 출입 사원증 태깅 시나리오 통합 테스트 (AC-3·4·9 — #42)
+//! 게이트 출입 사원증 태깅 시나리오 통합 테스트 (AC-3·4·5·9 — #42)
 //!
 //! - AC-3: 등록/미등록/퇴사자 카드 태깅 결과 (allowed와 한국어 사유)
 //! - AC-4: 지침 미확인·장비 미완료·승인 대기 상태는 전부 차단되고 사유에 항목이 포함된다
+//! - AC-5: 통과 처리 후 재태깅은 멱등 동작하고 통과 이벤트는 1건만 유지된다
 //! - AC-9: 작업중지(STOPPED) 상태 태깅은 승인 예외로도 면제되지 않는다
 
 mod common;
@@ -9,7 +10,7 @@ mod common;
 use sea_orm::{ActiveModelTrait, EntityTrait, Set};
 
 use api::models::{
-    attendances::{self, ApprovalStatus, WorkStatus},
+    attendances::{self, ApprovalStatus, GateStatus, WorkStatus},
     employees,
 };
 use common::TestApp;
@@ -101,6 +102,39 @@ async fn resigned_card_is_not_allowed() {
     assert_eq!(response.status(), StatusCode::OK);
     let body = response.json();
     assert_eq!(body["allowed"], false);
+}
+
+/// AC-5 — 통과 후 재태깅은 멱등: "이미 통과" 응답, 통과 이벤트 로그는 1건 유지
+#[tokio::test]
+async fn rescan_after_pass_is_idempotent_and_keeps_single_pass_event() {
+    let app = spawn_gate_app().await;
+    let terminal_token = common::seed_active_terminal(&app).await;
+    common::seed_worker_with_started_attendance(&app.db).await;
+
+    let first = gate_verify(&app, &terminal_token, common::WORKER_NFC_UID).await;
+    assert_eq!(first.status(), StatusCode::OK);
+    assert_eq!(first.json()["reason"], "통과");
+
+    let second = gate_verify(&app, &terminal_token, common::WORKER_NFC_UID).await;
+    assert_eq!(second.status(), StatusCode::OK);
+    let body = second.json();
+    assert_eq!(body["allowed"], true);
+    assert_eq!(body["reason"], "이미 통과 처리된 출근입니다.");
+
+    // 재태깅으로 새 이벤트가 기록되지 않는다 — 게이트 로그 자체가 통과 1건뿐
+    let logs = api::models::gate_verify_logs::Entity::find()
+        .all(&app.db)
+        .await
+        .expect("게이트 검증 로그 조회 실패");
+    assert_eq!(logs.len(), 1, "재태깅이 로그를 추가해선 안 된다");
+    assert!(logs[0].is_pass_event);
+    assert!(logs[0].allowed);
+
+    // 상태는 여전히 PASSED로 유지된다
+    let attendance = today_attendance(&app)
+        .await
+        .expect("출근 행이 존재해야 한다");
+    assert_eq!(attendance.gate_status, GateStatus::Passed);
 }
 
 /// AC-4 — 안전지침 미확인은 차단 사유에 포함된다
