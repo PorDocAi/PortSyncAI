@@ -991,7 +991,7 @@ function HistoryScreen() {
             07:42
           </time>
           <p>
-            <strong>1부두 정문 · 통과</strong>
+            <strong>북문 · 통과</strong>
             <span>WB-260823-03 · 정기 출입</span>
           </p>
           <small>PASS</small>
@@ -1003,7 +1003,7 @@ function HistoryScreen() {
             08:05
           </time>
           <p>
-            <strong>1부두 정문 · 통과</strong>
+            <strong>북문 · 통과</strong>
             <span>WB-260822-03 · 정기 출입</span>
           </p>
           <small>PASS</small>
