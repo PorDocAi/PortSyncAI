@@ -366,7 +366,7 @@ const PREPARATION_STEPS: {
 }[] = [
   { id: 'education', label: '안전교육 적격성', state: '충족' },
   { id: 'instruction', label: '당일 안전지침', state: '확인 전' },
-  { id: 'ppe', label: '필수 보호구', state: '1 / 3 확인' },
+  { id: 'ppe', label: '필수 보호구', state: `0 / ${PPE_REQUIREMENTS.length} 확인` },
   { id: 'gate', label: '게이트 준비', state: '대기' },
 ]
 
@@ -786,7 +786,7 @@ function PreparationScreen({ work }: { work: Work }) {
                 <span>필수 보호구</span>
                 <strong>
                   {scanned.length === PPE_REQUIREMENTS.length
-                    ? '3종 완료'
+                    ? `${PPE_REQUIREMENTS.length}종 완료`
                     : `${PPE_REQUIREMENTS.length - scanned.length}종 미확인`}
                 </strong>
               </div>
