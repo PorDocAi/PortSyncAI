@@ -2,7 +2,8 @@
 
 import { Box, Button as UiButton, Grid, Input as UiInput } from '@devup-ui/react'
 import Link from 'next/link'
-import { useMemo, useState } from 'react'
+import { apiClient } from '@/lib/apiClient'
+import { useEffect, useMemo, useState } from 'react'
 
 import { BrandLockup } from '@/components/BrandLockup'
 import { scanEquipmentTag,type TagResult } from '@/lib/nfc'
@@ -20,37 +21,64 @@ type Work = {
 
 type WorkerView = 'today' | 'preparation' | 'alerts' | 'history' | 'profile'
 
-const WORKS: Work[] = [
-  {
-    id: 'wb-03',
-    code: 'WB-260823-03',
-    title: 'CFS 적출·분류',
-    place: 'CFS B-3',
-    time: '08:00–17:00',
-    team: 'CFS 2조 · 6명',
-    cargo: 'CONT-260823-014 · 혼재화물 2종',
+// 서버 응답(GET /work-assignments/my)을 화면 모델로 매핑한다.
+type ApiAssignment = {
+  work_assignment_id: number
+  status: string
+  work_id: number
+  work_reference: string
+  work_status: string
+  scheduled_start_at: string
+  scheduled_end_at: string | null
+}
+
+function toWork(a: ApiAssignment): Work {
+  const start = new Date(a.scheduled_start_at)
+  const end = a.scheduled_end_at ? new Date(a.scheduled_end_at) : null
+  const fmt = (d: Date) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+  return {
+    id: String(a.work_assignment_id),
+    code: `WA-${a.work_assignment_id}`,
+    title: a.work_reference,
+    place: `작업 #${a.work_id}`,
+    time: end ? `${fmt(start)}–${fmt(end)}` : fmt(start),
+    team: a.status,
+    cargo: a.work_reference,
     education: '충족',
-  },
-  {
-    id: 'wb-05',
-    code: 'WB-260823-05',
-    title: '위험화물 검수',
-    place: 'DG 보관소 A',
-    time: '13:30–16:30',
-    team: 'DG 전담조 · 4명',
-    cargo: 'CONT-260823-021 · Class 8',
-    education: '확인 필요',
-  },
-]
+  }
+}
 
 export function WorkerWorkspace() {
-  const [selectedId, setSelectedId] = useState(WORKS[0].id)
+  const [works, setWorks] = useState<Work[]>([])
+  const [loadingWorks, setLoadingWorks] = useState(true)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      try {
+        const res = (await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://127.0.0.1:18090'}/work-assignments/my`,
+          { headers: { Authorization: `Bearer ${localStorage.getItem('ps_token') ?? ''}` } },
+        ).then((r) => { if (!r.ok) throw new Error(String(r.status)); return r.json() })) as ApiAssignment[]
+        if (cancelled) return
+        const mapped = res.map(toWork)
+        setWorks(mapped)
+        setSelectedId(mapped[0]?.id ?? null)
+      } catch {
+        if (!cancelled) setWorks([])
+      } finally {
+        if (!cancelled) setLoadingWorks(false)
+      }
+    })()
+    return () => { cancelled = true }
+  }, [])
   const [detailsOpen, setDetailsOpen] = useState(false)
   const [activeView, setActiveView] = useState<WorkerView>('today')
   const [weatherAlertOpen, setWeatherAlertOpen] = useState(true)
   const selected = useMemo(
-    () => WORKS.find((work) => work.id === selectedId) ?? WORKS[0],
-    [selectedId],
+    () => works.find((work) => work.id === selectedId) ?? works[0],
+    [works, selectedId],
   )
 
   return (
@@ -106,7 +134,7 @@ export function WorkerWorkspace() {
               <span>교육 적격성 사전 확인</span>
             </div>
             <div className="work-list">
-              {WORKS.map((work, index) => (
+              {(loadingWorks ? [] : works).map((work, index) => (
                 <UiButton
                   key={work.id}
                   className={work.id === selectedId ? 'work-row is-selected' : 'work-row'}
@@ -137,6 +165,7 @@ export function WorkerWorkspace() {
             </div>
           </section>
 
+          {selected && (
           <section
             className="selected-work"
             aria-labelledby="selected-work-title"
@@ -192,7 +221,9 @@ export function WorkerWorkspace() {
               )}
             </div>
           </section>
+          )}
 
+          {selected && (
           <section className="start-section">
             <p>교육 적격성을 다시 확인한 뒤 준비 절차가 열립니다.</p>
             <UiButton
@@ -205,9 +236,10 @@ export function WorkerWorkspace() {
                 : '교육 확인 후 시작 가능'}
             </UiButton>
           </section>
+          )}
         </main>
 
-        {activeView === 'preparation' && <PreparationScreen work={selected} />}
+        {selected && activeView === 'preparation' && <PreparationScreen work={selected} />}
         {activeView === 'alerts' && (
           <AlertsScreen onBack={() => setActiveView('today')} />
         )}

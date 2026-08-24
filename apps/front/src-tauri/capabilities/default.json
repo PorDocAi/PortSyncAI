@@ -3,6 +3,5 @@
   "identifier": "default",
   "description": "PortSyncAI 작업자 앱 기본 권한",
   "windows": ["main"],
-  "platforms": ["macOS", "windows", "linux"],
-  "permissions": ["core:default"]
+  "permissions": ["core:default", "nfc:default"]
 }

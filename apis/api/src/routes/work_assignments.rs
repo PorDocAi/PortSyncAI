@@ -12,7 +12,8 @@ use crate::models::cargo_item_documents::{CargoDocumentRole, Entity as CargoItem
 use crate::models::cargo_items::Entity as CargoItems;
 use crate::models::work_assignments::{self, EligibilityStatus, Entity as WorkAssignments};
 use crate::routes::attendances::today;
-use crate::utils::{AppState, auth::AdminUser};
+use crate::models::v2_work_assignments;
+use crate::utils::{AppState, auth::{AdminUser, AuthUser}};
 
 #[derive(Deserialize, vespera::Schema)]
 pub struct CreateWorkAssignmentRequest {
@@ -225,4 +226,59 @@ pub async fn update_work_assignment(
         .map_err(|_| internal_error())?;
 
     Ok(Json(WorkAssignmentResponse::from(saved)))
+}
+
+#[derive(Serialize, vespera::Schema)]
+pub struct MyAssignmentResponse {
+    pub work_assignment_id: i64,
+    pub status: String,
+    pub work_id: i64,
+    pub work_reference: String,
+    pub work_status: String,
+    pub scheduled_start_at: String,
+    pub scheduled_end_at: Option<String>,
+}
+
+/// 내 배정 작업 조회 (작업자 본인용)
+/// v2_work_assignments에서 로그인한 작업자의 미완료 배정을 반환한다.
+#[vespera::route(get, path = "/my", tags = ["work_assignments"])]
+pub async fn get_my_assignments(
+    AuthUser(claims): AuthUser,
+    State(state): State<AppState>,
+) -> Result<Json<Vec<MyAssignmentResponse>>, (StatusCode, Json<AssignmentErrorResponse>)> {
+    use crate::models::works::{Entity as Works, WorkLifecycleStatus};
+    use sea_orm::QueryOrder;
+
+    let assignments = v2_work_assignments::Entity::find()
+        .filter(v2_work_assignments::Column::EmployeeId.eq(claims.sub))
+        .filter(
+            v2_work_assignments::Column::Status.is_in([
+                v2_work_assignments::V2WorkAssignmentStatus::Assigned,
+                v2_work_assignments::V2WorkAssignmentStatus::Selected,
+                v2_work_assignments::V2WorkAssignmentStatus::Active,
+            ]),
+        )
+        .order_by_asc(v2_work_assignments::Column::WorkAssignmentId)
+        .all(&state.db)
+        .await
+        .map_err(|_| internal_error())?;
+
+    let mut result = Vec::with_capacity(assignments.len());
+    for a in assignments {
+        let work = Works::find_by_id(a.work_id)
+            .one(&state.db)
+            .await
+            .map_err(|_| internal_error())?;
+        let Some(w) = work else { continue };
+        result.push(MyAssignmentResponse {
+            work_assignment_id: a.work_assignment_id,
+            status: serde_json::to_value(&a.status).unwrap().as_str().unwrap_or_default().to_string(),
+            work_id: w.work_id,
+            work_reference: w.work_reference.clone(),
+            work_status: serde_json::to_value(&w.status).unwrap().as_str().unwrap_or_default().to_string(),
+            scheduled_start_at: w.scheduled_start_at.to_rfc3339(),
+            scheduled_end_at: w.scheduled_end_at.map(|t| t.to_rfc3339()),
+        });
+    }
+    Ok(Json(result))
 }
