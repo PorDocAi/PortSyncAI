@@ -293,6 +293,48 @@ async fn finish_event(
     active.reason_code = Set(decision.response.reason_code.clone());
     active.response_json = Set(response_json);
     event = active.update(tx).await?;
+
+    // FR-D1 게이트 판정(attendances.required-equipment)과 통합:
+    // 승인된 태깅은 당일 출근의 장비 확인 로그에도 적립한다.
+    if decision.response.accepted {
+        if let Some(profile_id) = decision.equipment_profile_id {
+            use crate::models::attendances::{self, Entity as Attendances};
+            let today = chrono::Utc::now().date_naive().format("%Y-%m-%d").to_string();
+            let today_attendance = Attendances::find()
+                .filter(attendances::Column::EmployeeId.eq(event.employee_id))
+                .filter(attendances::Column::WorkDate.eq(&today))
+                .one(tx)
+                .await?
+                .map(|a| a.attendance_id);
+            if let Some(attendance_id) = today_attendance {
+                use crate::models::equipment_check_logs::{self, Entity as EquipmentCheckLogs};
+                use crate::models::equipment_profiles::Entity as EquipmentProfiles;
+                // legacy_equipment가 연결된 경우 그 ID를, 아니면 profile ID를 사용한다.
+                let legacy_equipment_id = EquipmentProfiles::find_by_id(profile_id)
+                    .one(tx)
+                    .await?
+                    .and_then(|pr| pr.legacy_equipment_id)
+                    .unwrap_or(profile_id);
+                let already = EquipmentCheckLogs::find()
+                    .filter(equipment_check_logs::Column::AttendanceId.eq(attendance_id))
+                    .filter(equipment_check_logs::Column::EquipmentId.eq(legacy_equipment_id))
+                    .one(tx)
+                    .await?;
+                if already.is_none() {
+                    equipment_check_logs::ActiveModel {
+                        attendance_id: Set(attendance_id),
+                        employee_id: Set(event.employee_id),
+                        equipment_id: Set(legacy_equipment_id),
+                        work_date: Set(chrono::Utc::now().date_naive()),
+                        ..Default::default()
+                    }
+                    .insert(tx)
+                    .await?;
+                }
+            }
+        }
+    }
+
     Ok(ScanResult {
         status: StatusCode::from_u16(event.http_status as u16)
             .unwrap_or(StatusCode::INTERNAL_SERVER_ERROR),
