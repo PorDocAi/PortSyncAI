@@ -28,6 +28,7 @@ const PPE_REQUIREMENTS = [
   { category: 'FOOT', name: '방폭형 안전화', description: 'FOOT · 정전기·스파크 방지' },
   { category: 'HAND', name: '내화학 장갑', description: 'HAND · 화학물질 투과 저항' },
   { category: 'HEAD', name: '안전모', description: 'HEAD · 낙하물·충격 방지' },
+  { category: 'BODY', name: '정전기 방지 작업복', description: 'BODY · 정전기 축적 방지' },
 ] as const
 
 // 서버 응답(GET /work-assignments/my)을 화면 모델로 매핑한다.
@@ -388,7 +389,7 @@ function PreparationScreen({ work }: { work: Work }) {
     if (target === 'education') return true
     if (target === 'instruction') return work.education === '충족'
     if (target === 'ppe') return instructionRead
-    return instructionRead && scanned.length === 3
+    return instructionRead && scanned.length === PPE_REQUIREMENTS.length
   }
 
   const scan = async (item: string) => {
@@ -458,7 +459,7 @@ function PreparationScreen({ work }: { work: Work }) {
                   {item.id === 'instruction' && instructionRead
                     ? '확인 완료'
                     : item.id === 'ppe'
-                      ? `${lastScan?.progress.satisfied ?? scanned.length} / ${lastScan?.progress.required ?? 3} 확인`
+                      ? `${lastScan?.progress.satisfied ?? scanned.length} / ${lastScan?.progress.required ?? PPE_REQUIREMENTS.length} 확인`
                       : item.id === 'gate' && gateReady
                         ? '준비 완료'
                         : available
@@ -752,7 +753,7 @@ function PreparationScreen({ work }: { work: Work }) {
             )}
             <UiButton
               className="panel-action"
-              disabled={scanned.length < 3}
+              disabled={scanned.length < PPE_REQUIREMENTS.length}
               onClick={() => setStep('gate')}
               type="button"
             >
@@ -784,9 +785,9 @@ function PreparationScreen({ work }: { work: Work }) {
               <div>
                 <span>필수 보호구</span>
                 <strong>
-                  {scanned.length === 3
+                  {scanned.length === PPE_REQUIREMENTS.length
                     ? '3종 완료'
-                    : `${3 - scanned.length}종 미확인`}
+                    : `${PPE_REQUIREMENTS.length - scanned.length}종 미확인`}
                 </strong>
               </div>
               <div>
@@ -824,7 +825,7 @@ function PreparationScreen({ work }: { work: Work }) {
             )}
             <UiButton
               className="panel-action"
-              disabled={!instructionRead || scanned.length < 3 || gateReady}
+              disabled={!instructionRead || scanned.length < PPE_REQUIREMENTS.length || gateReady}
               onClick={() => setGateReady(true)}
               type="button"
             >
