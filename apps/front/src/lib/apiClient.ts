@@ -1,6 +1,7 @@
 import type { components, paths } from './api-types'
 
-const baseUrl = 'http://127.0.0.1:18090'
+const baseUrl =
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://127.0.0.1:18090'
 
 type JsonBody = Record<string, unknown>
 type ResponseFor<Operation> = Operation extends { responses: infer Responses }
