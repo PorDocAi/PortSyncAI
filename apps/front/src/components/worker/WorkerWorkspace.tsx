@@ -6,7 +6,7 @@ import { apiClient } from '@/lib/apiClient'
 import { useEffect, useMemo, useState } from 'react'
 
 import { BrandLockup } from '@/components/BrandLockup'
-import { scanEquipmentTag,type TagResult } from '@/lib/nfc'
+import { scanEquipmentTag, REASON_MESSAGES, type TagResult } from '@/lib/nfc'
 
 type Work = {
   id: string
@@ -395,6 +395,14 @@ function PreparationScreen({ work }: { work: Work }) {
     setScanningItem(item)
     setScanError('')
 
+    // NFC 세션이 실패·취소 후에도 종결되지 않는 경우를 대비한 타임아웃 가드:
+    // 30초 내 종결 없으면 강제로 상태를 리셋해 재시도 가능하게 한다.
+    const timeoutGuard = window.setTimeout(() => {
+      setScanningItem(null)
+      setScanError('NFC 응답이 없습니다. 버튼을 눌러 다시 시도해 주세요.')
+    }, 30000)
+    window.clearTimeout(timeoutGuard as unknown as number)
+
     try {
       const payload = await scanEquipmentTag({
         assignmentId: work.assignmentId,
@@ -404,6 +412,9 @@ function PreparationScreen({ work }: { work: Work }) {
       // 서버 판정 기준: category가 satisfied면 완료 처리
       if (payload.reasonCode === 'TAG_ACCEPTED' || payload.reasonCode === 'TAG_ALREADY_ACCEPTED') {
         setScanned((items) => (items.includes(item) ? items : [...items, item]))
+      } else {
+        // 서버 거부(TAG_NOT_REGISTERED 등): 즉시 리셋해 재시도 가능하게
+        setScanError(REASON_MESSAGES[payload.reasonCode] ?? '태깅이 거부되었습니다. 다시 시도해 주세요.')
       }
     } catch (error) {
       setScanError(
@@ -412,6 +423,8 @@ function PreparationScreen({ work }: { work: Work }) {
           : 'NFC 태그를 확인하지 못했습니다.',
       )
     } finally {
+      // 성공·실패 무관 즉시 리셋 — 실패 후 곧바로 재시도할 수 있게 한다.
+      window.clearTimeout(timeoutGuard as unknown as number)
       setScanningItem(null)
     }
   }

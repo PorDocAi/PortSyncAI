@@ -26,7 +26,7 @@ export type TagResult = {
   progress: { required: number; satisfied: number; complete: boolean }
 }
 
-const REASON_MESSAGES: Record<string, string> = {
+export const REASON_MESSAGES: Record<string, string> = {
   TAG_ACCEPTED: '보호구 확인 완료',
   TAG_ALREADY_ACCEPTED: '이미 확인된 보호구입니다.',
   TAG_NOT_REGISTERED: '등록되지 않은 태그입니다. 관리자에게 문의하세요.',
