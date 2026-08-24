@@ -420,12 +420,11 @@ function PreparationScreen({ work }: { work: Work }) {
     setScanError('')
 
     // NFC 세션이 실패·취소 후에도 종결되지 않는 경우를 대비한 타임아웃 가드:
-    // 30초 내 종결 없으면 강제로 상태를 리셋해 재시도 가능하게 한다.
+    // 25초 내 종결 없으면 강제로 상태를 리셋해 재시도 가능하게 한다.
     const timeoutGuard = window.setTimeout(() => {
       setScanningItem(null)
-      setScanError('NFC 응답이 없습니다. 버튼을 눌러 다시 시도해 주세요.')
-    }, 30000)
-    window.clearTimeout(timeoutGuard as unknown as number)
+      setScanError('NFC 응답이 없습니다. 다시 시도해 주세요.')
+    }, 25000)
 
     try {
       const payload = await scanEquipmentTag({
@@ -448,7 +447,7 @@ function PreparationScreen({ work }: { work: Work }) {
       )
     } finally {
       // 성공·실패 무관 즉시 리셋 — 실패 후 곧바로 재시도할 수 있게 한다.
-      window.clearTimeout(timeoutGuard as unknown as number)
+      window.clearTimeout(timeoutGuard)
       setScanningItem(null)
     }
   }

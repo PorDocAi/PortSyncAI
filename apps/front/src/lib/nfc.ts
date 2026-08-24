@@ -113,14 +113,21 @@ export async function scanEquipmentTag({
       )
     }
 
-    const tag = await scan(
-      { type: 'tag' },
-      {
-        keepSessionAlive: false,
-        message: `${equipmentCategory} NFC 태그를 휴대폰 뒷면에 대주세요.`,
-        successMessage: `${equipmentCategory} 태그를 읽었습니다.`,
-      },
-    )
+    // CoreNFC 세션이 실패·취소 후에도 프로미스를 종결하지 않는 케이스가 있어
+    // 5초 레이스로 강제 종결시킨다. 타임아웃되면 재시도 가능한 상태로 복귀한다.
+    const tag = await Promise.race([
+      scan(
+        { type: 'tag' },
+        {
+          keepSessionAlive: false,
+          message: `${equipmentCategory} NFC 태그를 휴대폰 뒷면에 대주세요.`,
+          successMessage: `${equipmentCategory} 태그를 읽었습니다.`,
+        },
+      ),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('NFC 응답 시간이 초과되었습니다. 다시 시도해 주세요.')), 5000),
+      ),
+    ])
     tagToken = extractTokenFromRecords(tag.records ?? [])
     if (!tagToken) {
       throw new Error(

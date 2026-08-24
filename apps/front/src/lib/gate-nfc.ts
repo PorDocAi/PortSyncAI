@@ -12,14 +12,19 @@ export async function scanBadgeUid(): Promise<string> {
     throw new Error('이 기기에서 NFC를 사용할 수 없습니다.')
   }
 
-  const tag = await scan(
-    { type: 'ndef' },
-    {
-      keepSessionAlive: false,
-      message: '사원증을 단말기 뒷면에 대주세요.',
-      successMessage: '사원증을 읽었습니다.',
-    },
-  )
+  const tag = await Promise.race([
+    scan(
+      { type: 'ndef' },
+      {
+        keepSessionAlive: false,
+        message: '사원증을 단말기 뒷면에 대주세요.',
+        successMessage: '사원증을 읽었습니다.',
+      },
+    ),
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('NFC 응답 시간이 초과되었습니다. 다시 시도해 주세요.')), 5000),
+    ),
+  ])
 
   // NDEF 텍스트 레코드 우선: 언어코드 바 건너뛰고 본문
   for (const record of tag.records ?? []) {
