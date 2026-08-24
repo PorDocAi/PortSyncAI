@@ -41,6 +41,27 @@ const REASON_MESSAGES: Record<string, string> = {
   NO_ACTIVE_WORK: '활성 작업이 없습니다.',
 }
 
+/**
+ * NDEF 레코드에서 태그 토큰을 추출한다.
+ * 지원 형식: 텍스트 레코드("demo-glove-token-001"),
+ * URI 레코드("portsync://eq/demo-glove-token-001" — 접두사 제거).
+ */
+export function extractTokenFromRecords(
+  records: readonly { tnf: number; payload: number[] }[],
+): string {
+  for (const record of records) {
+    const text = String.fromCharCode(...record.payload)
+    // URI 레코드: portsync://eq/<token>
+    const uriMatch = text.match(/portsync:\/\/eq\/(.+)$/i)
+    if (uriMatch) return uriMatch[1].trim()
+    // NDEF 텍스트 레코드: 첫 바이트 = 언어코드 길이
+    const langLen = record.payload[0] ?? 0
+    const body = text.slice(1 + langLen).trim()
+    if (/^[A-Za-z0-9:_-]{8,}$/.test(body)) return body
+  }
+  return ''
+}
+
 function toTagToken(bytes: readonly number[]) {
   return bytes
     .map((byte) => byte.toString(16).padStart(2, '0'))
@@ -100,10 +121,10 @@ export async function scanEquipmentTag({
         successMessage: `${equipmentCategory} 태그를 읽었습니다.`,
       },
     )
-    tagToken = toTagToken(Array.from(tag.id))
+    tagToken = extractTokenFromRecords(tag.records ?? [])
     if (!tagToken) {
       throw new Error(
-        'NFC 태그 식별자를 읽지 못했습니다. 태그를 다시 대주세요.',
+        '태그에 유효한 보호구 토큰이 없습니다. 관리자에게 등록된 태그인지 확인해 주세요.',
       )
     }
   }
