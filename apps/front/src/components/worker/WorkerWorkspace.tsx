@@ -99,6 +99,7 @@ export function WorkerWorkspace() {
           </div>
         </header>
 
+        <div className="worker-body">
         <main className={activeView === 'today' ? '' : 'is-hidden'}>
           <section className="worker-title">
             <p className="overline">2026.08.23 · 주간조</p>
@@ -245,6 +246,8 @@ export function WorkerWorkspace() {
         )}
         {activeView === 'history' && <HistoryScreen />}
         {activeView === 'profile' && <ProfileScreen />}
+
+        </div>
 
         <nav aria-label="작업자 메뉴" className="worker-nav">
           <UiButton

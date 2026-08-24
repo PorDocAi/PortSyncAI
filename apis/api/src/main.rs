@@ -34,7 +34,13 @@ async fn main() {
     .with_state(state)
     .layer(
         CorsLayer::new()
-            .allow_origin("http://localhost:3000".parse::<HeaderValue>().unwrap())
+            // 웹(dev)과 Tauri 모바일 웹뷰(tauri://localhost, http://tauri.localhost)를 모두 허용한다.
+            .allow_origin([
+                "http://localhost:3000".parse::<HeaderValue>().unwrap(),
+                "tauri://localhost".parse::<HeaderValue>().unwrap(),
+                "http://tauri.localhost".parse::<HeaderValue>().unwrap(),
+                "https://tauri.localhost".parse::<HeaderValue>().unwrap(),
+            ])
             .allow_methods([
                 Method::GET,
                 Method::POST,
