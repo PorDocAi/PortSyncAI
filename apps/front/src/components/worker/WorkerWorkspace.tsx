@@ -23,6 +23,13 @@ type Work = {
 
 type WorkerView = 'today' | 'preparation' | 'alerts' | 'history' | 'profile'
 
+/** 배정 작업별 필수 보호구 (Class 3 도료 기준, 서버 work_ppe_requirement_snapshots와 동기화) */
+const PPE_REQUIREMENTS = [
+  { category: 'FOOT', name: '방폭형 안전화', description: 'FOOT · 정전기·스파크 방지' },
+  { category: 'HAND', name: '내화학 장갑', description: 'HAND · 화학물질 투과 저항' },
+  { category: 'HEAD', name: '안전모', description: 'HEAD · 낙하물·충격 방지' },
+] as const
+
 // 서버 응답(GET /work-assignments/my)을 화면 모델로 매핑한다.
 type ApiAssignment = {
   work_assignment_id: number
@@ -364,7 +371,7 @@ const PREPARATION_STEPS: {
 function PreparationScreen({ work }: { work: Work }) {
   const [step, setStep] = useState<PreparationStep>('education')
   const [instructionRead, setInstructionRead] = useState(false)
-  const [scanned, setScanned] = useState<string[]>(['방폭형 안전화'])
+  const [scanned, setScanned] = useState<string[]>([])
   const [educationOpen, setEducationOpen] = useState(false)
   const [educationPlaying, setEducationPlaying] = useState(false)
   const [exceptionOpen, setExceptionOpen] = useState(false)
@@ -390,10 +397,13 @@ function PreparationScreen({ work }: { work: Work }) {
     try {
       const payload = await scanEquipmentTag({
         assignmentId: work.assignmentId,
-        equipmentCategory: item,
+        equipmentCategory: PPE_REQUIREMENTS.find((r) => r.category === item)?.name ?? item,
       })
       setLastScan(payload)
-      setScanned((items) => (items.includes(item) ? items : [...items, item]))
+      // 서버 판정 기준: category가 satisfied면 완료 처리
+      if (payload.reasonCode === 'TAG_ACCEPTED' || payload.reasonCode === 'TAG_ALREADY_ACCEPTED') {
+        setScanned((items) => (items.includes(item) ? items : [...items, item]))
+      }
     } catch (error) {
       setScanError(
         error instanceof Error
@@ -595,29 +605,23 @@ function PreparationScreen({ work }: { work: Work }) {
               description="MSDS 8항과 작업유형을 기준으로 확정된 목록입니다."
             />
             <div className="ppe-list">
-              {['방폭형 안전화', '내화학 장갑', '보안경'].map((item, index) => {
-                const complete = scanned.includes(item)
+              {PPE_REQUIREMENTS.map((req, index) => {
+                const complete = scanned.includes(req.category)
                 return (
-                  <div key={item} className="ppe-row">
+                  <div key={req.category} className="ppe-row">
                     <span>{String(index + 1).padStart(2, '0')}</span>
                     <div>
-                      <strong>{item}</strong>
-                      <small>
-                        {index === 1
-                          ? 'HAND · 화학물질 투과 저항'
-                          : index === 2
-                            ? 'EYE · 측면 보호'
-                            : 'FOOT · 정전기 방지'}
-                      </small>
+                      <strong>{req.name}</strong>
+                      <small>{req.description}</small>
                     </div>
                     <UiButton
                       disabled={complete || scanningItem !== null}
-                      onClick={() => void scan(item)}
+                      onClick={() => void scan(req.category)}
                       type="button"
                     >
                       {complete
                         ? '확인됨'
-                        : scanningItem === item
+                        : scanningItem === req.category
                           ? 'NFC 읽는 중…'
                           : 'NFC 읽기'}
                     </UiButton>
