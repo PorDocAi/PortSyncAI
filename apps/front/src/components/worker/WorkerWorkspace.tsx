@@ -96,6 +96,7 @@ export function WorkerWorkspace() {
       <Box className="worker-app">
         <header className="worker-header">
           <BrandLockup />
+          <Link href="/gate-terminal" className="gate-link" aria-label="게이트 단말">GATE</Link>
           <div className="worker-header__meta">
             <UiButton
               className="header-alert"

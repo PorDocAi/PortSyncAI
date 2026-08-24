@@ -3,6 +3,7 @@
 import { Button as UiButton, Input as UiInput } from '@devup-ui/react'
 
 import { apiClient } from '@/lib/apiClient'
+import { scanBadgeUid } from '@/lib/gate-nfc'
 
 import { useEffect, useState } from 'react'
 import { BrandLockup } from '@/components/BrandLockup'
@@ -26,6 +27,8 @@ export default function GateTerminalPage() {
   const [setupError, setSetupError] = useState('')
   const [now, setNow] = useState(() => new Date())
   const [resetIn, setResetIn] = useState(15)
+  const [scanning, setScanning] = useState(false)
+  const [scanError, setScanError] = useState('')
 
   // 단말 토큰 복원
   useEffect(() => {
@@ -67,9 +70,23 @@ export default function GateTerminalPage() {
     setSetupError('')
   }
 
-  const verify = async () => {
-    const uid = credential.trim()
-    if (!uid) return
+  const nfcScan = async () => {
+    setScanning(true)
+    setScanError('')
+    try {
+      const uid = await scanBadgeUid()
+      setCredential(uid)
+      setState('checking')
+      // UID 확보 즉시 판정
+      await runVerify(uid)
+    } catch (error) {
+      setScanError(error instanceof Error ? error.message : 'NFC 스캔 실패')
+    } finally {
+      setScanning(false)
+    }
+  }
+
+  const runVerify = async (uid: string) => {
     if (!terminalToken) {
       setSetupError('먼저 게이트 단말 토큰을 등록해 주세요.')
       return
@@ -111,6 +128,12 @@ export default function GateTerminalPage() {
       setState('block')
       setCredential('')
     }
+  }
+
+  const verify = async () => {
+    const uid = credential.trim()
+    if (!uid) return
+    await runVerify(uid)
   }
 
   const onSubmit = (event: React.FormEvent) => {
@@ -162,8 +185,17 @@ export default function GateTerminalPage() {
           <p className="gate-kicker">게이트 출입 확인</p>
           <h1>사원증을<br />태그해 주세요</h1>
           <p>작업 배정과 교육, 지침, 보호구 준비 상태를 확인합니다.</p>
-          <form onSubmit={onSubmit}>
-            <label>사원증 UID<UiInput aria-label="사원증 UID" autoFocus onChange={(event) => setCredential(event.target.value)} value={credential} placeholder="EMP-WORKER-0002-UID" /></label>
+          {scanError && <p style={{ color: '#ff8a6a', fontSize: 14, marginTop: 16 }} role="alert">{scanError}</p>}
+          <UiButton
+            onClick={() => void nfcScan()}
+            disabled={scanning}
+            type="button"
+            style={{ marginTop: 24, minHeight: 64, width: 'min(100%, 720px)', border: '1px solid rgba(79,163,199,.5)', borderRadius: 14, background: 'linear-gradient(180deg,#1b2c37,#141f27)', color: 'var(--gt-accent, #4fa3c7)', fontSize: 17, fontWeight: 800, letterSpacing: '.04em', cursor: scanning ? 'wait' : 'pointer' }}
+          >
+            {scanning ? 'NFC 스캔 중… 태그를 대주세요' : '📱 NFC로 사원증 읽기'}
+          </UiButton>
+          <form onSubmit={onSubmit} style={{ marginTop: 18 }}>
+            <label>사원증 UID 직접 입력<UiInput aria-label="사원증 UID" onChange={(event) => setCredential(event.target.value)} value={credential} placeholder="EMP-WORKER-0002-UID" /></label>
             <UiButton type="submit">입력값 판정</UiButton>
           </form>
           <footer><span>NFC READER · KEYBOARD ENTRY</span><span>태그 UID 원문은 감사로그에 기록됩니다</span></footer>

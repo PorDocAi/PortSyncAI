@@ -270,3 +270,7 @@ a { color: inherit; }
   .work-row { grid-template-columns: 24px minmax(0, 1fr); }
   .work-row > .text-status { grid-column: 2; width: max-content; }
 }
+
+/* ── worker 헤더 게이트 단말 진입 ── */
+.gate-link { margin-left:12px; padding:7px 13px; border:1px solid var(--line-strong); border-radius:8px; background:var(--dark); color:#fff; font-size:11px; font-weight:800; letter-spacing:.08em; text-decoration:none; transition:filter .2s; }
+.gate-link:hover { filter:brightness(1.25); }
