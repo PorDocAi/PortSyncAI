@@ -260,57 +260,82 @@ button { cursor:pointer; }
 @media(max-width:650px){.ops-bulletin{display:block;padding:15px 20px}.ops-bulletin>span{height:auto;padding:0 0 10px;border-right:0}.ops-bulletin p{padding:0;line-height:1.55}.ops-bulletin p strong{display:block;margin:0 0 6px}.run-sheet{overflow-x:auto}.run-sheet>header{min-width:650px}.run-grid{min-width:650px}.action-ledger ol{display:block}.work-order-list{display:block}.assignment-editor>header{padding:22px 20px}.assignment-facts{display:block}.assignment-facts>div{min-height:58px;border-right:0;border-bottom:1px solid var(--line)}.team-heading{padding:16px 20px}.assignment-editor{overflow-x:auto}.member-grid{min-width:600px}.education-summary{padding:12px 20px;align-items:flex-start;gap:20px}.education-summary p strong{display:block;margin:0 0 6px}.education-layout>section,.gate-history-layout>section{overflow-x:auto}.course-grid{min-width:650px}.instruction-ledger article{grid-template-columns:50px 1fr}.instruction-ledger article>span{display:none}.event-grid{min-width:650px}}
 
 /* Dedicated gate terminal */
-.gate-terminal { min-height:100vh; background:var(--paper); color:var(--ink); }
-.gate-terminal__header { min-height:76px; padding:0 28px; display:grid; grid-template-columns:270px 1fr 108px; align-items:center; border-bottom:1px solid var(--line-strong); background:white; }
+/* ─── 게이트 단말 (Gate Terminal) — 다크 오퍼레이터 테마 ─────────────── */
+.gate-terminal { min-height:100dvh; background:var(--gt-bg); color:var(--gt-ink);
+  --gt-bg:#0c1216; --gt-surface:#111a20; --gt-line:rgba(148,180,196,.16); --gt-line-strong:rgba(148,180,196,.34);
+  --gt-ink:#e8eef2; --gt-muted:#8ba3b2; --gt-accent:#4fa3c7; --gt-pass:#3fb27f; --gt-block:#e06a45;
+  --gt-radius:14px; }
+.gate-terminal button { border-radius:10px; }
+.gate-terminal__header { min-height:76px; padding:0 28px; display:grid; grid-template-columns:270px 1fr 150px; align-items:center;
+  border-bottom:1px solid var(--gt-line-strong); background:linear-gradient(180deg,#121b22,#0e161c); }
 .gate-terminal__header>div { display:flex; align-items:center; gap:11px; font-size:14px; }
+.gate-terminal__header .brand-symbol { stroke:var(--gt-accent); }
 .gate-terminal__header dl { margin:0; display:flex; justify-content:center; }
-.gate-terminal__header dl>div { min-height:38px; padding:0 28px; display:flex; align-items:center; gap:12px; border-left:1px solid #d2d2ce; }
-.gate-terminal__header dt { color:var(--muted); font-size:11px; }
-.gate-terminal__header dd { margin:0; font:700 11px/1 Consolas,monospace; }
-.gate-terminal__header dd i { width:7px; height:7px; display:inline-block; margin-right:5px; border-radius:50%; background:var(--brand); }
-.gate-terminal__actions { justify-content:flex-end; gap:12px!important; }
-.gate-terminal__actions button { min-height:36px; padding:0 10px; border:1px solid var(--line-strong); background:white; font-size:11px; font-weight:750; cursor:pointer; white-space:nowrap; }
-.gate-terminal__actions a { color:var(--ink); font-size:11px; font-weight:750; text-decoration:underline; }
-.gate-kicker { margin:0; color:var(--brand-deep); font-size:12px; font-weight:800; letter-spacing:0; }
-.gate-idle { min-height:calc(100vh - 70px); padding:7vh 7vw 28px; display:flex; flex-direction:column; }
-.gate-idle h1,.gate-checking h1 { margin:5vh 0 0; font-size:clamp(54px,8vw,126px); line-height:.92; letter-spacing:-.08em; }
-.gate-idle>p:nth-of-type(2) { margin:30px 0 0; color:var(--muted); font-size:18px; }
-.gate-idle form { width:min(100%,760px); margin-top:7vh; display:grid; grid-template-columns:1fr 170px; border-top:3px solid var(--brand-deep); border-bottom:1px solid var(--line-strong); background:white; }
-.gate-idle form label { min-height:82px; padding:14px 18px; display:grid; gap:8px; color:var(--muted); font-size:11px; }
-.gate-idle form input { padding:0; border:0; outline:0; background:transparent; color:var(--ink); font:700 20px/1 Consolas,monospace; }
-.gate-idle form button { border:0; border-left:1px solid var(--line-strong); background:var(--brand-deep); color:white; font-size:14px; font-weight:800; }
-.gate-demo-controls { width:min(100%,720px); min-height:48px; border-bottom:1px solid #d2d2ce; }
-.gate-demo-controls summary { min-height:48px; display:flex; align-items:center; color:var(--muted); font-size:11px; font-weight:750; cursor:pointer; list-style:none; }
-.gate-demo-controls summary::-webkit-details-marker { display:none; }
-.gate-demo-controls summary::after { content:'+'; margin-left:auto; color:#171715; font:700 14px/1 Consolas,monospace; }
-.gate-demo-controls[open] summary::after { content:'−'; }
-.gate-demo-controls>div { padding:0 0 10px; display:flex; gap:8px; }
-.gate-demo-controls button { min-height:38px; padding:0 14px; border:1px solid var(--line-strong); background:transparent; font-size:11px; font-weight:750; }
-.gate-idle footer { margin-top:auto; padding-top:20px; display:flex; justify-content:space-between; border-top:1px solid var(--line-strong); color:var(--muted); font:11px/1.4 Consolas,monospace; }
-.gate-checking { min-height:calc(100vh - 70px); padding:9vh 7vw; }
-.gate-checking>div { margin-top:10vh; display:grid; grid-template-columns:repeat(4,1fr); border-top:3px solid var(--brand-deep); }
-.gate-checking>div span { min-height:96px; padding:20px; border-right:1px solid var(--line-strong); border-bottom:1px solid var(--line-strong); font-size:13px; font-weight:750; }
-.gate-checking>div span:last-child { border-right:0; }
-.gate-decision { min-height:calc(100vh - 70px); display:grid; grid-template-columns:minmax(0,1.45fr) minmax(360px,.55fr); }
-.gate-decision__word { padding:7vh 6vw 5vh; display:flex; flex-direction:column; background:var(--brand-deep); color:white; }
-.gate-decision__word>p { margin:0; font:700 12px/1.4 Consolas,monospace; }
-.gate-decision__word h1 { margin:auto 0 0; font-size:clamp(90px,17vw,260px); line-height:.78; letter-spacing:-.09em; }
-.gate-decision__word strong { margin-top:34px; font-size:clamp(28px,4vw,62px); letter-spacing:-.06em; }
-.gate-decision__word>span { margin-top:auto; padding-top:28px; border-top:1px solid #555550; font:9px/1.4 Consolas,monospace; }
-.gate-decision--block .gate-decision__word { background:var(--signal); color:white; }
-.gate-decision--block .gate-decision__word>span { border-top-color:rgba(255,255,255,.55); }
-.gate-decision__detail { padding:32px; background:white; }
-.gate-decision__detail header { min-height:170px; display:flex; flex-direction:column; justify-content:flex-end; padding-bottom:22px; border-bottom:2px solid var(--brand-deep); }
-.gate-decision__detail h2 { margin:14px 0 0; font-size:34px; letter-spacing:-.06em; }
-.gate-decision__detail header p { margin:9px 0 0; color:var(--muted); font-size:14px; line-height:1.55; }
+.gate-terminal__header dl>div { min-height:40px; padding:0 26px; display:flex; align-items:center; gap:12px; border-left:1px solid var(--gt-line); }
+.gate-terminal__header dt { color:var(--gt-muted); font-size:11px; letter-spacing:.04em; }
+.gate-terminal__header dd { margin:0; font:700 11px/1 ui-monospace,SFMono-Regular,Consolas,monospace; font-variant-numeric:tabular-nums; }
+.gate-terminal__header dd i { width:8px; height:8px; display:inline-block; margin-right:6px; border-radius:50%; background:var(--gt-pass); box-shadow:0 0 0 3px rgba(63,178,127,.18); animation:gt-pulse 2.4s ease-in-out infinite; }
+@keyframes gt-pulse { 0%,100%{box-shadow:0 0 0 3px rgba(63,178,127,.18)} 50%{box-shadow:0 0 0 6px rgba(63,178,127,.05)} }
+@media (prefers-reduced-motion: reduce){ .gate-terminal__header dd i { animation:none } }
+.gate-terminal__actions { justify-content:flex-end; gap:10px!important; }
+.gate-terminal__actions button { min-height:36px; padding:0 12px; border:1px solid var(--gt-line-strong); background:transparent; color:var(--gt-muted); font-size:11px; font-weight:700; cursor:pointer; white-space:nowrap; transition:color .2s,border-color .2s; }
+.gate-terminal__actions button:hover { color:var(--gt-ink); border-color:var(--gt-accent); }
+.gate-terminal__actions a { color:var(--gt-muted); font-size:11px; font-weight:700; text-decoration:none; transition:color .2s; }
+.gate-terminal__actions a:hover { color:var(--gt-ink); }
+
+/* ── 대기 화면 ── */
+.gate-idle { min-height:calc(100dvh - 76px); padding:8vh 7vw 28px; display:flex; flex-direction:column; position:relative; overflow:hidden; }
+.gate-idle::before { content:""; position:absolute; inset:auto -20% -55% -20%; height:80vh; pointer-events:none;
+  background:radial-gradient(ellipse at center bottom, rgba(79,163,199,.13), transparent 62%); }
+.gate-kicker { margin:0; color:var(--gt-accent); font:700 12px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:.22em; text-transform:uppercase; }
+.gate-idle h1,.gate-checking h1 { margin:4vh 0 0; font-size:clamp(54px,7vw,116px); line-height:.95; letter-spacing:-.05em; font-weight:800; text-wrap:balance; background:linear-gradient(180deg,var(--gt-ink),#9db8c8); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+.gate-idle>p:nth-of-type(2) { margin:26px 0 0; max-width:52ch; color:var(--gt-muted); font-size:17px; line-height:1.65; }
+.gate-idle form { width:min(100%,720px); margin-top:6vh; display:grid; grid-template-columns:1fr auto; align-items:center;
+  border:1px solid var(--gt-line-strong); border-radius:var(--gt-radius); background:var(--gt-surface);
+  box-shadow:0 18px 50px rgba(0,0,0,.42), inset 0 1px 0 rgba(232,238,242,.05); overflow:hidden; transition:border-color .25s, box-shadow .25s; }
+.gate-idle form:focus-within { border-color:var(--gt-accent); box-shadow:0 18px 50px rgba(0,0,0,.42), 0 0 0 4px rgba(79,163,199,.14); }
+.gate-idle form label { min-height:84px; padding:15px 20px; display:grid; gap:9px; color:var(--gt-muted); font-size:11px; letter-spacing:.05em; }
+.gate-idle form input { padding:0; border:0; outline:0; background:transparent; color:var(--gt-ink); font:650 22px/1 ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:.02em; caret-color:var(--gt-accent); }
+.gate-idle form input::placeholder { color:rgba(139,163,178,.4); }
+.gate-idle form button { align-self:stretch; min-width:170px; padding:0 30px; border:0; border-left:1px solid var(--gt-line); background:linear-gradient(180deg,#57aed4,#3d8db0); color:#071318; font-size:14px; font-weight:800; letter-spacing:.02em; cursor:pointer; transition:filter .2s, transform .08s; }
+.gate-idle form button:hover { filter:brightness(1.09); }
+.gate-idle form button:active { transform:scale(.985); }
+.gate-idle footer { margin-top:auto; padding-top:22px; display:flex; justify-content:space-between; border-top:1px solid var(--gt-line); color:var(--gt-muted); font:11px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace; }
+
+/* ── 판정 중 ── */
+.gate-checking { min-height:calc(100dvh - 76px); padding:9vh 7vw; }
+.gate-checking>div { margin-top:9vh; display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+.gate-checking>div span { min-height:96px; padding:20px; display:flex; align-items:center; border:1px solid var(--gt-line); border-radius:var(--gt-radius); background:var(--gt-surface); color:var(--gt-muted); font-size:13px; font-weight:750; }
+.gate-checking h1 { background:none; -webkit-text-fill-color:currentColor; }
+
+/* ── 판정 결과 공통 ── */
+.gate-decision { min-height:calc(100dvh - 76px); display:grid; grid-template-columns:minmax(0,1.45fr) minmax(360px,.55fr); animation:gt-decide-in .38s cubic-bezier(.16,1,.3,1); }
+@keyframes gt-decide-in { from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none} }
+@media (prefers-reduced-motion: reduce){ .gate-decision { animation:none } }
+.gate-decision__word { padding:7vh 6vw 5vh; display:flex; flex-direction:column; position:relative; overflow:hidden; color:white; background:linear-gradient(160deg,#155d43,#0f3f2e 58%,#0c2a1f); }
+.gate-decision--block .gate-decision__word { background:linear-gradient(160deg,#a44a28,#7c351c 58%,#592513); }
+.gate-decision__word::after { content:""; position:absolute; inset:-30%; pointer-events:none; opacity:.5;
+  background:radial-gradient(circle at 78% 18%, rgba(255,255,255,.14), transparent 46%); }
+.gate-decision__word>p { margin:0; font:700 12px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:.14em; text-transform:uppercase; opacity:.85; }
+.gate-decision__word h1 { margin:auto 0 0; font-size:clamp(90px,16vw,240px); line-height:.82; letter-spacing:-.06em; font-weight:850; text-shadow:0 24px 60px rgba(0,0,0,.35); }
+.gate-decision__word strong { margin-top:30px; font-size:clamp(26px,3.6vw,56px); letter-spacing:-.04em; }
+.gate-decision__word>span { margin-top:auto; padding-top:26px; border-top:1px solid rgba(255,255,255,.28); font:11px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace; opacity:.8; font-variant-numeric:tabular-nums; }
+.gate-decision__detail { padding:32px; background:var(--gt-surface); border-left:1px solid var(--gt-line); display:flex; flex-direction:column; }
+.gate-decision__detail header { min-height:168px; display:flex; flex-direction:column; justify-content:flex-end; padding-bottom:22px; border-bottom:2px solid var(--gt-accent); }
+.gate-decision--block .gate-decision__detail header { border-bottom-color:var(--gt-block); }
+.gate-decision__detail h2 { margin:14px 0 0; font-size:32px; letter-spacing:-.05em; }
+.gate-decision__detail header p { margin:9px 0 0; color:var(--gt-muted); font-size:14px; line-height:1.6; }
 .gate-decision__detail dl { margin:0; }
-.gate-decision__detail dl>div { min-height:56px; display:grid; grid-template-columns:100px 1fr; align-items:center; border-bottom:1px solid #d2d2ce; }
-.gate-decision__detail dt { color:var(--muted); font-size:12px; }
-.gate-decision__detail dd { margin:0; font-size:13px; font-weight:750; text-align:right; }
-.gate-decision__detail>label { margin-top:16px; display:grid; gap:7px; color:var(--muted); font-size:11px; }
-.gate-decision__detail select { min-height:38px; padding:0 8px; border:1px solid #aaa9a4; background:white; font:9px/1 Consolas,monospace; }
-.gate-auto-reset { margin:14px 0 0; color:var(--muted); font:11px/1.4 Consolas,monospace; text-align:center; }
-.gate-decision__detail>button { width:100%; min-height:50px; margin-top:22px; border:1px solid var(--brand-deep); background:var(--brand-deep); color:white; font-size:14px; font-weight:800; }
+.gate-decision__detail dl>div { min-height:56px; display:grid; grid-template-columns:110px 1fr; align-items:center; border-bottom:1px solid var(--gt-line); }
+.gate-decision__detail dt { color:var(--gt-muted); font-size:12px; }
+.gate-decision__detail dd { margin:0; font-size:13px; font-weight:750; text-align:right; word-break:keep-all; }
+.gate-auto-reset { margin:14px 0 0; color:var(--gt-muted); font:11px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace; text-align:center; font-variant-numeric:tabular-nums; }
+.gate-decision__detail>button { width:100%; min-height:50px; margin-top:auto; padding-top:22px; border:1px solid transparent; border-radius:10px; background:linear-gradient(180deg,#57aed4,#3d8db0); color:#071318; font-size:14px; font-weight:800; cursor:pointer; transition:filter .2s, transform .08s; }
+.gate-decision--block .gate-decision__detail>button { background:linear-gradient(180deg,#e0764f,#cf5c36); color:#fff; }
+.gate-decision__detail>button:hover { filter:brightness(1.08); }
+.gate-decision__detail>button:active { transform:scale(.985); }
+
+/* ── 단말 등록 화면 (토큰 입력) ── */
 @media(max-width:900px){.gate-terminal__header{grid-template-columns:1fr auto}.gate-terminal__header dl{display:none}.gate-decision{grid-template-columns:1fr}.gate-decision__word{min-height:55vh}.gate-decision__detail{padding-bottom:60px}}
 @media(max-width:560px){.gate-terminal__header{padding:0 18px}.gate-terminal__actions button{display:none}.gate-idle,.gate-checking{padding:6vh 20px 20px}.gate-idle form{grid-template-columns:1fr}.gate-idle form button{min-height:48px;border-left:0;border-top:1px solid #aaa9a4}.gate-idle footer{display:grid;gap:8px}.gate-checking>div{grid-template-columns:1fr 1fr}.gate-checking>div span:nth-child(2){border-right:0}.gate-decision__word{padding:36px 24px}.gate-decision__detail{padding:24px}}
 @media(min-width:901px) and (max-height:850px){.gate-idle{padding-top:4vh}.gate-idle h1,.gate-checking h1{margin-top:3vh}.gate-idle form{margin-top:4vh}.gate-decision__word{padding-top:5vh}.gate-decision__detail{padding:22px 28px}.gate-decision__detail header{min-height:120px}.gate-decision__detail dl>div{min-height:46px}.gate-decision__detail>button{margin-top:14px}}

@@ -2,27 +2,36 @@
 
 import { Button as UiButton, Input as UiInput } from '@devup-ui/react'
 
-
+import { apiClient } from '@/lib/apiClient'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { BrandLockup } from '@/components/BrandLockup'
 
 type GateState = 'idle' | 'checking' | 'pass' | 'block'
 
-const PASS_CHECKS = [
-  ['작업 배정', 'WB-260823-03 · 유효'],
-  ['안전교육', '요구 교육 충족'],
-  ['안전지침', 'VERSION 4 확인'],
-  ['보호구 준비', '필수 항목 3 / 3'],
-  ['작업중지', '발령 없음'],
-]
+type VerifyResponse = {
+  allowed: boolean
+  employee_name: string
+  reason: string
+}
+
+const TERMINAL_TOKEN_KEY = 'ps_gate_terminal_token'
 
 export default function GateTerminalPage() {
   const [state, setState] = useState<GateState>('idle')
-  const [credential, setCredential] = useState('04A8-1F29-77C2')
-  const [blockedReason, setBlockedReason] = useState('EDUCATION_MISSING')
+  const [credential, setCredential] = useState('')
+  const [decision, setDecision] = useState<VerifyResponse | null>(null)
+  const [terminalToken, setTerminalToken] = useState('')
+  const [tokenInput, setTokenInput] = useState('')
+  const [setupError, setSetupError] = useState('')
   const [now, setNow] = useState(() => new Date())
   const [resetIn, setResetIn] = useState(15)
+
+  // 단말 토큰 복원
+  useEffect(() => {
+    const saved = localStorage.getItem(TERMINAL_TOKEN_KEY)
+    if (saved) setTerminalToken(saved)
+  }, [])
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(new Date()), 1000)
@@ -37,6 +46,7 @@ export default function GateTerminalPage() {
         if (seconds <= 1) {
           window.clearInterval(timer)
           setState('idle')
+          setDecision(null)
           return 15
         }
         return seconds - 1
@@ -45,9 +55,67 @@ export default function GateTerminalPage() {
     return () => window.clearInterval(timer)
   }, [state])
 
-  const evaluate = (result: 'pass' | 'block') => {
+  const saveToken = () => {
+    const trimmed = tokenInput.trim()
+    if (!trimmed) {
+      setSetupError('단말 토큰을 입력해 주세요.')
+      return
+    }
+    localStorage.setItem(TERMINAL_TOKEN_KEY, trimmed)
+    setTerminalToken(trimmed)
+    setTokenInput('')
+    setSetupError('')
+  }
+
+  const verify = async () => {
+    const uid = credential.trim()
+    if (!uid) return
+    if (!terminalToken) {
+      setSetupError('먼저 게이트 단말 토큰을 등록해 주세요.')
+      return
+    }
     setState('checking')
-    window.setTimeout(() => setState(result), 650)
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://127.0.0.1:18090'}/gate/verify`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${terminalToken}`,
+          },
+          body: JSON.stringify({ nfc_card_uid: uid }),
+        },
+      )
+      if (res.status === 404) {
+        // 미등록 사원증
+        setDecision({
+          allowed: false,
+          employee_name: '미등록 사원증',
+          reason: '등록되지 않은 카드입니다.',
+        })
+        setState('block')
+        setCredential('')
+        return
+      }
+      const body = (await res.json()) as VerifyResponse
+      setDecision(body)
+      setState(body.allowed ? 'pass' : 'block')
+      setCredential('')
+    } catch {
+      setDecision({
+        allowed: false,
+        employee_name: '통신 오류',
+        reason: '게이트 서버에 연결할 수 없습니다.',
+      })
+      setState('block')
+      setCredential('')
+    }
+  }
+
+  const onSubmit = (event: React.FormEvent) => {
+    event.preventDefault()
+    void verify()
   }
 
   const toggleFullscreen = async () => {
@@ -59,12 +127,34 @@ export default function GateTerminalPage() {
     year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
   }).format(now)
 
+  if (!terminalToken) {
+    return (
+      <main className="gate-terminal gate-terminal--idle">
+        <header className="gate-terminal__header">
+          <BrandLockup suffix="GATE" />
+          <Link href="/dashboard">관리</Link>
+        </header>
+        <section className="gate-idle">
+          <p className="gate-kicker">단말 등록</p>
+          <h1>게이트 단말<br />토큰 입력</h1>
+          <p>관리자 화면에서 게이트 단말을 발급하면 평문 토큰이 1회 표시됩니다. 발급된 토큰을 입력해 주세요.</p>
+          <form onSubmit={(event) => { event.preventDefault(); saveToken() }}>
+            <label>단말 토큰<UiInput aria-label="게이트 단말 토큰" autoFocus onChange={(event) => setTokenInput(event.target.value)} value={tokenInput} /></label>
+            {setupError && <p style={{ color: '#e53e3e', fontSize: 13 }}>{setupError}</p>}
+            <UiButton type="submit">등록</UiButton>
+          </form>
+          <footer><span>GATE TERMINAL SETUP</span><span>토큰은 이 기기에만 저장됩니다</span></footer>
+        </section>
+      </main>
+    )
+  }
+
   return (
     <main className={`gate-terminal gate-terminal--${state}`}>
       <header className="gate-terminal__header">
         <BrandLockup suffix="GATE" />
-        <dl><div><dt>단말</dt><dd>GATE-01 / 1부두 정문</dd></div><div><dt>리더·API</dt><dd><i aria-hidden="true" /> 준비 완료</dd></div><div><dt>시각</dt><dd>{timestamp}</dd></div></dl>
-        <div className="gate-terminal__actions"><UiButton onClick={toggleFullscreen} type="button">전체 화면</UiButton><Link href="/dashboard">관리</Link></div>
+        <dl><div><dt>단말</dt><dd>GATE / 북문</dd></div><div><dt>리더·API</dt><dd><i aria-hidden="true" /> 준비 완료</dd></div><div><dt>시각</dt><dd>{timestamp}</dd></div></dl>
+        <div className="gate-terminal__actions"><UiButton onClick={toggleFullscreen} type="button">전체 화면</UiButton><UiButton onClick={() => { localStorage.removeItem(TERMINAL_TOKEN_KEY); setTerminalToken('') }} type="button">토큰 해제</UiButton><Link href="/dashboard">관리</Link></div>
       </header>
 
       {state === 'idle' && (
@@ -72,12 +162,11 @@ export default function GateTerminalPage() {
           <p className="gate-kicker">게이트 출입 확인</p>
           <h1>사원증을<br />태그해 주세요</h1>
           <p>작업 배정과 교육, 지침, 보호구 준비 상태를 확인합니다.</p>
-          <form onSubmit={(event) => { event.preventDefault(); evaluate('pass') }}>
-            <label>리더 입력 버퍼<UiInput aria-label="사원증 UID" autoFocus onChange={(event) => setCredential(event.target.value)} value={credential} /></label>
+          <form onSubmit={onSubmit}>
+            <label>사원증 UID<UiInput aria-label="사원증 UID" autoFocus onChange={(event) => setCredential(event.target.value)} value={credential} placeholder="EMP-WORKER-0002-UID" /></label>
             <UiButton type="submit">입력값 판정</UiButton>
           </form>
-          <details className="gate-demo-controls"><summary>태블릿 시연 도구</summary><div><UiButton onClick={() => evaluate('pass')} type="button">PASS 시연</UiButton><UiButton onClick={() => evaluate('block')} type="button">BLOCK 시연</UiButton></div></details>
-          <footer><span>NFC READER · HID KEYBOARD MODE</span><span>태그 UID 원문은 감사로그에 마스킹 저장</span></footer>
+          <footer><span>NFC READER · KEYBOARD ENTRY</span><span>태그 UID 원문은 감사로그에 기록됩니다</span></footer>
         </section>
       )}
 
@@ -89,17 +178,17 @@ export default function GateTerminalPage() {
         </section>
       )}
 
-      {state === 'pass' && (
+      {state === 'pass' && decision && (
         <section className="gate-decision" aria-live="assertive">
-          <div className="gate-decision__word"><p>홍길동 · EMP-240031</p><h1>PASS</h1><strong>통과</strong><span>10:20:19 · EVENT GE-260823-092</span></div>
-          <div className="gate-decision__detail"><header><span className="gate-kicker">WB-260823-03</span><h2>CFS B-3</h2><p>CFS 적출·분류 · CFS 2조</p></header><dl>{PASS_CHECKS.map(([term, value]) => <div key={term}><dt>{term}</dt><dd>{value}</dd></div>)}</dl><p className="gate-auto-reset">{resetIn}초 후 자동으로 대기 화면으로 돌아갑니다.</p><UiButton onClick={() => setState('idle')} type="button">다음 작업자 대기</UiButton></div>
+          <div className="gate-decision__word"><p>{decision.employee_name}</p><h1>PASS</h1><strong>통과</strong><span>{timestamp}</span></div>
+          <div className="gate-decision__detail"><header><span className="gate-kicker">GATE</span><h2>북문</h2><p>당일 준비 절차가 완료된 작업자입니다.</p></header><dl><div><dt>판정 결과</dt><dd>{decision.reason}</dd></div><div><dt>안전지침</dt><dd>확인 완료</dd></div><div><dt>필수 보호구</dt><dd>착용 확인</dd></div><div><dt>작업중지</dt><dd>발령 없음</dd></div></dl><p className="gate-auto-reset">{resetIn}초 후 자동으로 대기 화면으로 돌아갑니다.</p><UiButton onClick={() => { setState('idle'); setDecision(null) }} type="button">다음 작업자 대기</UiButton></div>
         </section>
       )}
 
-      {state === 'block' && (
+      {state === 'block' && decision && (
         <section className="gate-decision gate-decision--block" aria-live="assertive">
-          <div className="gate-decision__word"><p>김태완 · EMP-240044</p><h1>BLOCK</h1><strong>출입 차단</strong><span>10:20:19 · EVENT GE-260823-092</span></div>
-          <div className="gate-decision__detail"><header><span className="gate-kicker">WB-260823-05</span><h2>교육 미충족</h2><p>필수 조건을 충족하기 전에는 출입할 수 없습니다.</p></header><dl><div><dt>차단 코드</dt><dd>{blockedReason}</dd></div><div><dt>미충족 항목</dt><dd>MSDS 교육 · UN 1263</dd></div><div><dt>다음 조치</dt><dd>안전교육 담당자 확인</dd></div><div><dt>판정 원칙</dt><dd>FAIL CLOSED</dd></div></dl><label>시연 차단 사유<select onChange={(event) => setBlockedReason(event.target.value)} value={blockedReason}><option>EDUCATION_MISSING</option><option>PPE_INCOMPLETE</option><option>WORK_STOPPED</option><option>SERVICE_UNAVAILABLE</option></select></label><p className="gate-auto-reset">{resetIn}초 후 자동으로 대기 화면으로 돌아갑니다.</p><UiButton onClick={() => setState('idle')} type="button">확인 후 대기 화면</UiButton></div>
+          <div className="gate-decision__word"><p>{decision.employee_name}</p><h1>BLOCK</h1><strong>출입 차단</strong><span>{timestamp}</span></div>
+          <div className="gate-decision__detail"><header><span className="gate-kicker">GATE</span><h2>북문</h2><p>필수 조건을 충족하기 전에는 출입할 수 없습니다.</p></header><dl><div><dt>차단 사유</dt><dd>{decision.reason}</dd></div><div><dt>판정 원칙</dt><dd>FAIL CLOSED</dd></div></dl><p className="gate-auto-reset">{resetIn}초 후 자동으로 대기 화면으로 돌아갑니다.</p><UiButton onClick={() => { setState('idle'); setDecision(null) }} type="button">확인 후 대기 화면</UiButton></div>
         </section>
       )}
     </main>
