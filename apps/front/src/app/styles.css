@@ -274,3 +274,64 @@ a { color: inherit; }
 /* ── worker 헤더 게이트 단말 진입 ── */
 .gate-link { margin-left:12px; padding:7px 13px; border:1px solid var(--line-strong); border-radius:8px; background:var(--dark); color:#fff; font-size:11px; font-weight:800; letter-spacing:.08em; text-decoration:none; transition:filter .2s; }
 .gate-link:hover { filter:brightness(1.25); }
+
+/* ═══════ 게이트 단말 — 출입구 전광판 스타일 ═══════ */
+.gate-terminal { min-height:100dvh; display:flex; flex-direction:column; background:#0a0f13; color:#e8eef2;
+  --gk-line:rgba(148,180,196,.18); --gk-muted:#8ba3b2; }
+.gate-terminal__header { flex-shrink:0; min-height:64px; padding:0 24px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--gk-line); background:#0e161c; }
+.gate-terminal__header dl { margin:0; display:flex; gap:22px; }
+.gate-terminal__header dt { color:var(--gk-muted); font-size:11px; }
+.gate-terminal__header dd { margin:0; font:700 11px ui-monospace,monospace; }
+.gate-terminal__actions { display:flex; gap:10px; align-items:center; }
+.gate-terminal__actions button, .gate-terminal__actions a { min-height:34px; padding:0 12px; display:inline-flex; align-items:center; border:1px solid var(--gk-line); border-radius:8px; background:transparent; color:var(--gk-muted); font-size:11px; font-weight:700; text-decoration:none; cursor:pointer; transition:.2s; }
+.gate-terminal__actions button:hover, .gate-terminal__actions a:hover { color:#e8eef2; border-color:#4fa3c7; }
+
+/* ── 대기: 전체 화면 태깅 대기중 ── */
+.gate-idle { flex:1; padding:6vh 6vw; display:flex; flex-direction:column; justify-content:center; position:relative; overflow:hidden; }
+.gate-idle::before { content:""; position:absolute; inset:auto -25% -60% -25%; height:90vh; pointer-events:none;
+  background:radial-gradient(ellipse at bottom, rgba(79,163,199,.16), transparent 62%); animation:gt-breathe 4s ease-in-out infinite; }
+@keyframes gt-breathe { 0%,100%{opacity:.55} 50%{opacity:1} }
+@media (prefers-reduced-motion: reduce){ .gate-idle::before{animation:none} }
+.gate-kicker { margin:0; color:#4fa3c7; font:800 clamp(14px,1.6vw,20px)/1.5 ui-monospace,monospace; letter-spacing:.35em; text-transform:uppercase; }
+.gate-idle h1 { margin:3vh 0 0; font-size:clamp(72px,13vw,220px); line-height:.95; font-weight:900; letter-spacing:-.04em; text-align:center;
+  background:linear-gradient(180deg,#eef5f9,#7fa2b8); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; text-wrap:balance; }
+.gate-idle>p:nth-of-type(2) { margin:3vh auto 0; max-width:46ch; color:var(--gk-muted); font-size:clamp(16px,1.5vw,21px); line-height:1.7; text-align:center; }
+.gate-idle form { width:min(100%,680px); margin:5vh auto 0; display:grid; grid-template-columns:1fr auto; align-items:center; border:1px solid rgba(148,180,196,.34); border-radius:14px; background:#111a20; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.45); transition:.25s; }
+.gate-idle form:focus-within { border-color:#4fa3c7; box-shadow:0 20px 60px rgba(0,0,0,.45),0 0 0 4px rgba(79,163,199,.15); }
+.gate-idle form label { min-height:76px; padding:12px 20px; display:grid; gap:7px; color:var(--gk-muted); font-size:11px; }
+.gate-idle form input { padding:0; border:0; outline:0; background:transparent; color:#e8eef2; font:650 21px ui-monospace,monospace; caret-color:#4fa3c7; }
+.gate-idle form button { align-self:stretch; min-width:150px; padding:0 26px; border:0; border-left:1px solid rgba(148,180,196,.18); background:linear-gradient(180deg,#57aed4,#3d8db0); color:#071318; font-size:14px; font-weight:800; cursor:pointer; }
+.gate-idle footer { margin-top:auto; padding-top:20px; display:flex; justify-content:space-between; border-top:1px solid var(--gk-line); color:var(--gk-muted); font:11px ui-monospace,monospace; }
+
+/* ── 판정 결과: 전광판 초대형 문구 ── */
+.gate-decision { flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:5vh 6vw; position:relative; overflow:hidden; }
+.gate-decision--pass { background:radial-gradient(ellipse at center,#12503a 0%,#0c3527 55%,#08241a 100%); }
+.gate-decision--block { background:radial-gradient(ellipse at center,#7e3016 0%,#59200e 55%,#3b1509 100%); }
+.gate-decision::before { content:""; position:absolute; inset:0; pointer-events:none;
+  background:repeating-linear-gradient(0deg, rgba(255,255,255,.02) 0 2px, transparent 2px 5px); }
+.gate-decision__word { display:flex; flex-direction:column; align-items:center; gap:2vh; z-index:1; }
+.gate-decision__word p { margin:0; font:700 clamp(18px,2.4vw,30px) ui-monospace,monospace; letter-spacing:.2em; opacity:.9; }
+.gate-decision__word h1 { margin:1vh 0; font-size:clamp(140px,26vw,430px); line-height:.9; font-weight:900; letter-spacing:-.02em;
+  animation:gt-slam .32s cubic-bezier(.16,1.3,.4,1); }
+@keyframes gt-slam { from{transform:scale(1.6); opacity:0} to{transform:none; opacity:1} }
+@media (prefers-reduced-motion: reduce){ .gate-decision__word h1{animation:none} }
+.gate-decision--pass .gate-decision__word h1 { color:#5eeaa8; text-shadow:0 0 90px rgba(94,234,168,.5); }
+.gate-decision--block .gate-decision__word h1 { color:#ff7d54; text-shadow:0 0 90px rgba(255,125,84,.5); }
+.gate-decision__word strong { font-size:clamp(40px,6vw,96px); font-weight:900; letter-spacing:.06em; }
+.gate-decision--pass .gate-decision__word strong { color:#5eeaa8; }
+.gate-decision--block .gate-decision__word strong { color:#ff7d54; }
+.gate-decision__detail { margin-top:4vh; display:flex; gap:16px; flex-wrap:wrap; justify-content:center; z-index:1; }
+.gate-decision__detail dl { margin:0; display:flex; gap:14px; flex-wrap:wrap; justify-content:center; }
+.gate-decision__detail dl>div { padding:12px 22px; border:1px solid rgba(255,255,255,.2); border-radius:12px; background:rgba(0,0,0,.28); backdrop-filter:blur(6px); }
+.gate-decision__detail dt { color:rgba(255,255,255,.65); font-size:11px; letter-spacing:.08em; }
+.gate-decision__detail dd { margin:4px 0 0; color:#fff; font-size:14px; font-weight:750; word-break:keep-all; }
+.gate-auto-reset { margin-top:3vh; color:rgba(255,255,255,.75); font:13px ui-monospace,monospace; z-index:1; }
+.gate-decision button { margin-top:2vh; min-height:52px; padding:0 34px; border:1px solid rgba(255,255,255,.35); border-radius:12px; background:rgba(0,0,0,.3); color:#fff; font-size:15px; font-weight:800; cursor:pointer; z-index:1; transition:.2s; }
+.gate-decision button:hover { background:rgba(255,255,255,.14); }
+
+/* ── 판정 중 ── */
+.gate-checking { flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; }
+.gate-checking h1 { margin:2vh 0 0; font-size:clamp(48px,8vw,120px); font-weight:850; letter-spacing:-.03em; color:#cfe3ee; }
+.gate-checking>div { margin-top:5vh; display:flex; gap:14px; flex-wrap:wrap; justify-content:center; }
+.gate-checking>div span { padding:14px 26px; border:1px solid var(--gk-line); border-radius:999px; background:#111a20; color:var(--gk-muted); font-size:13px; font-weight:750; animation:gt-breathe 1.6s ease-in-out infinite; }
+.gate-checking>div span:nth-child(2){animation-delay:.2s}.gate-checking>div span:nth-child(3){animation-delay:.4s}.gate-checking>div span:nth-child(4){animation-delay:.6s}

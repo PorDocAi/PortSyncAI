@@ -211,7 +211,7 @@ export default function GateTerminalPage() {
       )}
 
       {state === 'pass' && decision && (
-        <section className="gate-decision" aria-live="assertive">
+        <section className="gate-decision gate-decision--pass" aria-live="assertive">
           <div className="gate-decision__word"><p>{decision.employee_name}</p><h1>PASS</h1><strong>통과</strong><span>{timestamp}</span></div>
           <div className="gate-decision__detail"><header><span className="gate-kicker">GATE</span><h2>북문</h2><p>당일 준비 절차가 완료된 작업자입니다.</p></header><dl><div><dt>판정 결과</dt><dd>{decision.reason}</dd></div><div><dt>안전지침</dt><dd>확인 완료</dd></div><div><dt>필수 보호구</dt><dd>착용 확인</dd></div><div><dt>작업중지</dt><dd>발령 없음</dd></div></dl><p className="gate-auto-reset">{resetIn}초 후 자동으로 대기 화면으로 돌아갑니다.</p><UiButton onClick={() => { setState('idle'); setDecision(null) }} type="button">다음 작업자 대기</UiButton></div>
         </section>
