@@ -10,6 +10,8 @@ import { scanEquipmentTag,type TagResult } from '@/lib/nfc'
 
 type Work = {
   id: string
+  /** 서버의 v2_work_assignments PK (태깅 요청에 그대로 사용) */
+  assignmentId: number
   code: string
   title: string
   place: string
@@ -38,7 +40,8 @@ function toWork(a: ApiAssignment): Work {
   const fmt = (d: Date) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
   return {
     id: String(a.work_assignment_id),
-    code: `WA-${a.work_assignment_id}`,
+    assignmentId: a.work_assignment_id,
+    code: a.work_reference,
     title: a.work_reference,
     place: `작업 #${a.work_id}`,
     time: end ? `${fmt(start)}–${fmt(end)}` : fmt(start),
@@ -386,7 +389,7 @@ function PreparationScreen({ work }: { work: Work }) {
 
     try {
       const payload = await scanEquipmentTag({
-        assignmentId: work.code,
+        assignmentId: work.assignmentId,
         equipmentCategory: item,
       })
       setLastScan(payload)

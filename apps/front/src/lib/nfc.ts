@@ -3,7 +3,7 @@ import { isTauri } from '@tauri-apps/api/core'
 import { apiClient } from '@/lib/apiClient'
 
 export type EquipmentScanPayload = {
-  assignmentId: string
+  assignmentId: number
   equipmentCategory: string
   tagToken: string
   scannedAt: string
