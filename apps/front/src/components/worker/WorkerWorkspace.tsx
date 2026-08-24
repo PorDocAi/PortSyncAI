@@ -381,6 +381,29 @@ function PreparationScreen({ work }: { work: Work }) {
   const [exceptionMemo, setExceptionMemo] = useState('')
   const [exceptionSubmitted, setExceptionSubmitted] = useState(false)
   const [gateReady, setGateReady] = useState(false)
+  const [completing, setCompleting] = useState(false)
+  const [completeError, setCompleteError] = useState('')
+
+  // 필수 보호구 태깅 완료를 서버에 선언한다 (FR-D1). 성공 시 gate READY.
+  const completeEquipmentCheck = async () => {
+    setCompleting(true)
+    setCompleteError('')
+    try {
+      await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://127.0.0.1:18090'}/attendances/equipment-complete`,
+        { method: 'POST', headers: { Authorization: `Bearer ${localStorage.getItem('ps_token') ?? ''}` } },
+      ).then((r) => { if (!r.ok) throw new Error(String(r.status)) })
+      setGateReady(true)
+    } catch (error) {
+      setCompleteError(
+        error instanceof Error && error.message.includes('400')
+          ? '아직 미충족된 필수 보호구가 있습니다.'
+          : '완료 처리에 실패했습니다. 다시 시도해 주세요.',
+      )
+    } finally {
+      setCompleting(false)
+    }
+  }
   const [scanningItem, setScanningItem] = useState<string | null>(null)
   const [scanError, setScanError] = useState('')
   const [lastScan, setLastScan] = useState<TagResult | null>(null)
@@ -800,7 +823,7 @@ function PreparationScreen({ work }: { work: Work }) {
                 <span>READY · 07:36:18</span>
                 <strong>게이트 이동 가능</strong>
                 <p>
-                  1부두 정문 태블릿에서 사원증을 태그하면 서버가 모든 조건을
+                  북문 게이트 단말에서 사원증을 태그하면 서버가 모든 조건을
                   다시 판정합니다.
                 </p>
                 <dl>
@@ -817,7 +840,7 @@ function PreparationScreen({ work }: { work: Work }) {
             ) : (
               <div className="gate-direction">
                 <span>GATE</span>
-                <strong>1부두 정문</strong>
+                <strong>북문</strong>
                 <p>
                   준비 완료를 기록한 뒤 게이트 리더에 사원증을 태그해 주세요.
                 </p>
@@ -826,11 +849,12 @@ function PreparationScreen({ work }: { work: Work }) {
             <UiButton
               className="panel-action"
               disabled={!instructionRead || scanned.length < PPE_REQUIREMENTS.length || gateReady}
-              onClick={() => setGateReady(true)}
+              onClick={() => void completeEquipmentCheck()}
               type="button"
             >
-              {gateReady ? '준비 완료 기록됨' : '게이트 통과 준비 완료'}
+              {completing ? '기록 중…' : gateReady ? '준비 완료 기록됨' : '게이트 통과 준비 완료'}
             </UiButton>
+            {completeError && <p style={{ color: '#e06a45', fontSize: 13 }} role="alert">{completeError}</p>}
           </>
         )}
       </section>
