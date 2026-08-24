@@ -2079,6 +2079,40 @@
         }
       }
     },
+    "/work-assignments/my": {
+      "get": {
+        "operationId": "get_my_assignments",
+        "tags": [
+          "work_assignments"
+        ],
+        "description": "내 배정 작업 조회 (작업자 본인용)\nv2_work_assignments에서 로그인한 작업자의 미완료 배정을 반환한다.",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MyAssignmentResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/work-assignments/{id}": {
       "patch": {
         "operationId": "update_work_assignment",
@@ -6526,6 +6560,43 @@
           "jobRoleCode",
           "name",
           "createdAt"
+        ]
+      },
+      "MyAssignmentResponse": {
+        "type": "object",
+        "properties": {
+          "scheduled_end_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "scheduled_start_at": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "work_assignment_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "work_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "work_reference": {
+            "type": "string"
+          },
+          "work_status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "work_assignment_id",
+          "status",
+          "work_id",
+          "work_reference",
+          "work_status",
+          "scheduled_start_at"
         ]
       },
       "PendingApprovalItem": {
