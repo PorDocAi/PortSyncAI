@@ -3,9 +3,12 @@ type BrandLockupProps = {
   compact?: boolean
 }
 
-export function BrandLockup({ className = '', compact = false }: BrandLockupProps) {
+export function BrandLockup({
+  className = '',
+  compact = false,
+}: BrandLockupProps) {
   return (
-    <div className={`wordmark ${className}`.trim()} aria-label="PortSyncAI">
+    <div aria-label="PortSyncAI" className={`wordmark ${className}`.trim()}>
       <svg aria-hidden="true" className="brand-symbol" viewBox="0 0 32 32">
         <path d="M5 7h15l5 5-5 5H10" />
         <path d="M27 25H12l-5-5 5-5h10" />
